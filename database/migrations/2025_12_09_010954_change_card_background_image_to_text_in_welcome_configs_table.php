@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('welcome_configs', function (Blueprint $table) {
+        if (Schema::hasTable('welcome_configs') && Schema::hasColumn('welcome_configs', 'card_background_image')) {
+            Schema::table('welcome_configs', function (Blueprint $table) {
             $table->longText('card_background_image')->nullable()->change();
-        });
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('welcome_configs', function (Blueprint $table) {
+        if (Schema::hasTable('welcome_configs') && Schema::hasColumn('welcome_configs', 'card_background_image')) {
+            Schema::table('welcome_configs', function (Blueprint $table) {
             $table->string('card_background_image')->nullable()->change();
-        });
+            });
+        }
     }
 };

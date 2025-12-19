@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('auto_moderation_configs', function (Blueprint $table) {
+        if (!Schema::hasTable('auto_moderation_configs') && Schema::hasTable('guilds')) {
+            Schema::create('auto_moderation_configs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             
@@ -31,7 +32,8 @@ return new class extends Migration
             $table->text('whitelist_roles')->nullable(); // JSON array of role IDs
             
             $table->timestamps();
-        });
+            });
+        }
     }
 
     /**

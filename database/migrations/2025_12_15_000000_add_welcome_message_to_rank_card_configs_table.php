@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('rank_card_configs', function (Blueprint $table) {
+        if (Schema::hasTable('rank_card_configs')) {
+            Schema::table('rank_card_configs', function (Blueprint $table) {
             $table->text('welcome_message')->nullable()->after('progress_bar_color');
-        });
+            });
+        }
     }
 
     /**
@@ -21,9 +23,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('rank_card_configs', function (Blueprint $table) {
+        if (Schema::hasTable('rank_card_configs')) {
+            Schema::table('rank_card_configs', function (Blueprint $table) {
             $table->dropColumn('welcome_message');
-        });
+            });
+        }
     }
 };
 

@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('goodbye_configs', function (Blueprint $table) {
+        if (Schema::hasTable('goodbye_configs')) {
+            Schema::table('goodbye_configs', function (Blueprint $table) {
             // Embed-Felder
             $table->boolean('use_embed')->default(false)->after('enabled');
             $table->string('embed_title')->nullable()->after('use_embed');
@@ -30,7 +31,8 @@ return new class extends Migration
             $table->longText('card_background_image')->nullable()->after('card_overlay_opacity');
             $table->string('card_title')->nullable()->after('card_background_image');
             $table->string('card_avatar_position')->default('top')->after('card_title');
-        });
+            });
+        }
     }
 
     /**
@@ -38,7 +40,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('goodbye_configs', function (Blueprint $table) {
+        if (Schema::hasTable('goodbye_configs')) {
+            Schema::table('goodbye_configs', function (Blueprint $table) {
             $table->dropColumn([
                 'use_embed',
                 'embed_title',
@@ -56,6 +59,7 @@ return new class extends Migration
                 'card_title',
                 'card_avatar_position',
             ]);
-        });
+            });
+        }
     }
 };

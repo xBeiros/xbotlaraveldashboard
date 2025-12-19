@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('leveling_configs', function (Blueprint $table) {
+        if (!Schema::hasTable('leveling_configs') && Schema::hasTable('guilds')) {
+            Schema::create('leveling_configs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             
@@ -39,7 +40,8 @@ return new class extends Migration
             $table->text('excluded_channels')->nullable(); // JSON array
             
             $table->timestamps();
-        });
+            });
+        }
     }
 
     /**

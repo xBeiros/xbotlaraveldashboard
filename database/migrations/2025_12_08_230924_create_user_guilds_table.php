@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('user_guilds', function (Blueprint $table) {
+        if (!Schema::hasTable('user_guilds') && Schema::hasTable('users')) {
+            Schema::create('user_guilds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('guild_id')->unique();
@@ -21,7 +22,8 @@ return new class extends Migration
             $table->bigInteger('permissions')->default(0);
             $table->boolean('bot_joined')->default(false);
             $table->timestamps();
-        });
+            });
+        }
     }
 
     /**

@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('welcome_configs', function (Blueprint $table) {
+        if (Schema::hasTable('welcome_configs')) {
+            Schema::table('welcome_configs', function (Blueprint $table) {
             $table->string('card_avatar_position')->default('top')->after('card_title');
-        });
+            });
+        }
     }
 
     /**
@@ -21,8 +23,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('welcome_configs', function (Blueprint $table) {
+        if (Schema::hasTable('welcome_configs')) {
+            Schema::table('welcome_configs', function (Blueprint $table) {
             $table->dropColumn('card_avatar_position');
-        });
+            });
+        }
     }
 };

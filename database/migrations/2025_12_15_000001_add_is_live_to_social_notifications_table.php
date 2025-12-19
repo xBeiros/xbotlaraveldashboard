@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('social_notifications', function (Blueprint $table) {
+        if (Schema::hasTable('social_notifications')) {
+            Schema::table('social_notifications', function (Blueprint $table) {
             $table->boolean('is_live')->default(false)->after('notify_live');
-        });
+            });
+        }
     }
 
     /**
@@ -21,9 +23,11 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('social_notifications', function (Blueprint $table) {
+        if (Schema::hasTable('social_notifications')) {
+            Schema::table('social_notifications', function (Blueprint $table) {
             $table->dropColumn('is_live');
-        });
+            });
+        }
     }
 };
 

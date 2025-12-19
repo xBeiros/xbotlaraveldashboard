@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('leveling_configs', function (Blueprint $table) {
+        if (Schema::hasTable('leveling_configs')) {
+            Schema::table('leveling_configs', function (Blueprint $table) {
             // Prüfe ob xp_rate bereits existiert
             if (!Schema::hasColumn('leveling_configs', 'xp_rate')) {
                 $table->decimal('xp_rate', 3, 2)->default(1.00)->after('enabled');
             }
-        });
+            });
+        }
     }
 
     /**
@@ -24,10 +26,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('leveling_configs', function (Blueprint $table) {
+        if (Schema::hasTable('leveling_configs')) {
+            Schema::table('leveling_configs', function (Blueprint $table) {
             if (Schema::hasColumn('leveling_configs', 'xp_rate')) {
                 $table->dropColumn('xp_rate');
             }
-        });
+            });
+        }
     }
 };

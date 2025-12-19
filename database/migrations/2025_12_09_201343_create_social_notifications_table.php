@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('social_notifications', function (Blueprint $table) {
+        if (!Schema::hasTable('social_notifications') && Schema::hasTable('guilds')) {
+            Schema::create('social_notifications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             $table->string('platform'); // twitch, tiktok, x, bluesky, youtube, reddit, instagram, rss, kick, podcast
@@ -24,7 +25,8 @@ return new class extends Migration
             $table->timestamps();
             
             $table->unique(['guild_id', 'platform', 'username']);
-        });
+            });
+        }
     }
 
     /**

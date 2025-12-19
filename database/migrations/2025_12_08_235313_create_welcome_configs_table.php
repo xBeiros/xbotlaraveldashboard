@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('welcome_configs', function (Blueprint $table) {
+        if (!Schema::hasTable('welcome_configs') && Schema::hasTable('guilds')) {
+            Schema::create('welcome_configs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             $table->string('channel_id')->nullable();
             $table->text('message')->nullable();
             $table->boolean('enabled')->default(false);
             $table->timestamps();
-        });
+            });
+        }
     }
 
     /**

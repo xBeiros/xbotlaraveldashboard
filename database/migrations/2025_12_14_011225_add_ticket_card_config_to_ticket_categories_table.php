@@ -46,7 +46,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('ticket_categories', function (Blueprint $table) {
+        if (Schema::hasTable('ticket_categories')) {
+            Schema::table('ticket_categories', function (Blueprint $table) {
             $table->dropColumn([
                 'use_welcome_card',
                 'card_background_type',
@@ -57,7 +58,8 @@ return new class extends Migration
                 'card_font',
                 'card_avatar_position',
             ]);
-        });
+            });
+        }
     }
 };
 

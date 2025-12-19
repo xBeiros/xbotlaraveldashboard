@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rank_card_configs', function (Blueprint $table) {
+        if (!Schema::hasTable('rank_card_configs') && Schema::hasTable('guilds')) {
+            Schema::create('rank_card_configs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             
@@ -32,7 +33,8 @@ return new class extends Migration
             $table->string('progress_bar_color')->default('#5865f2');
             
             $table->timestamps();
-        });
+            });
+        }
     }
 
     /**

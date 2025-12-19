@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('leveling_configs', function (Blueprint $table) {
+        if (Schema::hasTable('leveling_configs')) {
+            Schema::table('leveling_configs', function (Blueprint $table) {
             // Prüfe ob xp_rate existiert, wenn nicht, füge es hinzu
             if (!Schema::hasColumn('leveling_configs', 'xp_rate')) {
                 $table->decimal('xp_rate', 3, 2)->default(1.00)->after('enabled');
@@ -27,7 +28,8 @@ return new class extends Migration
             if (!Schema::hasColumn('leveling_configs', 'cooldown_seconds')) {
                 $table->integer('cooldown_seconds')->default(60)->after('max_xp');
             }
-        });
+            });
+        }
     }
 
     /**
@@ -35,8 +37,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('leveling_configs', function (Blueprint $table) {
+        if (Schema::hasTable('leveling_configs')) {
+            Schema::table('leveling_configs', function (Blueprint $table) {
             $table->dropColumn(['min_xp', 'max_xp', 'cooldown_seconds']);
-        });
+            });
+        }
     }
 };

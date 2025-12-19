@@ -11,9 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('reaction_roles', function (Blueprint $table) {
+        if (!Schema::hasTable('reaction_roles') && Schema::hasTable('guilds')) {
+            Schema::create('reaction_roles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('guild_id')->constrained()->onDelete('cascade');
+            $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             $table->string('message_id')->nullable(); // Discord message ID
             $table->string('channel_id'); // Discord channel ID
             $table->boolean('enabled')->default(true);
@@ -31,7 +32,8 @@ return new class extends Migration
             $table->json('reactions');
             
             $table->timestamps();
-        });
+            });
+        }
     }
 
     /**

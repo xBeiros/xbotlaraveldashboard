@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        if (Schema::hasTable('users')) {
+            Schema::table('users', function (Blueprint $table) {
             $table->string('discord_id')->nullable()->unique()->after('id');
             $table->string('discord_token')->nullable()->after('discord_id');
             $table->string('discord_refresh_token')->nullable()->after('discord_token');
             $table->string('avatar')->nullable()->after('email');
-        });
+            });
+        }
     }
 
     /**
@@ -24,8 +26,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        if (Schema::hasTable('users')) {
+            Schema::table('users', function (Blueprint $table) {
             $table->dropColumn(['discord_id', 'discord_token', 'discord_refresh_token', 'avatar']);
-        });
+            });
+        }
     }
 };

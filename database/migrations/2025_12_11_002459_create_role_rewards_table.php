@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role_rewards', function (Blueprint $table) {
+        if (!Schema::hasTable('role_rewards') && Schema::hasTable('guilds')) {
+            Schema::create('role_rewards', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             $table->integer('level');
@@ -19,7 +20,8 @@ return new class extends Migration
             $table->timestamps();
             
             $table->unique(['guild_id', 'level']);
-        });
+            });
+        }
     }
 
     /**

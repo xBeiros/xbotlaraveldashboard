@@ -11,15 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('welcome_configs', function (Blueprint $table) {
-            $table->boolean('use_embed')->default(false)->after('enabled');
-            $table->string('embed_title')->nullable()->after('use_embed');
-            $table->text('embed_description')->nullable()->after('embed_title');
-            $table->string('embed_color')->nullable()->after('embed_description');
-            $table->string('embed_thumbnail')->nullable()->after('embed_color');
-            $table->string('embed_image')->nullable()->after('embed_thumbnail');
-            $table->boolean('embed_footer')->default(true)->after('embed_image');
-        });
+        if (Schema::hasTable('welcome_configs')) {
+            Schema::table('welcome_configs', function (Blueprint $table) {
+                $table->boolean('use_embed')->default(false)->after('enabled');
+                $table->string('embed_title')->nullable()->after('use_embed');
+                $table->text('embed_description')->nullable()->after('embed_title');
+                $table->string('embed_color')->nullable()->after('embed_description');
+                $table->string('embed_thumbnail')->nullable()->after('embed_color');
+                $table->string('embed_image')->nullable()->after('embed_thumbnail');
+                $table->boolean('embed_footer')->default(true)->after('embed_image');
+            });
+        }
     }
 
     /**
@@ -27,16 +29,18 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('welcome_configs', function (Blueprint $table) {
-            $table->dropColumn([
-                'use_embed',
-                'embed_title',
-                'embed_description',
-                'embed_color',
-                'embed_thumbnail',
-                'embed_image',
-                'embed_footer',
-            ]);
-        });
+        if (Schema::hasTable('welcome_configs')) {
+            Schema::table('welcome_configs', function (Blueprint $table) {
+                $table->dropColumn([
+                    'use_embed',
+                    'embed_title',
+                    'embed_description',
+                    'embed_color',
+                    'embed_thumbnail',
+                    'embed_image',
+                    'embed_footer',
+                ]);
+            });
+        }
     }
 };

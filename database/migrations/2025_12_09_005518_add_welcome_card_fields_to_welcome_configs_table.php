@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('welcome_configs', function (Blueprint $table) {
+        if (Schema::hasTable('welcome_configs')) {
+            Schema::table('welcome_configs', function (Blueprint $table) {
             $table->boolean('use_welcome_card')->default(false)->after('embed_footer');
             $table->string('card_font')->nullable()->after('use_welcome_card');
             $table->string('card_text_color')->nullable()->after('card_font');
@@ -19,7 +20,8 @@ return new class extends Migration
             $table->integer('card_overlay_opacity')->default(50)->after('card_background_color');
             $table->string('card_background_image')->nullable()->after('card_overlay_opacity');
             $table->string('card_title')->nullable()->after('card_background_image');
-        });
+            });
+        }
     }
 
     /**
@@ -27,7 +29,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('welcome_configs', function (Blueprint $table) {
+        if (Schema::hasTable('welcome_configs')) {
+            Schema::table('welcome_configs', function (Blueprint $table) {
             $table->dropColumn([
                 'use_welcome_card',
                 'card_font',
@@ -37,6 +40,7 @@ return new class extends Migration
                 'card_background_image',
                 'card_title',
             ]);
-        });
+            });
+        }
     }
 };

@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('leveling_configs', function (Blueprint $table) {
+        if (Schema::hasTable('leveling_configs')) {
+            Schema::table('leveling_configs', function (Blueprint $table) {
             // Level-Up Ankündigung
             if (!Schema::hasColumn('leveling_configs', 'level_up_type')) {
                 $table->string('level_up_type')->default('current_channel')->after('level_up_channel_id');
@@ -40,7 +41,8 @@ return new class extends Migration
             if (!Schema::hasColumn('leveling_configs', 'excluded_channels')) {
                 $table->text('excluded_channels')->nullable()->after('excluded_channels_type');
             }
-        });
+            });
+        }
     }
 
     /**
@@ -48,7 +50,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('leveling_configs', function (Blueprint $table) {
+        if (Schema::hasTable('leveling_configs')) {
+            Schema::table('leveling_configs', function (Blueprint $table) {
             $table->dropColumn([
                 'level_up_type',
                 'role_reward_type',
@@ -58,7 +61,8 @@ return new class extends Migration
                 'excluded_channels_type',
                 'excluded_channels',
             ]);
-        });
+            });
+        }
     }
 };
 

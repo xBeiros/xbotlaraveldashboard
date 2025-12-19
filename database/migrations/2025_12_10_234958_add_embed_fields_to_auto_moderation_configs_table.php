@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('auto_moderation_configs', function (Blueprint $table) {
+        if (Schema::hasTable('auto_moderation_configs')) {
+            Schema::table('auto_moderation_configs', function (Blueprint $table) {
             // Bad Words Embed
             $table->boolean('bad_words_use_embed')->default(false)->after('bad_words_warning_message');
             $table->string('bad_words_embed_title')->nullable()->after('bad_words_use_embed');
@@ -25,7 +26,8 @@ return new class extends Migration
             $table->text('block_discord_invites_embed_description')->nullable()->after('block_discord_invites_embed_title');
             $table->string('block_discord_invites_embed_color')->default('#ff0000')->after('block_discord_invites_embed_description');
             $table->boolean('block_discord_invites_embed_footer')->default(true)->after('block_discord_invites_embed_color');
-        });
+            });
+        }
     }
 
     /**
@@ -33,7 +35,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('auto_moderation_configs', function (Blueprint $table) {
+        if (Schema::hasTable('auto_moderation_configs')) {
+            Schema::table('auto_moderation_configs', function (Blueprint $table) {
             $table->dropColumn([
                 'bad_words_use_embed',
                 'bad_words_embed_title',
@@ -46,6 +49,7 @@ return new class extends Migration
                 'block_discord_invites_embed_color',
                 'block_discord_invites_embed_footer',
             ]);
-        });
+            });
+        }
     }
 };
