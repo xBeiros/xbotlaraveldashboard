@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('ticket_categories', function (Blueprint $table) {
-            $table->text('welcome_message')->nullable()->after('description');
-        });
+        if (Schema::hasTable('ticket_categories') && !Schema::hasColumn('ticket_categories', 'welcome_message')) {
+            Schema::table('ticket_categories', function (Blueprint $table) {
+                $table->text('welcome_message')->nullable()->after('description');
+            });
+        }
     }
 
     /**
