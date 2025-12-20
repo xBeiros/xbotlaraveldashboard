@@ -19,7 +19,7 @@ use App\Models\TicketPost;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
         
@@ -27,22 +27,27 @@ class DashboardController extends Controller
             return redirect()->route('discord.login')->with('error', 'Bitte mit Discord einloggen.');
         }
 
-        // Performance: Hole Server-Liste nur alle 15 Minuten neu von Discord API
+        // Force Refresh: Wenn ?refresh=1 Parameter vorhanden, synchronisiere sofort
+        $forceRefresh = $request->has('refresh') && $request->get('refresh') == '1';
+        
+        // Performance: Hole Server-Liste nur alle 5 Minuten neu von Discord API
         // Verwende DB-Cache für schnellere Ladezeiten
-        $guildsCacheMinutes = 15;
+        // Reduziert auf 5 Minuten, damit gelöschte Server schneller verschwinden
+        $guildsCacheMinutes = 5;
         $oldestGuild = UserGuild::where('user_id', $user->id)
             ->orderBy('updated_at', 'asc')
             ->first();
         
-        $shouldSyncGuilds = !$oldestGuild || 
+        $shouldSyncGuilds = $forceRefresh || !$oldestGuild || 
             ($oldestGuild && now()->diffInMinutes($oldestGuild->updated_at) >= $guildsCacheMinutes);
         
         if ($shouldSyncGuilds) {
             // Hole Server vom User über Discord API (nur wenn nötig)
             try {
                 $guilds = $this->fetchUserGuilds($user->discord_token);
+                $discordGuildIds = collect($guilds)->pluck('id')->toArray();
                 
-                // Bulk-Update für bessere Performance
+                // Aktualisiere oder erstelle vorhandene Server
                 foreach ($guilds as $guild) {
                     UserGuild::updateOrCreate(
                         ['user_id' => $user->id, 'guild_id' => $guild['id']],
@@ -54,6 +59,13 @@ class DashboardController extends Controller
                         ]
                     );
                 }
+                
+                // WICHTIG: Entferne Server, die nicht mehr in der Discord-Liste sind
+                // (z.B. wenn User den Server verlassen oder gelöscht hat)
+                UserGuild::where('user_id', $user->id)
+                    ->whereNotIn('guild_id', $discordGuildIds)
+                    ->delete();
+                    
             } catch (\Exception $e) {
                 \Log::warning("Fehler beim Synchronisieren der Guilds: " . $e->getMessage());
                 // Weiter mit DB-Daten

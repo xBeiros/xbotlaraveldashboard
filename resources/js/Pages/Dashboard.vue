@@ -50,9 +50,10 @@ function selectGuild(guild) {
 
 function refreshGuilds() {
     refreshing.value = true;
-    router.reload({
-        preserveState: true,
-        preserveScroll: true,
+    // Force Refresh: Füge ?refresh=1 Parameter hinzu für sofortige Synchronisation
+    router.visit(route('dashboard', { refresh: 1 }), {
+        preserveState: false,
+        preserveScroll: false,
         onFinish: () => {
             refreshing.value = false;
         }
