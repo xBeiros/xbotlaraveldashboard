@@ -148,6 +148,12 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
+        // Prüfe ob Bot noch auf dem Server ist
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung
+        }
+
         // Lade oder erstelle Guild aus Datenbank
         $guildModel = Guild::firstOrCreate(
             ['discord_id' => $guild],
@@ -159,6 +165,9 @@ class DashboardController extends Controller
                 'prefix' => '!',
             ]
         );
+        
+        // Aktualisiere bot_active Status
+        $guildModel->update(['bot_active' => true]);
 
         // Aktualisiere bot_joined Status
         $userGuild->update(['bot_joined' => true]);
@@ -253,6 +262,12 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
+        // Prüfe ob Bot noch auf dem Server ist
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung
+        }
+
         // Lade oder erstelle Guild aus Datenbank
         $guildModel = Guild::firstOrCreate(
             ['discord_id' => $guild],
@@ -264,9 +279,9 @@ class DashboardController extends Controller
                 'prefix' => '!',
             ]
         );
-
-        // Aktualisiere bot_joined Status
-        $userGuild->update(['bot_joined' => true]);
+        
+        // Aktualisiere bot_active Status
+        $guildModel->update(['bot_active' => true]);
 
         // Lade oder erstelle Konfigurationen
         $welcomeConfig = $guildModel->welcomeConfig()->firstOrCreate([]);
@@ -363,6 +378,12 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
+        // Prüfe ob Bot noch auf dem Server ist
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung
+        }
+
         // Lade oder erstelle Guild aus Datenbank
         $guildModel = Guild::firstOrCreate(
             ['discord_id' => $guild],
@@ -374,9 +395,9 @@ class DashboardController extends Controller
                 'prefix' => '!',
             ]
         );
-
-        // Aktualisiere bot_joined Status
-        $userGuild->update(['bot_joined' => true]);
+        
+        // Aktualisiere bot_active Status
+        $guildModel->update(['bot_active' => true]);
 
         // Lade alle Guilds für Sidebar
         $allGuilds = UserGuild::where('user_id', $user->id)
@@ -444,6 +465,12 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
+        // Prüfe ob Bot noch auf dem Server ist
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung
+        }
+
         $guildModel = Guild::firstOrCreate(
             ['discord_id' => $guild],
             [
@@ -454,8 +481,9 @@ class DashboardController extends Controller
                 'prefix' => '!',
             ]
         );
-
-        $userGuild->update(['bot_joined' => true]);
+        
+        // Aktualisiere bot_active Status
+        $guildModel->update(['bot_active' => true]);
 
         $allGuilds = UserGuild::where('user_id', $user->id)
             ->where('bot_joined', true)
@@ -523,6 +551,13 @@ class DashboardController extends Controller
         if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
+        
+        // Prüfe ob Bot noch auf dem Server ist
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung
+        }
+        
         $guildModel = Guild::firstOrCreate(
             ['discord_id' => $guild],
             [
@@ -533,6 +568,10 @@ class DashboardController extends Controller
                 'prefix' => '!',
             ]
         );
+        
+        // Aktualisiere bot_active Status
+        $guildModel->update(['bot_active' => true]);
+        
         $allGuilds = UserGuild::where('user_id', $user->id)->where('bot_joined', true)->orderBy('name')->get()->map(function ($g) {
             return [
                 'id' => $g->guild_id,
@@ -620,6 +659,12 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
+        // Prüfe ob Bot noch auf dem Server ist
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung
+        }
+
         // Lade oder erstelle Guild aus Datenbank
         $guildModel = Guild::firstOrCreate(
             ['discord_id' => $guild],
@@ -631,6 +676,9 @@ class DashboardController extends Controller
                 'prefix' => '!',
             ]
         );
+        
+        // Aktualisiere bot_active Status
+        $guildModel->update(['bot_active' => true]);
 
         // Lade alle Guilds für Sidebar
         $allGuilds = UserGuild::where('user_id', $user->id)
@@ -683,6 +731,37 @@ class DashboardController extends Controller
     {
         // Berechtigung: MANAGE_GUILD (0x20) oder Administrator (0x8)
         return ($permissions & 0x20) !== 0 || ($permissions & 0x8) !== 0;
+    }
+
+    /**
+     * Prüft ob Bot noch auf dem Server ist und aktualisiert den Status
+     * Gibt true zurück wenn Bot auf Server ist, sonst Redirect-Response
+     */
+    private function verifyAndUpdateBotStatus($guildId, $userGuild)
+    {
+        $botClientId = env('DISCORD_BOT_CLIENT_ID');
+        $botToken = env('DISCORD_BOT_TOKEN');
+        
+        if (!$botToken || !$botClientId) {
+            // Wenn kein Token, können wir nicht prüfen - erlaube Zugriff
+            return true;
+        }
+        
+        $botOnServer = $this->checkBotOnGuild($guildId, $botClientId, $botToken);
+        
+        if (!$botOnServer) {
+            // Bot nicht mehr auf Server - aktualisiere Status
+            Guild::where('discord_id', $guildId)->update(['bot_active' => false]);
+            $userGuild->update(['bot_joined' => false]);
+            
+            return redirect()->route('dashboard')->with('error', 'Der Bot ist nicht mehr auf diesem Server. Bitte lade den Bot erneut ein.');
+        }
+        
+        // Bot ist auf Server - aktualisiere Status
+        Guild::where('discord_id', $guildId)->update(['bot_active' => true]);
+        $userGuild->update(['bot_joined' => true]);
+        
+        return true;
     }
 
     private function fetchGuildChannels($guildId)
@@ -771,6 +850,12 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
+        // Prüfe ob Bot noch auf dem Server ist
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung
+        }
+
         $guildModel = Guild::firstOrCreate(
             ['discord_id' => $guild],
             [
@@ -781,6 +866,9 @@ class DashboardController extends Controller
                 'prefix' => '!',
             ]
         );
+        
+        // Aktualisiere bot_active Status
+        $guildModel->update(['bot_active' => true]);
 
         $allGuilds = UserGuild::where('user_id', $user->id)
             ->where('bot_joined', true)
@@ -962,6 +1050,12 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
+        // Prüfe ob Bot noch auf dem Server ist
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung
+        }
+
         $guildModel = Guild::firstOrCreate(
             ['discord_id' => $guild],
             [
@@ -972,6 +1066,9 @@ class DashboardController extends Controller
                 'prefix' => '!',
             ]
         );
+        
+        // Aktualisiere bot_active Status
+        $guildModel->update(['bot_active' => true]);
 
         $allGuilds = UserGuild::where('user_id', $user->id)
             ->where('bot_joined', true)
