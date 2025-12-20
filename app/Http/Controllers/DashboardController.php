@@ -27,90 +27,120 @@ class DashboardController extends Controller
             return redirect()->route('discord.login')->with('error', 'Bitte mit Discord einloggen.');
         }
 
-        // Hole Server vom User über Discord API
-        $guilds = $this->fetchUserGuilds($user->discord_token);
+        // Performance: Hole Server-Liste nur alle 15 Minuten neu von Discord API
+        // Verwende DB-Cache für schnellere Ladezeiten
+        $guildsCacheMinutes = 15;
+        $oldestGuild = UserGuild::where('user_id', $user->id)
+            ->orderBy('updated_at', 'asc')
+            ->first();
         
-        // Speichere Server in Datenbank (Cache)
-        foreach ($guilds as $guild) {
-            UserGuild::updateOrCreate(
-                ['user_id' => $user->id, 'guild_id' => $guild['id']],
-                [
-                    'name' => $guild['name'],
-                    'icon' => $guild['icon'] ?? null,
-                    'owner' => $guild['owner'] ?? false,
-                    'permissions' => $guild['permissions'] ?? 0,
-                ]
-            );
+        $shouldSyncGuilds = !$oldestGuild || 
+            ($oldestGuild && now()->diffInMinutes($oldestGuild->updated_at) >= $guildsCacheMinutes);
+        
+        if ($shouldSyncGuilds) {
+            // Hole Server vom User über Discord API (nur wenn nötig)
+            try {
+                $guilds = $this->fetchUserGuilds($user->discord_token);
+                
+                // Bulk-Update für bessere Performance
+                foreach ($guilds as $guild) {
+                    UserGuild::updateOrCreate(
+                        ['user_id' => $user->id, 'guild_id' => $guild['id']],
+                        [
+                            'name' => $guild['name'],
+                            'icon' => $guild['icon'] ?? null,
+                            'owner' => $guild['owner'] ?? false,
+                            'permissions' => $guild['permissions'] ?? 0,
+                        ]
+                    );
+                }
+            } catch (\Exception $e) {
+                \Log::warning("Fehler beim Synchronisieren der Guilds: " . $e->getMessage());
+                // Weiter mit DB-Daten
+            }
         }
 
-        // Prüfe auch über Discord API, ob Bot auf den Servern ist
-        // Verwende config() statt env() für Production-Kompatibilität
-        $botClientId = config('services.discord.bot_client_id');
-        $botToken = config('services.discord.bot_token');
-        
-        // Lade Server aus Datenbank und filtere nur die, wo User Rechte hat
+        // Lade Server aus Datenbank (schnell, keine API-Calls)
         $userGuilds = UserGuild::where('user_id', $user->id)
             ->orderBy('name')
             ->get();
         
-        // Performance-Optimierung: Prüfe nur Server, deren Status älter als 5 Minuten ist
-        // Oder wenn bot_joined null/undefined ist
-        $cacheMinutes = 5;
-        $now = now();
-        $guildsToCheck = $userGuilds->filter(function ($guild) use ($now, $cacheMinutes) {
-            // Prüfe wenn Status nie gesetzt wurde oder älter als Cache-Zeit
-            if ($guild->bot_joined === null) {
-                return true;
-            }
-            // Prüfe wenn updated_at älter als Cache-Zeit ist
-            return $guild->updated_at->addMinutes($cacheMinutes)->isPast();
-        });
-        
-        // Parallelisiere API-Calls für bessere Performance
-        if ($botToken && $botClientId && $guildsToCheck->isNotEmpty()) {
-            $this->checkBotsOnGuildsParallel($guildsToCheck, $botClientId, $botToken, $user);
-        }
-        
-        // Lade aktualisierte Daten und bereite für UI vor
-        $userGuilds = UserGuild::where('user_id', $user->id)
-            ->orderBy('name')
+        // Lade alle Guild-Models auf einmal (Eager Loading für bessere Performance)
+        $guildIds = $userGuilds->pluck('guild_id')->toArray();
+        $guildModels = Guild::whereIn('discord_id', $guildIds)
             ->get()
-            ->map(function ($guild) use ($user) {
-                // Verwende DB-Status (wurde gerade aktualisiert oder ist gecached)
-                $botJoined = $guild->bot_joined ?? false;
-                
-                // Wenn bot_joined null ist, prüfe guilds Tabelle als Fallback
-                if ($botJoined === false) {
-                    $guildModel = Guild::where('discord_id', $guild->guild_id)->first();
-                    if ($guildModel && $guildModel->bot_active) {
-                        $botJoined = true;
-                        // Aktualisiere user_guilds für nächstes Mal
-                        $guild->update(['bot_joined' => true]);
-                    }
+            ->keyBy('discord_id');
+        
+        // Bereite Daten für UI vor (keine API-Calls, nur DB)
+        $userGuilds = $userGuilds->map(function ($guild) use ($guildModels) {
+            $botJoined = $guild->bot_joined ?? false;
+            
+            // Wenn bot_joined nicht gesetzt, prüfe guilds Tabelle
+            if ($botJoined === false) {
+                $guildModel = $guildModels->get($guild->guild_id);
+                if ($guildModel && $guildModel->bot_active) {
+                    $botJoined = true;
                 }
+            }
+            
+            $canManage = $this->canManageGuild($guild->permissions);
+            
+            return [
+                'id' => $guild->guild_id,
+                'name' => $guild->name,
+                'icon' => $guild->icon,
+                'icon_url' => $guild->icon ? "https://cdn.discordapp.com/icons/{$guild->guild_id}/{$guild->icon}.png" : null,
+                'owner' => $guild->owner,
+                'permissions' => $guild->permissions,
+                'bot_joined' => $botJoined,
+                'can_manage' => $canManage,
+            ];
+        })
+        ->filter(function ($guild) {
+            return $guild['can_manage'];
+        })
+        ->values();
+
+        // Bot-Status-Prüfung: NUR im Hintergrund, blockiert nicht die Seite
+        // Wird asynchron nach dem Response ausgeführt
+        $botClientId = config('services.discord.bot_client_id');
+        $botToken = config('services.discord.bot_token');
+        
+        if ($botToken && $botClientId) {
+            // Prüfe nur Server, deren Status älter als 10 Minuten ist
+            $botCacheMinutes = 10;
+            $guildsToCheck = collect($userGuilds)->filter(function ($guild) use ($botCacheMinutes) {
+                $userGuild = UserGuild::where('guild_id', $guild['id'])->first();
+                if (!$userGuild) return false;
                 
-                $canManage = $this->canManageGuild($guild->permissions);
+                if ($userGuild->bot_joined === null) return true;
+                return $userGuild->updated_at->addMinutes($botCacheMinutes)->isPast();
+            });
+            
+            // Führe Prüfung im Hintergrund aus (nach Response, blockiert nicht)
+            if ($guildsToCheck->isNotEmpty()) {
+                $guildIds = $guildsToCheck->pluck('id')->toArray();
                 
-                return [
-                    'id' => $guild->guild_id,
-                    'name' => $guild->name,
-                    'icon' => $guild->icon,
-                    'icon_url' => $guild->icon ? "https://cdn.discordapp.com/icons/{$guild->guild_id}/{$guild->icon}.png" : null,
-                    'owner' => $guild->owner,
-                    'permissions' => $guild->permissions,
-                    'bot_joined' => $botJoined,
-                    'can_manage' => $canManage,
-                ];
-            })
-            ->filter(function ($guild) {
-                // Nur Server anzeigen, wo User Rechte hat
-                return $guild['can_manage'];
-            })
-            ->values();
+                // Verwende register_shutdown_function für asynchrone Ausführung
+                register_shutdown_function(function () use ($guildIds, $botClientId, $botToken, $user) {
+                    try {
+                        $guildModels = UserGuild::whereIn('guild_id', $guildIds)
+                            ->where('user_id', $user->id)
+                            ->get();
+                        
+                        if ($guildModels->isNotEmpty()) {
+                            $this->checkBotsOnGuildsParallel($guildModels, $botClientId, $botToken, $user);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning("Fehler bei Hintergrund-Bot-Status-Prüfung: " . $e->getMessage());
+                    }
+                });
+            }
+        }
 
         return Inertia::render('Dashboard', [
             'guilds' => $userGuilds,
-            'botClientId' => config('services.discord.bot_client_id'),
+            'botClientId' => $botClientId,
         ]);
     }
 
