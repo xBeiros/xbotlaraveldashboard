@@ -256,7 +256,7 @@ function saveGoodbyeConfig() {
                                     <option value="">Bitte wählen...</option>
                                     <template v-for="channel in channels" :key="channel.id">
                                         <option
-                                            v-if="channel.type === 4 && channel.is_category"
+                                            v-if="channel.type === 4 && (channel.is_category || channel.type === 4)"
                                             disabled
                                             class="bg-[#2f3136] font-semibold"
                                         >
@@ -270,6 +270,9 @@ function saveGoodbyeConfig() {
                                         </option>
                                     </template>
                                 </select>
+                                <p v-if="!channels || channels.length === 0" class="text-xs text-red-400 mt-1">
+                                    Keine Channels gefunden. Bitte stelle sicher, dass der Bot Zugriff auf die Channels hat.
+                                </p>
                             </div>
 
                             <!-- Nachrichtentyp-Auswahl -->
@@ -692,7 +695,7 @@ function saveGoodbyeConfig() {
                                     <option value="">Bitte wählen...</option>
                                     <template v-for="channel in channels" :key="channel.id">
                                         <option
-                                            v-if="channel.type === 4 && channel.is_category"
+                                            v-if="channel.type === 4 && (channel.is_category || channel.type === 4)"
                                             disabled
                                             class="bg-[#2f3136] font-semibold"
                                         >
@@ -706,6 +709,9 @@ function saveGoodbyeConfig() {
                                         </option>
                                     </template>
                                 </select>
+                                <p v-if="!channels || channels.length === 0" class="text-xs text-red-400 mt-1">
+                                    Keine Channels gefunden. Bitte stelle sicher, dass der Bot Zugriff auf die Channels hat.
+                                </p>
                             </div>
 
                             <!-- Nachrichtentyp-Auswahl -->

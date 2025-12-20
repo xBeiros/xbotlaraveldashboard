@@ -288,6 +288,11 @@ class DashboardController extends Controller
 
         // Lade Kanäle vom Discord Server
         $channels = $this->fetchGuildChannels($guild);
+        
+        // Debug: Log Channels (nur in Entwicklung)
+        if (config('app.debug')) {
+            \Log::info("Welcome page - Channels loaded: " . count($channels) . " channels for guild {$guild}");
+        }
 
         return Inertia::render('Guild/Welcome', [
             'guild' => [
@@ -728,18 +733,16 @@ class DashboardController extends Controller
                 // Dann Kanäle nach Kategorien gruppiert
                 foreach ($categories as $category) {
                     $categoryChannels = $textChannels->where('parent_id', $category['id']);
-                    if ($categoryChannels->isNotEmpty()) {
-                        // Kategorie als Separator
-                        $grouped[] = [
-                            'id' => $category['id'],
-                            'name' => $category['name'],
-                            'type' => 4,
-                            'is_category' => true,
-                        ];
-                        // Kanäle in dieser Kategorie
-                        foreach ($categoryChannels as $channel) {
-                            $grouped[] = $channel;
-                        }
+                    // Kategorie als Separator hinzufügen, auch wenn leer (für bessere Struktur)
+                    $grouped[] = [
+                        'id' => $category['id'],
+                        'name' => $category['name'],
+                        'type' => 4,
+                        'is_category' => true,
+                    ];
+                    // Kanäle in dieser Kategorie
+                    foreach ($categoryChannels as $channel) {
+                        $grouped[] = $channel;
                     }
                 }
                 
