@@ -43,9 +43,6 @@ class DashboardController extends Controller
             );
         }
 
-        // Prüfe welche Server bereits den Bot haben (aus Datenbank)
-        $botGuildIds = Guild::where('bot_active', true)->pluck('discord_id')->toArray();
-        
         // Prüfe auch über Discord API, ob Bot auf den Servern ist
         $botClientId = env('DISCORD_BOT_CLIENT_ID');
         $botToken = env('DISCORD_BOT_TOKEN');
@@ -54,17 +51,19 @@ class DashboardController extends Controller
         $userGuilds = UserGuild::where('user_id', $user->id)
             ->orderBy('name')
             ->get()
-            ->map(function ($guild) use ($botGuildIds, $botClientId, $botToken, $user) {
-                $botJoined = in_array($guild->guild_id, $botGuildIds);
+            ->map(function ($guild) use ($botClientId, $botToken, $user) {
+                // Starte mit dem Status aus der DB (user_guilds.bot_joined)
+                $botJoined = $guild->bot_joined ?? false;
                 
                 // IMMER prüfen über Discord API, wenn Bot-Token vorhanden ist
-                // (auch wenn bereits in DB, um sicherzustellen, dass Status aktuell ist)
-                if ($botToken) {
+                // Dies stellt sicher, dass der Status immer aktuell ist, auch wenn der Bot gekickt wurde
+                if ($botToken && $botClientId) {
                     $apiCheck = $this->checkBotOnGuild($guild->guild_id, $botClientId, $botToken);
                     
-                    // Wenn Bot über API gefunden, aber nicht in DB, erstelle Eintrag
-                    if ($apiCheck && !$botJoined) {
-                        Guild::firstOrCreate(
+                    // API-Check hat Vorrang - aktualisiere Status basierend auf API-Ergebnis
+                    if ($apiCheck) {
+                        // Bot ist auf Server - aktualisiere DB
+                        Guild::updateOrCreate(
                             ['discord_id' => $guild->guild_id],
                             [
                                 'name' => $guild->name,
@@ -75,18 +74,20 @@ class DashboardController extends Controller
                             ]
                         );
                         $botJoined = true;
-                    }
-                    
-                    // Wenn Bot nicht mehr auf Server, aber in DB, aktualisiere Status
-                    if (!$apiCheck && $botJoined) {
+                    } else {
+                        // Bot ist NICHT auf Server - aktualisiere DB
                         Guild::where('discord_id', $guild->guild_id)->update(['bot_active' => false]);
                         $botJoined = false;
                     }
+                } else {
+                    // Wenn kein Token vorhanden, verwende DB-Status als Fallback
+                    $botGuildIds = Guild::where('bot_active', true)->pluck('discord_id')->toArray();
+                    $botJoined = in_array($guild->guild_id, $botGuildIds);
                 }
                 
                 $canManage = $this->canManageGuild($guild->permissions);
                 
-                // Update bot_joined Status in user_guilds Tabelle
+                // Update bot_joined Status in user_guilds Tabelle (wichtig für UI)
                 if ($guild->bot_joined !== $botJoined) {
                     $guild->update(['bot_joined' => $botJoined]);
                 }

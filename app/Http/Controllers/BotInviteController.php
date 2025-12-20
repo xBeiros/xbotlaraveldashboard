@@ -12,10 +12,26 @@ class BotInviteController extends Controller
     public function invite(Request $request)
     {
         $clientId = env('DISCORD_BOT_CLIENT_ID');
-        $guildId = $request->input('guild_id');
+        $guildId = $request->input('guild_id') ?? $request->query('guild_id');
         
         if (!$clientId) {
             return redirect()->route('dashboard')->with('error', 'Bot Client ID nicht konfiguriert');
+        }
+
+        // Prüfe ob User eingeloggt ist
+        if (!Auth::check()) {
+            return redirect()->route('discord.login')->with('error', 'Bitte zuerst einloggen');
+        }
+
+        // Prüfe ob User Zugriff auf diesen Server hat (wenn guild_id angegeben)
+        if ($guildId) {
+            $userGuild = UserGuild::where('guild_id', $guildId)
+                ->where('user_id', Auth::id())
+                ->first();
+            
+            if (!$userGuild) {
+                return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server');
+            }
         }
 
         // Berechtigungen für den Bot

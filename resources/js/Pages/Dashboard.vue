@@ -14,7 +14,26 @@ const refreshing = ref(false);
 
 function inviteBot(guildId) {
     // Direkter Redirect zu Discord Bot-Einladung
-    window.location.href = route('bot.invite', { guild_id: guildId });
+    if (!guildId) {
+        console.error('Guild ID fehlt');
+        return;
+    }
+    
+    try {
+        const inviteUrl = route('bot.invite', { guild_id: guildId });
+        window.location.href = inviteUrl;
+    } catch (error) {
+        console.error('Fehler beim Erstellen der Einladungs-URL:', error);
+        // Fallback: Direkte URL erstellen
+        const clientId = props.botClientId;
+        if (clientId) {
+            const permissionsValue = '8'; // Administrator
+            const inviteUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${permissionsValue}&scope=bot%20applications.commands&guild_id=${guildId}`;
+            window.location.href = inviteUrl;
+        } else {
+            alert('Bot Client ID nicht konfiguriert. Bitte kontaktiere den Administrator.');
+        }
+    }
 }
 
 function selectGuild(guild) {
