@@ -15,13 +15,16 @@ return new class extends Migration
             Schema::create('user_guilds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('guild_id')->unique();
+            $table->string('guild_id'); // Nicht unique, da mehrere User Zugriff auf denselben Server haben können
             $table->string('name');
             $table->string('icon')->nullable();
             $table->boolean('owner')->default(false);
             $table->bigInteger('permissions')->default(0);
             $table->boolean('bot_joined')->default(false);
             $table->timestamps();
+            
+            // Composite Unique Key: Ein User kann nicht zweimal denselben Server haben
+            $table->unique(['user_id', 'guild_id'], 'user_guilds_user_guild_unique');
             });
         }
     }
