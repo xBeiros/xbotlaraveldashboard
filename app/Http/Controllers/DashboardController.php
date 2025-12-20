@@ -48,98 +48,48 @@ class DashboardController extends Controller
         $botClientId = config('services.discord.bot_client_id');
         $botToken = config('services.discord.bot_token');
         
-        // Log für Debugging (nur wenn APP_DEBUG aktiv ist)
-        if (config('app.debug')) {
-            \Log::info("Dashboard: Bot-Status-Prüfung gestartet", [
-                'bot_client_id_set' => !empty($botClientId),
-                'bot_token_set' => !empty($botToken),
-                'user_id' => $user->id,
-            ]);
-        }
-        
         // Lade Server aus Datenbank und filtere nur die, wo User Rechte hat
         $userGuilds = UserGuild::where('user_id', $user->id)
             ->orderBy('name')
+            ->get();
+        
+        // Performance-Optimierung: Prüfe nur Server, deren Status älter als 5 Minuten ist
+        // Oder wenn bot_joined null/undefined ist
+        $cacheMinutes = 5;
+        $now = now();
+        $guildsToCheck = $userGuilds->filter(function ($guild) use ($now, $cacheMinutes) {
+            // Prüfe wenn Status nie gesetzt wurde oder älter als Cache-Zeit
+            if ($guild->bot_joined === null) {
+                return true;
+            }
+            // Prüfe wenn updated_at älter als Cache-Zeit ist
+            return $guild->updated_at->addMinutes($cacheMinutes)->isPast();
+        });
+        
+        // Parallelisiere API-Calls für bessere Performance
+        if ($botToken && $botClientId && $guildsToCheck->isNotEmpty()) {
+            $this->checkBotsOnGuildsParallel($guildsToCheck, $botClientId, $botToken, $user);
+        }
+        
+        // Lade aktualisierte Daten und bereite für UI vor
+        $userGuilds = UserGuild::where('user_id', $user->id)
+            ->orderBy('name')
             ->get()
-            ->map(function ($guild) use ($botClientId, $botToken, $user) {
-                // Starte mit dem Status aus der DB (user_guilds.bot_joined)
+            ->map(function ($guild) use ($user) {
+                // Verwende DB-Status (wurde gerade aktualisiert oder ist gecached)
                 $botJoined = $guild->bot_joined ?? false;
-                $apiCheckPerformed = false;
                 
-                // IMMER prüfen über Discord API, wenn Bot-Token vorhanden ist
-                // Dies stellt sicher, dass der Status immer aktuell ist, auch wenn der Bot gekickt wurde
-                if ($botToken && $botClientId) {
-                    $apiCheck = $this->checkBotOnGuild($guild->guild_id, $botClientId, $botToken);
-                    $apiCheckPerformed = true;
-                    
-                    // Log für Debugging
-                    if (config('app.debug')) {
-                        \Log::info("Dashboard: Bot-Status für Guild geprüft", [
-                            'guild_id' => $guild->guild_id,
-                            'guild_name' => $guild->name,
-                            'api_check_result' => $apiCheck,
-                            'db_status_before' => $botJoined,
-                        ]);
-                    }
-                    
-                    // API-Check hat Vorrang - aktualisiere Status basierend auf API-Ergebnis
-                    if ($apiCheck) {
-                        // Bot ist auf Server - aktualisiere DB
-                        Guild::updateOrCreate(
-                            ['discord_id' => $guild->guild_id],
-                            [
-                                'name' => $guild->name,
-                                'icon' => $guild->icon,
-                                'owner_id' => $user->discord_id ?? null,
-                                'bot_active' => true,
-                                'prefix' => '!',
-                            ]
-                        );
-                        $botJoined = true;
-                    } else {
-                        // Bot ist NICHT auf Server - aktualisiere DB
-                        Guild::where('discord_id', $guild->guild_id)->update(['bot_active' => false]);
-                        $botJoined = false;
-                    }
-                } else {
-                    // Wenn kein Token vorhanden, prüfe ob Bot in guilds Tabelle als aktiv markiert ist
-                    // Aber setze bot_joined auf false, wenn Bot nicht in guilds Tabelle existiert
+                // Wenn bot_joined null ist, prüfe guilds Tabelle als Fallback
+                if ($botJoined === false) {
                     $guildModel = Guild::where('discord_id', $guild->guild_id)->first();
                     if ($guildModel && $guildModel->bot_active) {
                         $botJoined = true;
-                    } else {
-                        // Bot ist definitiv nicht auf Server, wenn nicht in guilds Tabelle
-                        $botJoined = false;
-                    }
-                    
-                    // Warnung loggen wenn Token fehlt
-                    if (config('app.debug')) {
-                        \Log::warning("Dashboard: Bot-Token fehlt, verwende DB-Status als Fallback", [
-                            'guild_id' => $guild->guild_id,
-                            'guild_name' => $guild->name,
-                            'bot_joined_from_db' => $botJoined,
-                            'guild_exists_in_db' => $guildModel !== null,
-                        ]);
+                        // Aktualisiere user_guilds für nächstes Mal
+                        $guild->update(['bot_joined' => true]);
                     }
                 }
                 
                 $canManage = $this->canManageGuild($guild->permissions);
-                
-                // IMMER bot_joined Status in user_guilds Tabelle aktualisieren (wichtig für UI)
-                // Auch wenn sich der Wert nicht geändert hat, um sicherzustellen, dass er korrekt ist
-                $oldBotJoined = $guild->bot_joined;
-                $guild->update(['bot_joined' => $botJoined]);
-                
-                if (config('app.debug')) {
-                    if ($oldBotJoined !== $botJoined) {
-                        \Log::info("Dashboard: bot_joined Status aktualisiert", [
-                            'guild_id' => $guild->guild_id,
-                            'old_status' => $oldBotJoined,
-                            'new_status' => $botJoined,
-                            'api_check_performed' => $apiCheckPerformed ?? false,
-                        ]);
-                    }
-                }
                 
                 return [
                     'id' => $guild->guild_id,
@@ -1057,6 +1007,81 @@ class DashboardController extends Controller
         }
     }
 
+    /**
+     * Prüfe Bot-Status für mehrere Guilds parallel (Performance-Optimierung)
+     */
+    private function checkBotsOnGuildsParallel($guilds, $botClientId, $botToken, $user)
+    {
+        if ($guilds->isEmpty()) {
+            return;
+        }
+        
+        // Erstelle Requests für alle zu prüfenden Guilds
+        $requests = [];
+        foreach ($guilds as $guild) {
+            $guildId = $guild->guild_id;
+            $requests["guild_{$guildId}"] = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->timeout(3)->get("https://discord.com/api/v10/guilds/{$guildId}/members/{$botClientId}");
+        }
+        
+        // Führe alle Requests parallel aus
+        try {
+            $responses = Http::pool(fn ($pool) => $requests);
+            
+            // Verarbeite Ergebnisse
+            foreach ($guilds as $guild) {
+                $guildId = $guild->guild_id;
+                $key = "guild_{$guildId}";
+                $response = $responses[$key] ?? null;
+                
+                $botJoined = false;
+                
+                if ($response && $response->successful()) {
+                    // Bot ist auf Server
+                    $botJoined = true;
+                    Guild::updateOrCreate(
+                        ['discord_id' => $guildId],
+                        [
+                            'name' => $guild->name,
+                            'icon' => $guild->icon,
+                            'owner_id' => $user->discord_id ?? null,
+                            'bot_active' => true,
+                            'prefix' => '!',
+                        ]
+                    );
+                } else {
+                    // Bot ist NICHT auf Server
+                    Guild::where('discord_id', $guildId)->update(['bot_active' => false]);
+                }
+                
+                // Aktualisiere user_guilds Tabelle
+                $guild->update(['bot_joined' => $botJoined]);
+            }
+        } catch (\Exception $e) {
+            \Log::warning("Fehler bei paralleler Bot-Status-Prüfung: " . $e->getMessage());
+            // Fallback: Prüfe einzeln (langsamer, aber funktioniert)
+            foreach ($guilds as $guild) {
+                $apiCheck = $this->checkBotOnGuild($guild->guild_id, $botClientId, $botToken);
+                $guild->update(['bot_joined' => $apiCheck]);
+                if ($apiCheck) {
+                    Guild::updateOrCreate(
+                        ['discord_id' => $guild->guild_id],
+                        [
+                            'name' => $guild->name,
+                            'icon' => $guild->icon,
+                            'owner_id' => $user->discord_id ?? null,
+                            'bot_active' => true,
+                            'prefix' => '!',
+                        ]
+                    );
+                } else {
+                    Guild::where('discord_id', $guild->guild_id)->update(['bot_active' => false]);
+                }
+            }
+        }
+    }
+
     private function checkBotOnGuild($guildId, $botClientId, $botToken)
     {
         if (!$botToken) {
@@ -1065,49 +1090,19 @@ class DashboardController extends Controller
         }
 
         try {
-            // Methode 1: Prüfe über Bot-Member-Liste (am zuverlässigsten)
+            // Prüfe über Bot-Member-Liste (am zuverlässigsten)
             $memberResponse = Http::withHeaders([
                 'Authorization' => 'Bot ' . $botToken,
-            ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}/members/{$botClientId}");
+            ])->timeout(3)->get("https://discord.com/api/v10/guilds/{$guildId}/members/{$botClientId}");
             
             if ($memberResponse->successful()) {
-                if (config('app.debug')) {
-                    \Log::info("Bot gefunden auf Guild {$guildId} via Member-API");
-                }
                 return true;
-            }
-            
-            // Methode 2: Prüfe über Guild-Informationen
-            $guildResponse = Http::withHeaders([
-                'Authorization' => 'Bot ' . $botToken,
-            ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}");
-            
-            if ($guildResponse->successful()) {
-                if (config('app.debug')) {
-                    \Log::info("Bot gefunden auf Guild {$guildId} via Guild-API");
-                }
-                return true;
-            }
-            
-            // Bot nicht gefunden - logge Details für Debugging
-            if (config('app.debug')) {
-                \Log::info("Bot NICHT gefunden auf Guild {$guildId}", [
-                    'member_api_status' => $memberResponse->status(),
-                    'member_api_body' => $memberResponse->body(),
-                    'guild_api_status' => $guildResponse->status(),
-                    'guild_api_body' => $guildResponse->body(),
-                ]);
-            } else {
-                \Log::debug("Bot NICHT gefunden auf Guild {$guildId} - Status: {$memberResponse->status()}");
             }
             
             return false;
         } catch (\Exception $e) {
             // Bei Fehler (z.B. Bot nicht auf Server, Timeout), return false
-            \Log::warning("Bot check failed for guild {$guildId}", [
-                'error' => $e->getMessage(),
-                'trace' => config('app.debug') ? $e->getTraceAsString() : null,
-            ]);
+            \Log::debug("Bot check failed for guild {$guildId}: " . $e->getMessage());
             return false;
         }
     }
