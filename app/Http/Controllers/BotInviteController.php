@@ -11,10 +11,11 @@ class BotInviteController extends Controller
 {
     public function invite(Request $request)
     {
-        $clientId = env('DISCORD_BOT_CLIENT_ID');
+        $clientId = config('services.discord.bot_client_id');
         $guildId = $request->input('guild_id') ?? $request->query('guild_id');
         
         if (!$clientId) {
+            \Log::error("BotInviteController: DISCORD_BOT_CLIENT_ID nicht konfiguriert");
             return redirect()->route('dashboard')->with('error', 'Bot Client ID nicht konfiguriert');
         }
 

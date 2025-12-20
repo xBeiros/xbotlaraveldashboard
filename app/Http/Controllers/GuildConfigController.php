@@ -428,7 +428,7 @@ class GuildConfigController extends Controller
             return back()->with('error', 'Kein Kanal ausgewählt!');
         }
 
-        $botToken = env('DISCORD_BOT_TOKEN');
+        $botToken = config('services.discord.bot_token');
         if (!$botToken) {
             return back()->with('error', 'Bot Token nicht konfiguriert!');
         }
@@ -444,7 +444,7 @@ class GuildConfigController extends Controller
 
     private function sendReactionRoleMessage($reactionRole, $guildModel)
     {
-        $botToken = env('DISCORD_BOT_TOKEN');
+        $botToken = config('services.discord.bot_token');
         if (!$botToken) {
             throw new \Exception('Bot Token nicht konfiguriert!');
         }
@@ -1165,7 +1165,7 @@ class GuildConfigController extends Controller
 
     private function sendTicketPost(TicketPost $ticketPost, Guild $guildModel)
     {
-        $botToken = env('DISCORD_BOT_TOKEN');
+        $botToken = config('services.discord.bot_token');
 
         if (!$botToken) {
             throw new \Exception('Bot Token nicht konfiguriert.');

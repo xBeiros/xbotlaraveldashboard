@@ -16,24 +16,31 @@ function inviteBot(guildId) {
     // Direkter Redirect zu Discord Bot-Einladung
     if (!guildId) {
         console.error('Guild ID fehlt');
+        alert('Fehler: Server-ID fehlt. Bitte versuche es erneut.');
         return;
     }
     
-    try {
-        const inviteUrl = route('bot.invite', { guild_id: guildId });
-        window.location.href = inviteUrl;
-    } catch (error) {
-        console.error('Fehler beim Erstellen der Einladungs-URL:', error);
-        // Fallback: Direkte URL erstellen
-        const clientId = props.botClientId;
-        if (clientId) {
-            const permissionsValue = '8'; // Administrator
-            const inviteUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&permissions=${permissionsValue}&scope=bot%20applications.commands&guild_id=${guildId}`;
-            window.location.href = inviteUrl;
-        } else {
-            alert('Bot Client ID nicht konfiguriert. Bitte kontaktiere den Administrator.');
-        }
+    const clientId = props.botClientId;
+    if (!clientId) {
+        console.error('Bot Client ID fehlt');
+        alert('Bot Client ID nicht konfiguriert. Bitte kontaktiere den Administrator.');
+        return;
     }
+    
+    // Versuche zuerst die Route zu verwenden
+    let inviteUrl;
+    try {
+        inviteUrl = route('bot.invite', { guild_id: guildId });
+    } catch (error) {
+        console.warn('Route-Funktion nicht verfügbar, verwende direkte URL:', error);
+        // Fallback: Direkte URL erstellen
+        const permissionsValue = '8'; // Administrator
+        inviteUrl = `/bot/invite?guild_id=${guildId}`;
+    }
+    
+    // Öffne die Einladungs-URL
+    console.log('Öffne Bot-Einladung für Guild:', guildId);
+    window.location.href = inviteUrl;
 }
 
 function selectGuild(guild) {

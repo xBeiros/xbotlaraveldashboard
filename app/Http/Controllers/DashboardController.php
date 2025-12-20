@@ -44,8 +44,18 @@ class DashboardController extends Controller
         }
 
         // Prüfe auch über Discord API, ob Bot auf den Servern ist
-        $botClientId = env('DISCORD_BOT_CLIENT_ID');
-        $botToken = env('DISCORD_BOT_TOKEN');
+        // Verwende config() statt env() für Production-Kompatibilität
+        $botClientId = config('services.discord.bot_client_id');
+        $botToken = config('services.discord.bot_token');
+        
+        // Log für Debugging (nur wenn APP_DEBUG aktiv ist)
+        if (config('app.debug')) {
+            \Log::info("Dashboard: Bot-Status-Prüfung gestartet", [
+                'bot_client_id_set' => !empty($botClientId),
+                'bot_token_set' => !empty($botToken),
+                'user_id' => $user->id,
+            ]);
+        }
         
         // Lade Server aus Datenbank und filtere nur die, wo User Rechte hat
         $userGuilds = UserGuild::where('user_id', $user->id)
@@ -54,11 +64,23 @@ class DashboardController extends Controller
             ->map(function ($guild) use ($botClientId, $botToken, $user) {
                 // Starte mit dem Status aus der DB (user_guilds.bot_joined)
                 $botJoined = $guild->bot_joined ?? false;
+                $apiCheckPerformed = false;
                 
                 // IMMER prüfen über Discord API, wenn Bot-Token vorhanden ist
                 // Dies stellt sicher, dass der Status immer aktuell ist, auch wenn der Bot gekickt wurde
                 if ($botToken && $botClientId) {
                     $apiCheck = $this->checkBotOnGuild($guild->guild_id, $botClientId, $botToken);
+                    $apiCheckPerformed = true;
+                    
+                    // Log für Debugging
+                    if (config('app.debug')) {
+                        \Log::info("Dashboard: Bot-Status für Guild geprüft", [
+                            'guild_id' => $guild->guild_id,
+                            'guild_name' => $guild->name,
+                            'api_check_result' => $apiCheck,
+                            'db_status_before' => $botJoined,
+                        ]);
+                    }
                     
                     // API-Check hat Vorrang - aktualisiere Status basierend auf API-Ergebnis
                     if ($apiCheck) {
@@ -80,16 +102,43 @@ class DashboardController extends Controller
                         $botJoined = false;
                     }
                 } else {
-                    // Wenn kein Token vorhanden, verwende DB-Status als Fallback
-                    $botGuildIds = Guild::where('bot_active', true)->pluck('discord_id')->toArray();
-                    $botJoined = in_array($guild->guild_id, $botGuildIds);
+                    // Wenn kein Token vorhanden, prüfe ob Bot in guilds Tabelle als aktiv markiert ist
+                    // Aber setze bot_joined auf false, wenn Bot nicht in guilds Tabelle existiert
+                    $guildModel = Guild::where('discord_id', $guild->guild_id)->first();
+                    if ($guildModel && $guildModel->bot_active) {
+                        $botJoined = true;
+                    } else {
+                        // Bot ist definitiv nicht auf Server, wenn nicht in guilds Tabelle
+                        $botJoined = false;
+                    }
+                    
+                    // Warnung loggen wenn Token fehlt
+                    if (config('app.debug')) {
+                        \Log::warning("Dashboard: Bot-Token fehlt, verwende DB-Status als Fallback", [
+                            'guild_id' => $guild->guild_id,
+                            'guild_name' => $guild->name,
+                            'bot_joined_from_db' => $botJoined,
+                            'guild_exists_in_db' => $guildModel !== null,
+                        ]);
+                    }
                 }
                 
                 $canManage = $this->canManageGuild($guild->permissions);
                 
-                // Update bot_joined Status in user_guilds Tabelle (wichtig für UI)
-                if ($guild->bot_joined !== $botJoined) {
-                    $guild->update(['bot_joined' => $botJoined]);
+                // IMMER bot_joined Status in user_guilds Tabelle aktualisieren (wichtig für UI)
+                // Auch wenn sich der Wert nicht geändert hat, um sicherzustellen, dass er korrekt ist
+                $oldBotJoined = $guild->bot_joined;
+                $guild->update(['bot_joined' => $botJoined]);
+                
+                if (config('app.debug')) {
+                    if ($oldBotJoined !== $botJoined) {
+                        \Log::info("Dashboard: bot_joined Status aktualisiert", [
+                            'guild_id' => $guild->guild_id,
+                            'old_status' => $oldBotJoined,
+                            'new_status' => $botJoined,
+                            'api_check_performed' => $apiCheckPerformed ?? false,
+                        ]);
+                    }
                 }
                 
                 return [
@@ -111,7 +160,7 @@ class DashboardController extends Controller
 
         return Inertia::render('Dashboard', [
             'guilds' => $userGuilds,
-            'botClientId' => env('DISCORD_BOT_CLIENT_ID'),
+            'botClientId' => config('services.discord.bot_client_id'),
         ]);
     }
 
@@ -740,11 +789,14 @@ class DashboardController extends Controller
      */
     private function verifyAndUpdateBotStatus($guildId, $userGuild)
     {
-        $botClientId = env('DISCORD_BOT_CLIENT_ID');
-        $botToken = env('DISCORD_BOT_TOKEN');
+        $botClientId = config('services.discord.bot_client_id');
+        $botToken = config('services.discord.bot_token');
         
         if (!$botToken || !$botClientId) {
             // Wenn kein Token, können wir nicht prüfen - erlaube Zugriff
+            if (config('app.debug')) {
+                \Log::warning("verifyAndUpdateBotStatus: Bot-Token fehlt für Guild {$guildId}");
+            }
             return true;
         }
         
@@ -754,6 +806,12 @@ class DashboardController extends Controller
             // Bot nicht mehr auf Server - aktualisiere Status
             Guild::where('discord_id', $guildId)->update(['bot_active' => false]);
             $userGuild->update(['bot_joined' => false]);
+            
+            if (config('app.debug')) {
+                \Log::info("verifyAndUpdateBotStatus: Bot nicht mehr auf Server, Status aktualisiert", [
+                    'guild_id' => $guildId,
+                ]);
+            }
             
             return redirect()->route('dashboard')->with('error', 'Der Bot ist nicht mehr auf diesem Server. Bitte lade den Bot erneut ein.');
         }
@@ -767,7 +825,7 @@ class DashboardController extends Controller
 
     private function fetchGuildChannels($guildId)
     {
-        $botToken = env('DISCORD_BOT_TOKEN');
+        $botToken = config('services.discord.bot_token');
         
         if (!$botToken) {
             return [];
@@ -924,7 +982,7 @@ class DashboardController extends Controller
 
     private function fetchGuildRoles($guildId)
     {
-        $botToken = env('DISCORD_BOT_TOKEN');
+        $botToken = config('services.discord.bot_token');
         
         if (!$botToken) {
             return [];
@@ -961,7 +1019,7 @@ class DashboardController extends Controller
 
     private function fetchGuildCategories($guildId)
     {
-        $botToken = env('DISCORD_BOT_TOKEN');
+        $botToken = config('services.discord.bot_token');
         
         if (!$botToken) {
             return [];
@@ -1002,7 +1060,7 @@ class DashboardController extends Controller
     private function checkBotOnGuild($guildId, $botClientId, $botToken)
     {
         if (!$botToken) {
-            \Log::warning("Bot Token nicht verfügbar für Guild-Prüfung");
+            \Log::warning("Bot Token nicht verfügbar für Guild-Prüfung", ['guild_id' => $guildId]);
             return false;
         }
 
@@ -1013,7 +1071,9 @@ class DashboardController extends Controller
             ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}/members/{$botClientId}");
             
             if ($memberResponse->successful()) {
-                \Log::debug("Bot gefunden auf Guild {$guildId} via Member-API");
+                if (config('app.debug')) {
+                    \Log::info("Bot gefunden auf Guild {$guildId} via Member-API");
+                }
                 return true;
             }
             
@@ -1023,15 +1083,31 @@ class DashboardController extends Controller
             ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}");
             
             if ($guildResponse->successful()) {
-                \Log::debug("Bot gefunden auf Guild {$guildId} via Guild-API");
+                if (config('app.debug')) {
+                    \Log::info("Bot gefunden auf Guild {$guildId} via Guild-API");
+                }
                 return true;
             }
             
-            \Log::debug("Bot NICHT gefunden auf Guild {$guildId} - Status: {$memberResponse->status()}");
+            // Bot nicht gefunden - logge Details für Debugging
+            if (config('app.debug')) {
+                \Log::info("Bot NICHT gefunden auf Guild {$guildId}", [
+                    'member_api_status' => $memberResponse->status(),
+                    'member_api_body' => $memberResponse->body(),
+                    'guild_api_status' => $guildResponse->status(),
+                    'guild_api_body' => $guildResponse->body(),
+                ]);
+            } else {
+                \Log::debug("Bot NICHT gefunden auf Guild {$guildId} - Status: {$memberResponse->status()}");
+            }
+            
             return false;
         } catch (\Exception $e) {
             // Bei Fehler (z.B. Bot nicht auf Server, Timeout), return false
-            \Log::warning("Bot check failed for guild {$guildId}: " . $e->getMessage());
+            \Log::warning("Bot check failed for guild {$guildId}", [
+                'error' => $e->getMessage(),
+                'trace' => config('app.debug') ? $e->getTraceAsString() : null,
+            ]);
             return false;
         }
     }
