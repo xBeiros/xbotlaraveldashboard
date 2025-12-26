@@ -162,45 +162,42 @@ function refreshGuilds() {
                                     {{ guild.name.charAt(0).toUpperCase() }}
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Wrapper für Button-Bereich -->
-                    <div>
-                        <!-- Button außerhalb des verschwommenen Bereichs -->
-                        <div class="py-3 flex items-center gap-3">
-                            <!-- Server Name links neben Button -->
-                            <div class="flex-1 min-w-0">
-                                <h3 class="text-sm font-semibold text-white truncate">
+                            <!-- Server Informationen unter Icon -->
+                            <div class="text-center px-4 pb-4">
+                                <h3 class="text-base font-semibold text-white truncate mb-1">
                                     {{ guild.name }}
                                 </h3>
                                 <p class="text-xs text-gray-400">
                                     {{ guild.owner ? 'Eigentümer' : 'Bot Master' }}
                                 </p>
                             </div>
-                            
-                            <!-- Button rechts -->
-                            <div class="flex-shrink-0">
-                                <button
-                                    v-if="!guild.bot_joined && guild.can_manage"
-                                    @click="inviteBot(guild.id)"
-                                    class="bg-[#5865f2] hover:bg-[#4752c4] text-white px-1 py-2 rounded transition-colors font-medium text-sm whitespace-nowrap"
-                                >
-                                    Bot einladen
-                                </button>
-                                <button
-                                    v-else-if="guild.bot_joined && guild.can_manage"
-                                    @click="selectGuild(guild)"
-                                    class="bg-[#5865f2] hover:bg-[#4752c4] text-white px-1 py-2 rounded transition-colors font-medium text-sm whitespace-nowrap"
-                                >
-                                    Weiter
-                                </button>
-                                <div
-                                    v-else
-                                    class="bg-gray-600 text-gray-400 px-1 py-2 rounded text-center cursor-not-allowed font-medium text-sm whitespace-nowrap"
-                                >
-                                    Keine Berechtigung
-                                </div>
+                        </div>
+                    </div>
+
+                    <!-- Wrapper für Button-Bereich -->
+                    <div>
+                        <!-- Button außerhalb des verschwommenen Bereichs -->
+                        <div class="px-4 py-3">
+                            <button
+                                v-if="!guild.bot_joined && guild.can_manage"
+                                @click="inviteBot(guild.id)"
+                                class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-1 py-2 rounded transition-colors font-medium text-sm"
+                            >
+                                Bot einladen
+                            </button>
+                            <button
+                                v-else-if="guild.bot_joined && guild.can_manage"
+                                @click="selectGuild(guild)"
+                                class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-1 py-2 rounded transition-colors font-medium text-sm"
+                            >
+                                Weiter
+                            </button>
+                            <div
+                                v-else
+                                class="w-full bg-gray-600 text-gray-400 px-1 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
+                            >
+                                Keine Berechtigung
                             </div>
                         </div>
                     </div>
