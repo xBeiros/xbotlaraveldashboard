@@ -298,10 +298,11 @@ function switchGuild(guildId) {
             <!-- Top Navigation Bar -->
             <nav class="bg-[#1F2129] h-20 flex items-center justify-between px-6">
                 <div class="flex items-center gap-4">
-                    <!-- Language Selector -->
-                    <LanguageSelector />
+                    <!-- Platzhalter für zukünftige Inhalte -->
                 </div>
                 <div class="flex items-center gap-4">
+                    <!-- Language Selector -->
+                    <LanguageSelector />
                     <!-- User Dropdown -->
                     <Dropdown align="right" width="48">
                         <template #trigger>
