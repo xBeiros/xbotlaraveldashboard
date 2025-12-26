@@ -1228,13 +1228,22 @@ class GuildConfigController extends Controller
             ];
         }
 
+        // Hole Server-Sprache für Placeholder
+        $language = $guildModel->language ?? 'de';
+        $placeholders = [
+            'de' => 'Wähle eine Kategorie...',
+            'en' => 'Select a category...',
+            'tr' => 'Bir kategori seçin...',
+        ];
+        $placeholder = $placeholders[$language] ?? $placeholders['de'];
+
         // Baue Message mit Select Menu
         $components = [[
             'type' => 1, // Action Row
             'components' => [[
                 'type' => 3, // Select Menu
                 'custom_id' => 'ticket_category_select',
-                'placeholder' => 'Wähle eine Kategorie...',
+                'placeholder' => $placeholder,
                 'options' => $selectMenuOptions,
             ]],
         ]];
