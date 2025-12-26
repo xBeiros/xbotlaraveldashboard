@@ -350,7 +350,7 @@ const bannerTransform = computed(() => {
 const avatarEditorTransform = computed(() => {
     const scale = avatarZoom.value / 100;
     return {
-        transform: `scale(${scale}) translate(${avatarPosition.value.x / scale}px, ${avatarPosition.value.y / scale}px)`,
+        transform: `scale(${scale}) translate(${avatarPosition.value.x}px, ${avatarPosition.value.y}px)`,
         transformOrigin: 'center center',
         width: '100%',
         height: '100%',
@@ -361,7 +361,7 @@ const avatarEditorTransform = computed(() => {
 const bannerEditorTransform = computed(() => {
     const scale = bannerZoom.value / 100;
     return {
-        transform: `scale(${scale}) translate(${bannerPosition.value.x / scale}px, ${bannerPosition.value.y / scale}px)`,
+        transform: `scale(${scale}) translate(${bannerPosition.value.x}px, ${bannerPosition.value.y}px)`,
         transformOrigin: 'center center',
         width: '100%',
         height: '100%',
@@ -395,11 +395,15 @@ function openAvatarEditor() {
 }
 
 function startAvatarDrag(event) {
+    if (event.target.tagName === 'INPUT') return;
     avatarDragging.value = true;
-    avatarDragStart.value = {
-        x: event.clientX - avatarPosition.value.x,
-        y: event.clientY - avatarPosition.value.y,
-    };
+    const rect = avatarEditorContainer.value?.getBoundingClientRect();
+    if (rect) {
+        avatarDragStart.value = {
+            x: event.clientX - avatarPosition.value.x,
+            y: event.clientY - avatarPosition.value.y,
+        };
+    }
 }
 
 function dragAvatar(event) {
@@ -449,11 +453,15 @@ function openBannerEditor() {
 }
 
 function startBannerDrag(event) {
+    if (event.target.tagName === 'INPUT') return;
     bannerDragging.value = true;
-    bannerDragStart.value = {
-        x: event.clientX - bannerPosition.value.x,
-        y: event.clientY - bannerPosition.value.y,
-    };
+    const rect = bannerEditorContainer.value?.getBoundingClientRect();
+    if (rect) {
+        bannerDragStart.value = {
+            x: event.clientX - bannerPosition.value.x,
+            y: event.clientY - bannerPosition.value.y,
+        };
+    }
 }
 
 function dragBanner(event) {
@@ -503,21 +511,53 @@ function removeBanner() {
 
 async function savePersonalization() {
     // Wenn Avatar transformiert wurde, rendere das transformierte Bild
-    if (avatarEditorOpen.value && avatarOriginal.value && (avatarZoom.value !== 100 || avatarPosition.value.x !== 0 || avatarPosition.value.y !== 0)) {
+    if (avatarOriginal.value && personalizationForm.avatar) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
         
         await new Promise((resolve, reject) => {
             img.onload = () => {
-                canvas.width = 128; // Discord Avatar Größe
-                canvas.height = 128;
+                const targetSize = 128; // Discord Avatar Größe
+                canvas.width = targetSize;
+                canvas.height = targetSize;
                 
-                const scale = avatarZoom.value / 100;
-                const x = (canvas.width / 2) - (img.width * scale / 2) + (avatarPosition.value.x * scale);
-                const y = (canvas.height / 2) - (img.height * scale / 2) + (avatarPosition.value.y * scale);
+                // Hole die tatsächliche Editor-Container-Größe
+                const editorContainer = avatarEditorContainer.value;
+                const editorSize = editorContainer ? Math.min(editorContainer.offsetWidth, editorContainer.offsetHeight) : 256;
                 
-                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                // Berechne die Skalierung basierend auf Zoom
+                const zoomScale = avatarZoom.value / 100;
+                
+                // Berechne das Seitenverhältnis
+                const imgAspect = img.width / img.height;
+                
+                // Berechne die Bildgröße, die im Editor angezeigt wird (object-fit: cover)
+                let displaySize;
+                if (imgAspect >= 1) {
+                    // Bild ist quadratisch oder breiter
+                    displaySize = editorSize;
+                } else {
+                    // Bild ist höher
+                    displaySize = editorSize * imgAspect;
+                }
+                
+                // Skaliere mit Zoom
+                const scaledSize = displaySize * zoomScale;
+                const scaledWidth = img.width * (scaledSize / displaySize);
+                const scaledHeight = img.height * (scaledSize / displaySize);
+                
+                // Skaliere die Position vom Editor auf Canvas
+                const positionScale = targetSize / editorSize;
+                const offsetX = avatarPosition.value.x * positionScale;
+                const offsetY = avatarPosition.value.y * positionScale;
+                
+                // Berechne die Position im Canvas (zentriert + Offset)
+                const x = (targetSize / 2) - (scaledWidth / 2) + offsetX;
+                const y = (targetSize / 2) - (scaledHeight / 2) + offsetY;
+                
+                // Zeichne das Bild
+                ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
                 
                 canvas.toBlob((blob) => {
                     const file = new File([blob], 'avatar.png', { type: 'image/png' });
@@ -531,21 +571,40 @@ async function savePersonalization() {
     }
     
     // Wenn Banner transformiert wurde, rendere das transformierte Bild
-    if (bannerEditorOpen.value && bannerOriginal.value && (bannerZoom.value !== 100 || bannerPosition.value.x !== 0 || bannerPosition.value.y !== 0)) {
+    if (bannerOriginal.value && personalizationForm.banner && (bannerZoom.value !== 100 || bannerPosition.value.x !== 0 || bannerPosition.value.y !== 0)) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
         
         await new Promise((resolve, reject) => {
             img.onload = () => {
-                canvas.width = 960; // Discord Banner Breite
-                canvas.height = 540; // Discord Banner Höhe
+                const targetWidth = 960; // Discord Banner Breite
+                const targetHeight = 540; // Discord Banner Höhe
+                canvas.width = targetWidth;
+                canvas.height = targetHeight;
                 
+                // Berechne die Skalierung basierend auf Zoom
                 const scale = bannerZoom.value / 100;
-                const x = (canvas.width / 2) - (img.width * scale / 2) + (bannerPosition.value.x * scale);
-                const y = (canvas.height / 2) - (img.height * scale / 2) + (bannerPosition.value.y * scale);
                 
-                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                // Berechne die Bildgröße nach Skalierung
+                const scaledWidth = img.width * scale;
+                const scaledHeight = img.height * scale;
+                
+                // Berechne die Position - zentriert + Offset
+                // Die Position ist relativ zum Container, müssen wir auf Canvas-Größe skalieren
+                const editorWidth = 384; // Geschätzte Editor-Breite
+                const editorHeight = 192; // Geschätzte Editor-Höhe
+                const positionScaleX = targetWidth / editorWidth;
+                const positionScaleY = targetHeight / editorHeight;
+                const offsetX = bannerPosition.value.x * positionScaleX;
+                const offsetY = bannerPosition.value.y * positionScaleY;
+                
+                // Zentriere das Bild und füge Offset hinzu
+                const x = (targetWidth / 2) - (scaledWidth / 2) + offsetX;
+                const y = (targetHeight / 2) - (scaledHeight / 2) + offsetY;
+                
+                // Zeichne das Bild
+                ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
                 
                 canvas.toBlob((blob) => {
                     const file = new File([blob], 'banner.png', { type: 'image/png' });
