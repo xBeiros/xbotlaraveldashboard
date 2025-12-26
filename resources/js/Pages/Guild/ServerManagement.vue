@@ -313,7 +313,7 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
-import { ref, computed } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 
 const { t } = useI18n();
 
@@ -411,6 +411,7 @@ function handleAvatarChange(event) {
         reader.onload = (e) => {
             avatarOriginal.value = e.target.result;
             avatarPreview.value = e.target.result;
+            // Setze initialen Zoom auf 100%, wird beim Öffnen des Editors angepasst
             avatarZoom.value = 100;
             avatarPosition.value = { x: 0, y: 0 };
         };
@@ -425,20 +426,75 @@ function openAvatarEditor() {
         reader.onload = (e) => {
             avatarOriginal.value = e.target.result;
             avatarEditorOpen.value = true;
+            // Setze Zoom automatisch, damit das Bild perfekt sichtbar ist
+            nextTick(() => {
+                calculateOptimalAvatarZoom();
+            });
         };
         reader.readAsDataURL(personalizationForm.avatar);
     } else if (avatarOriginal.value) {
         avatarEditorOpen.value = true;
+        // Setze Zoom automatisch, damit das Bild perfekt sichtbar ist
+        nextTick(() => {
+            calculateOptimalAvatarZoom();
+        });
     } else if (avatarPreview.value) {
         // Falls nur eine Vorschau vorhanden ist, verwende diese
         avatarOriginal.value = avatarPreview.value;
         avatarEditorOpen.value = true;
+        // Setze Zoom automatisch, damit das Bild perfekt sichtbar ist
+        nextTick(() => {
+            calculateOptimalAvatarZoom();
+        });
     } else {
         // Wenn nichts vorhanden ist, öffne den File-Input
         if (avatarInput.value) {
             avatarInput.value.click();
         }
     }
+}
+
+function calculateOptimalAvatarZoom() {
+    if (!avatarOriginal.value || !avatarEditorContainer.value) return;
+    
+    const img = new Image();
+    img.onload = () => {
+        const container = avatarEditorContainer.value;
+        const containerWidth = container.offsetWidth;
+        const containerHeight = container.offsetHeight;
+        
+        const imgAspect = img.width / img.height;
+        const containerAspect = containerWidth / containerHeight;
+        
+        // Berechne die Größe, die das Bild haben würde, wenn es den Container füllt (object-fit: cover)
+        // Das Bild wird so skaliert, dass es den Container vollständig ausfüllt
+        let displayWidth, displayHeight;
+        if (imgAspect >= containerAspect) {
+            // Bild ist breiter - Höhe bestimmt die Größe
+            displayHeight = containerHeight;
+            displayWidth = displayHeight * imgAspect;
+        } else {
+            // Bild ist höher - Breite bestimmt die Größe
+            displayWidth = containerWidth;
+            displayHeight = displayWidth / imgAspect;
+        }
+        
+        // Berechne den Zoom, damit das gesamte Bild sichtbar ist
+        // Wir wollen, dass das Bild den Container vollständig ausfüllt (100% Zoom = perfekt gefüllt)
+        // Wenn das Bild größer ist als der Container, müssen wir rauszoomen
+        // Wenn das Bild kleiner ist als der Container, müssen wir reinzoomen
+        const scaleToFit = Math.min(containerWidth / displayWidth, containerHeight / displayHeight);
+        
+        // Setze Zoom auf 100% wenn das Bild perfekt passt, sonst anpassen
+        // scaleToFit > 1 bedeutet, das Bild ist kleiner als der Container (reinzoomen)
+        // scaleToFit < 1 bedeutet, das Bild ist größer als der Container (rauszoomen)
+        const optimalZoom = scaleToFit * 100;
+        
+        // Setze einen minimalen Zoom von 50% und maximalen von 200%
+        avatarZoom.value = Math.max(50, Math.min(200, Math.round(optimalZoom)));
+        avatarPosition.value = { x: 0, y: 0 };
+    };
+    img.src = avatarOriginal.value;
 }
 
 function startAvatarDrag(event) {
@@ -616,26 +672,20 @@ async function savePersonalization() {
                     displayHeight = displayWidth / imgAspect;
                 }
                 
-                // Berechne das Verhältnis zwischen Display-Größe und Original-Bildgröße
-                const displayToImageScale = displayWidth / img.width;
-                
-                // Skaliere mit Zoom - das ist die tatsächliche Größe im Editor
-                const scaledDisplayWidth = displayWidth * zoomScale;
-                const scaledDisplayHeight = displayHeight * zoomScale;
-                
                 // Berechne das Verhältnis zwischen Editor-Größe und Canvas-Größe
                 const editorToCanvasScale = targetSize / editorSize;
                 
                 // Berechne die tatsächliche Bildgröße im Canvas
-                // Zuerst: Original-Bildgröße * (Display-Skalierung / Original) * Zoom * Canvas-Skalierung
-                const scaledWidth = img.width * (scaledDisplayWidth / displayWidth) * editorToCanvasScale;
-                const scaledHeight = img.height * (scaledDisplayHeight / displayHeight) * editorToCanvasScale;
+                // Das Bild wird im Editor mit zoomScale skaliert, dann auf Canvas-Größe skaliert
+                const scaledWidth = displayWidth * zoomScale * editorToCanvasScale;
+                const scaledHeight = displayHeight * zoomScale * editorToCanvasScale;
                 
                 // Skaliere die Position vom Editor auf Canvas
                 const offsetX = avatarPosition.value.x * editorToCanvasScale;
                 const offsetY = avatarPosition.value.y * editorToCanvasScale;
                 
                 // Berechne die Position im Canvas (zentriert + Offset)
+                // Das Bild ist im Editor zentriert, also starten wir von der Mitte
                 const x = (targetSize / 2) - (scaledWidth / 2) + offsetX;
                 const y = (targetSize / 2) - (scaledHeight / 2) + offsetY;
                 
