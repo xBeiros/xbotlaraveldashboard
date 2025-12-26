@@ -2,6 +2,9 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     guild: Object,
@@ -102,13 +105,13 @@ function handleImageUpload(event) {
     if (!file) return;
     
     if (file.size > 5 * 1024 * 1024) {
-        alert('Die Datei ist zu groß. Bitte wähle ein Bild unter 5MB.');
+        alert(t('welcome.welcomeSection.fileTooLarge'));
         event.target.value = '';
         return;
     }
     
     if (!file.type.startsWith('image/')) {
-        alert('Bitte wähle eine Bilddatei.');
+        alert(t('welcome.welcomeSection.pleaseSelectImage'));
         event.target.value = '';
         return;
     }
@@ -118,7 +121,7 @@ function handleImageUpload(event) {
         welcomeForm.card_background_image = e.target.result;
     };
     reader.onerror = () => {
-        alert('Fehler beim Laden der Datei.');
+        alert(t('welcome.welcomeSection.errorLoadingFile'));
         event.target.value = '';
     };
     reader.readAsDataURL(file);
@@ -129,13 +132,13 @@ function handleGoodbyeImageUpload(event) {
     if (!file) return;
     
     if (file.size > 5 * 1024 * 1024) {
-        alert('Die Datei ist zu groß. Bitte wähle ein Bild unter 5MB.');
+        alert(t('welcome.goodbyeSection.fileTooLarge'));
         event.target.value = '';
         return;
     }
     
     if (!file.type.startsWith('image/')) {
-        alert('Bitte wähle eine Bilddatei.');
+        alert(t('welcome.goodbyeSection.pleaseSelectImage'));
         event.target.value = '';
         return;
     }
@@ -145,7 +148,7 @@ function handleGoodbyeImageUpload(event) {
         goodbyeForm.card_background_image = e.target.result;
     };
     reader.onerror = () => {
-        alert('Fehler beim Laden der Datei.');
+        alert(t('welcome.goodbyeSection.errorLoadingFile'));
         event.target.value = '';
     };
     reader.readAsDataURL(file);
@@ -193,11 +196,11 @@ function saveGoodbyeConfig() {
 </script>
 
 <template>
-    <Head :title="`${guild.name} - Begrüßung`" />
+    <Head :title="`${guild.name} - ${t('welcome.title')}`" />
 
     <GuildLayout :guild="guild" :guilds="guilds">
         <div class="p-8">
-            <h1 class="text-2xl font-bold mb-6 text-white">Grundlegende Informationen</h1>
+            <h1 class="text-2xl font-bold mb-6 text-white">{{ t('welcome.basicInfo') }}</h1>
 
             <div class="space-y-4">
                 <!-- Begrüßung Accordion -->
@@ -214,8 +217,8 @@ function saveGoodbyeConfig() {
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-white">Begrüßung</h3>
-                                <p class="text-sm text-gray-400">Sende automatisch eine Nachricht, wenn jemand dem Server beitritt</p>
+                                <h3 class="text-lg font-semibold text-white">{{ t('welcome.welcomeSection.title') }}</h3>
+                                <p class="text-sm text-gray-400">{{ t('welcome.welcomeSection.description') }}</p>
                             </div>
                             <svg
                                 class="w-5 h-5 text-gray-400 transition-transform flex-shrink-0"
@@ -246,7 +249,7 @@ function saveGoodbyeConfig() {
                             <!-- Kanal-Auswahl -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    Kanal für Willkommensnachrichten *
+                                    {{ t('welcome.welcomeSection.channelLabel') }}
                                 </label>
                                 <select
                                     v-model="welcomeForm.channel_id"
@@ -292,7 +295,7 @@ function saveGoodbyeConfig() {
                                             <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                                             </svg>
-                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Textnachricht</p>
+                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('welcome.welcomeSection.textMessage') }}</p>
                                         </div>
                                     </label>
                                     <label class="relative cursor-pointer">
@@ -306,7 +309,7 @@ function saveGoodbyeConfig() {
                                             <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
-                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Nachricht einbetten</p>
+                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('welcome.welcomeSection.embedMessage') }}</p>
                                         </div>
                                     </label>
                                     <label class="relative cursor-pointer">
@@ -320,7 +323,7 @@ function saveGoodbyeConfig() {
                                             <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Willkommenskarte</p>
+                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('welcome.welcomeSection.welcomeCard') }}</p>
                                         </div>
                                     </label>
                                 </div>
@@ -338,7 +341,7 @@ function saveGoodbyeConfig() {
                                     ></textarea>
                                     <div class="flex justify-between items-center mt-1">
                                         <p class="text-xs text-gray-400">
-                                            Verfügbare Platzhalter: <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{server}</code>, <code class="bg-[#202225] px-1 rounded">{memberCount}</code>
+                                            {{ t('welcome.welcomeSection.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded">{{ t('welcome.welcomeSection.placeholderUser') }}</code>, <code class="bg-[#202225] px-1 rounded">{{ t('welcome.welcomeSection.placeholderServer') }}</code>, <code class="bg-[#202225] px-1 rounded">{{ t('welcome.welcomeSection.placeholderMemberCount') }}</code>
                                         </p>
                                         <span class="text-xs text-gray-400">{{ messageLength }} / 2000</span>
                                     </div>
@@ -389,7 +392,7 @@ function saveGoodbyeConfig() {
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Titel</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.titleLabel') }}</label>
                                     <input
                                         type="text"
                                         v-model="welcomeForm.embed_title"
@@ -398,7 +401,7 @@ function saveGoodbyeConfig() {
                                     />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Beschreibung</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.descriptionLabel') }}</label>
                                     <textarea
                                         v-model="welcomeForm.embed_description"
                                         rows="3"
@@ -407,7 +410,7 @@ function saveGoodbyeConfig() {
                                     ></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Farbe</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.colorLabel') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -632,7 +635,7 @@ function saveGoodbyeConfig() {
                                     :disabled="welcomeForm.processing"
                                     class="px-6 py-2.5 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                                 >
-                                    {{ welcomeForm.processing ? 'Speichere...' : 'Speichern' }}
+                                    {{ welcomeForm.processing ? t('common.saving') : t('common.save') }}
                                 </button>
                             </div>
                         </form>
@@ -653,8 +656,8 @@ function saveGoodbyeConfig() {
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-white">Verabschiedungsgrüße</h3>
-                                <p class="text-sm text-gray-400">Sende automatisch eine Nachricht, wenn jemand den Server verlässt</p>
+                                <h3 class="text-lg font-semibold text-white">{{ t('welcome.goodbyeSection.title') }}</h3>
+                                <p class="text-sm text-gray-400">{{ t('welcome.goodbyeSection.description') }}</p>
                             </div>
                             <svg
                                 class="w-5 h-5 text-gray-400 transition-transform flex-shrink-0"
@@ -685,7 +688,7 @@ function saveGoodbyeConfig() {
                             <!-- Kanal-Auswahl -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    Kanal für Abschiedsnachrichten *
+                                    {{ t('welcome.goodbyeSection.channelLabel') }}
                                 </label>
                                 <select
                                     v-model="goodbyeForm.channel_id"
@@ -731,7 +734,7 @@ function saveGoodbyeConfig() {
                                             <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                                             </svg>
-                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Textnachricht</p>
+                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('welcome.goodbyeSection.textMessage') }}</p>
                                         </div>
                                     </label>
                                     <label class="relative cursor-pointer">
@@ -745,7 +748,7 @@ function saveGoodbyeConfig() {
                                             <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                             </svg>
-                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Nachricht einbetten</p>
+                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('welcome.goodbyeSection.embedMessage') }}</p>
                                         </div>
                                     </label>
                                     <label class="relative cursor-pointer">
@@ -759,7 +762,7 @@ function saveGoodbyeConfig() {
                                             <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                             </svg>
-                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Abschiedskarte</p>
+                                            <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('welcome.goodbyeSection.goodbyeCard') }}</p>
                                         </div>
                                     </label>
                                 </div>
@@ -1071,7 +1074,7 @@ function saveGoodbyeConfig() {
                                     :disabled="goodbyeForm.processing"
                                     class="px-6 py-2.5 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                                 >
-                                    {{ goodbyeForm.processing ? 'Speichere...' : 'Speichern' }}
+                                    {{ goodbyeForm.processing ? t('common.saving') : t('common.save') }}
                                 </button>
                             </div>
                         </form>

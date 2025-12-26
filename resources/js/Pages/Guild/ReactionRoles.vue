@@ -2,6 +2,9 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     guild: Object,
@@ -151,7 +154,7 @@ function saveReactionRole() {
 }
 
 function deleteReactionRole(id) {
-    if (confirm('Möchtest du diese Reaktionsrolle wirklich löschen?')) {
+    if (confirm(t('reactionRoles.confirmDelete'))) {
         router.delete(route('guild.reaction-roles.delete', { guild: props.guild.id, id }), {
             preserveScroll: true,
         });
@@ -342,11 +345,11 @@ const renderedDescription = computed(() => {
 </script>
 
 <template>
-    <Head :title="`${guild.name} - Reaktionsrollen`" />
+    <Head :title="`${guild.name} - ${t('reactionRoles.title')}`" />
 
     <GuildLayout :guild="guild" :guilds="guilds">
         <div class="p-8">
-            <h1 class="text-2xl font-bold mb-6 text-white">Reaktionsrollen</h1>
+            <h1 class="text-2xl font-bold mb-6 text-white">{{ t('reactionRoles.title') }}</h1>
 
             <div class="space-y-4">
                 <!-- Liste der Reaktionsrollen -->
@@ -358,7 +361,7 @@ const renderedDescription = computed(() => {
                     >
                           <div class="flex items-center justify-between">
                               <div class="flex items-center gap-3">
-                                  <span class="text-sm font-medium text-white">{{ rr.embed_title || 'Unbenannte Reaktionsrolle' }}</span>
+                                  <span class="text-sm font-medium text-white">{{ rr.embed_title || t('reactionRoles.unnamed') }}</span>
                                   <span
                                       :class="[
                                           'px-2 py-0.5 rounded text-xs font-medium',
@@ -381,26 +384,26 @@ const renderedDescription = computed(() => {
                                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
-                                    {{ sendingMessage[rr.id] ? 'Sende...' : 'Erneut senden' }}
+                                    {{ sendingMessage[rr.id] ? t('reactionRoles.sending') : t('reactionRoles.resend') }}
                                 </button>
                                 <button
                                     @click="openReactionRoleModal(rr)"
                                     class="px-3 py-1.5 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded text-sm font-medium transition-colors"
                                 >
-                                    Bearbeiten
+                                    {{ t('common.edit') }}
                                 </button>
                                 <button
                                     @click="deleteReactionRole(rr.id)"
                                     class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium transition-colors"
                                 >
-                                    Löschen
+                                    {{ t('common.delete') }}
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div v-else class="text-center py-12 text-gray-400 bg-[#2f3136] rounded-lg border border-[#202225]">
-                    <p>Noch keine Reaktionsrollen erstellt.</p>
+                    <p>{{ t('reactionRoles.noReactionRoles') }}</p>
                 </div>
 
                 <!-- Button zum Hinzufügen -->
@@ -411,7 +414,7 @@ const renderedDescription = computed(() => {
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Reaktionsrolle hinzufügen
+                    {{ t('reactionRoles.addReactionRole') }}
                 </button>
             </div>
         </div>
@@ -426,7 +429,7 @@ const renderedDescription = computed(() => {
                 <div class="p-6 border-b border-[#202225]">
                     <div class="flex items-center justify-between">
                         <h2 class="text-xl font-semibold text-white">
-                            {{ editingReactionRole ? 'Reaktionsrolle bearbeiten' : 'Neue Reaktionsrolle erstellen' }}
+                            {{ editingReactionRole ? t('reactionRoles.editReactionRole') : t('reactionRoles.createReactionRole') }}
                         </h2>
                         <button
                             @click="closeReactionRoleModal"

@@ -2,6 +2,9 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     guild: Object,
@@ -80,7 +83,7 @@ function saveNotification() {
 }
 
 function deleteNotification(id) {
-    if (confirm('Möchtest du diese Benachrichtigung wirklich löschen?')) {
+    if (confirm(t('social.confirmDelete'))) {
         router.delete(route('guild.social.delete', { guild: props.guild.id, id }), {
             preserveScroll: true,
         });
@@ -97,17 +100,17 @@ function getPlatformName(platform) {
 </script>
 
 <template>
-    <Head :title="`${guild.name} - Social Media Benachrichtigungen`" />
+    <Head :title="`${guild.name} - ${t('social.title')}`" />
 
     <GuildLayout :guild="guild" :guilds="guilds">
         <div class="p-8">
             <div class="flex items-center justify-between mb-6">
-                <h1 class="text-2xl font-bold text-white">Social Media Benachrichtigungen</h1>
+                <h1 class="text-2xl font-bold text-white">{{ t('social.title') }}</h1>
                 <button
                     @click="openAddForm()"
                     class="px-4 py-2 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
-                    + Neue Benachrichtigung
+                    {{ t('social.addNotification') }}
                 </button>
             </div>
 
@@ -116,7 +119,7 @@ function getPlatformName(platform) {
                 <div v-if="showAddForm" class="bg-[#2f3136] rounded-lg border border-[#202225] p-6">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-white">
-                            {{ editingId ? 'Benachrichtigung bearbeiten' : 'Neue Benachrichtigung hinzufügen' }}
+                            {{ editingId ? t('social.editNotification') : t('social.newNotification') }}
                         </h2>
                         <button
                             @click="closeForm"
@@ -131,7 +134,7 @@ function getPlatformName(platform) {
                     <form @submit.prevent="saveNotification" class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">
-                                Plattform *
+                                {{ t('social.platform') }}
                             </label>
                             <select
                                 v-model="form.platform"
@@ -148,7 +151,7 @@ function getPlatformName(platform) {
 
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">
-                                Discord Kanal *
+                                {{ t('social.discordChannel') }}
                             </label>
                             <select
                                 v-model="form.channel_id"

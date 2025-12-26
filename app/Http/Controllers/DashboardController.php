@@ -214,27 +214,37 @@ class DashboardController extends Controller
             ]
         );
         
-        // Aktualisiere bot_active Status
-        $guildModel->update(['bot_active' => true]);
-
-        // Aktualisiere bot_joined Status
-        $userGuild->update(['bot_joined' => true]);
+        // Aktualisiere bot_active Status nur wenn Bot wirklich auf Server ist
+        $botOnServer = $this->checkBotOnGuild($guild, config('services.discord.bot_client_id'), config('services.discord.bot_token'));
+        if ($botOnServer) {
+            $guildModel->update(['bot_active' => true]);
+            $userGuild->update(['bot_joined' => true]);
+        } else {
+            // Bot nicht auf Server, aber User kann trotzdem zugreifen (Bot-Master)
+            $guildModel->update(['bot_active' => false]);
+            $userGuild->update(['bot_joined' => false]);
+        }
 
         // Lade oder erstelle Konfigurationen
         $welcomeConfig = $guildModel->welcomeConfig()->firstOrCreate([]);
         $goodbyeConfig = $guildModel->goodbyeConfig()->firstOrCreate([]);
 
         // Lade alle Guilds für Sidebar
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->orderBy('name')
             ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
             ->map(function ($g) {
                 return [
                     'id' => $g->guild_id,
                     'name' => $g->name,
                     'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
                     'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
                 ];
             });
 
@@ -336,16 +346,21 @@ class DashboardController extends Controller
         $goodbyeConfig = $guildModel->goodbyeConfig()->firstOrCreate([]);
 
         // Lade alle Guilds für Sidebar
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->orderBy('name')
             ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
             ->map(function ($g) {
                 return [
                     'id' => $g->guild_id,
                     'name' => $g->name,
                     'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
                     'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
                 ];
             });
 
@@ -448,16 +463,21 @@ class DashboardController extends Controller
         $guildModel->update(['bot_active' => true]);
 
         // Lade alle Guilds für Sidebar
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->orderBy('name')
             ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
             ->map(function ($g) {
                 return [
                     'id' => $g->guild_id,
                     'name' => $g->name,
                     'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
                     'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
                 ];
             });
 
@@ -533,16 +553,21 @@ class DashboardController extends Controller
         // Aktualisiere bot_active Status
         $guildModel->update(['bot_active' => true]);
 
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->orderBy('name')
             ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
             ->map(function ($g) {
                 return [
                     'id' => $g->guild_id,
                     'name' => $g->name,
                     'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
                     'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
                 ];
             });
 
@@ -622,14 +647,23 @@ class DashboardController extends Controller
         // Aktualisiere bot_active Status
         $guildModel->update(['bot_active' => true]);
         
-        $allGuilds = UserGuild::where('user_id', $user->id)->where('bot_joined', true)->orderBy('name')->get()->map(function ($g) {
-            return [
-                'id' => $g->guild_id,
-                'name' => $g->name,
-                'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                'owner' => $g->owner,
-            ];
-        });
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        $allGuilds = UserGuild::where('user_id', $user->id)
+            ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
+            ->map(function ($g) {
+                return [
+                    'id' => $g->guild_id,
+                    'name' => $g->name,
+                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
+                    'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
+                ];
+            });
         $channels = $this->fetchGuildChannels($guild);
         $categories = $this->fetchGuildCategories($guild);
         $roles = $this->fetchGuildRoles($guild);
@@ -732,16 +766,21 @@ class DashboardController extends Controller
         $guildModel->update(['bot_active' => true]);
 
         // Lade alle Guilds für Sidebar
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->orderBy('name')
             ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
             ->map(function ($g) {
                 return [
                     'id' => $g->guild_id,
                     'name' => $g->name,
                     'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
                     'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
                 ];
             });
 
@@ -786,7 +825,7 @@ class DashboardController extends Controller
 
     /**
      * Prüft ob Bot noch auf dem Server ist und aktualisiert den Status
-     * Gibt true zurück wenn Bot auf Server ist, sonst Redirect-Response
+     * Gibt true zurück wenn Bot auf Server ist oder User Bot-Master ist, sonst Redirect-Response
      */
     private function verifyAndUpdateBotStatus($guildId, $userGuild)
     {
@@ -812,6 +851,14 @@ class DashboardController extends Controller
                 \Log::info("verifyAndUpdateBotStatus: Bot nicht mehr auf Server, Status aktualisiert", [
                     'guild_id' => $guildId,
                 ]);
+            }
+            
+            // Wenn User Bot-Master ist (MANAGE_GUILD oder Administrator), erlaube Zugriff trotzdem
+            // Der User kann dann den Bot einladen
+            if ($this->canManageGuild($userGuild->permissions)) {
+                // Bot-Master kann Server einrichten, auch wenn Bot nicht auf Server ist
+                // Er wird dann zur Einladungsseite weitergeleitet oder kann den Bot einladen
+                return true;
             }
             
             return redirect()->route('dashboard')->with('error', 'Der Bot ist nicht mehr auf diesem Server. Bitte lade den Bot erneut ein.');
@@ -933,16 +980,21 @@ class DashboardController extends Controller
         // Aktualisiere bot_active Status
         $guildModel->update(['bot_active' => true]);
 
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->orderBy('name')
             ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
             ->map(function ($g) {
                 return [
                     'id' => $g->guild_id,
                     'name' => $g->name,
                     'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
                     'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
                 ];
             });
 
@@ -1215,16 +1267,21 @@ class DashboardController extends Controller
         // Aktualisiere bot_active Status
         $guildModel->update(['bot_active' => true]);
 
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->orderBy('name')
             ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
             ->map(function ($g) {
                 return [
                     'id' => $g->guild_id,
                     'name' => $g->name,
                     'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
                     'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
                 ];
             });
 

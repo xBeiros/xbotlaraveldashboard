@@ -2,6 +2,9 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     guild: Object,
@@ -219,19 +222,19 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <Head :title="`${guild.name} - Aufleveln`" />
+    <Head :title="`${guild.name} - ${t('leveling.title')}`" />
 
     <GuildLayout :guild="guild" :guilds="guilds">
         <div class="p-8">
-            <h1 class="text-2xl font-bold mb-6 text-white">Aufleveln</h1>
+            <h1 class="text-2xl font-bold mb-6 text-white">{{ t('leveling.title') }}</h1>
 
             <form @submit.prevent="saveLeveling" class="space-y-6">
                 <!-- Haupt-Accordion: Aufleveln -->
                 <div class="bg-[#2f3136] rounded-lg border border-[#202225] overflow-hidden">
                     <div class="flex items-center justify-between p-6">
                         <div class="flex-1">
-                            <h2 class="text-xl font-semibold text-white mb-1">Aufleveln</h2>
-                            <p class="text-sm text-gray-400">Gebe deinen Mitgliedern XP und Levels, wenn sie Nachrichten senden, und stelle sie in einer Rangliste nach Aktivität ein</p>
+                            <h2 class="text-xl font-semibold text-white mb-1">{{ t('leveling.title') }}</h2>
+                            <p class="text-sm text-gray-400">{{ t('leveling.description') }}</p>
                         </div>
                         <div class="flex items-center gap-4">
                             <label class="relative inline-flex items-center cursor-pointer">

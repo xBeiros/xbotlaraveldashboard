@@ -2,6 +2,9 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     guild: Object,
@@ -175,19 +178,19 @@ function saveConfig() {
 </script>
 
 <template>
-    <Head :title="`${guild.name} - Auto-Moderation`" />
+    <Head :title="`${guild.name} - ${t('autoModeration.title')}`" />
 
     <GuildLayout :guild="guild" :guilds="guilds">
         <div class="p-8">
-            <h1 class="text-2xl font-bold mb-6 text-white">Auto-Moderation</h1>
+            <h1 class="text-2xl font-bold mb-6 text-white">{{ t('autoModeration.title') }}</h1>
 
             <form @submit.prevent="saveConfig" class="space-y-6">
                 <!-- Bad Words -->
                 <div class="bg-[#2f3136] rounded-lg border border-[#202225] overflow-hidden">
                     <div class="flex items-center justify-between p-6">
                         <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-white mb-1">Bad Words Filter</h3>
-                            <p class="text-sm text-gray-400">Automatisch Nachrichten mit unerwünschten Wörtern löschen</p>
+                            <h3 class="text-lg font-semibold text-white mb-1">{{ t('autoModeration.badWords.title') }}</h3>
+                            <p class="text-sm text-gray-400">{{ t('autoModeration.badWords.description') }}</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input
