@@ -126,10 +126,11 @@ function refreshGuilds() {
                 <div
                     v-for="guild in guilds"
                     :key="guild.id"
-                    class="bg-[#2f3136] rounded-lg overflow-hidden hover:bg-[#36393f] transition-colors border border-[#202225] relative"
+                    class="rounded-lg overflow-hidden transition-colors relative"
+                    style="width: 262px; height: 152px;"
                 >
                     <!-- Background mit verschwommenem Profilbild -->
-                    <div class="relative h-32 overflow-hidden">
+                    <div class="absolute inset-0 overflow-hidden">
                         <div
                             v-if="guild.icon_url"
                             class="absolute inset-0 bg-cover bg-center"
@@ -162,8 +163,8 @@ function refreshGuilds() {
                     </div>
 
                     <!-- Server Informationen und Button -->
-                    <div class="p-4">
-                        <div class="mb-4">
+                    <div class="absolute bottom-0 left-0 right-0 p-4">
+                        <div class="mb-3">
                             <h3 class="text-lg font-semibold text-white truncate mb-1">
                                 {{ guild.name }}
                             </h3>
