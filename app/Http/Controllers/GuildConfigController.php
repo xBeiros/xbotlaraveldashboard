@@ -1341,70 +1341,112 @@ class GuildConfigController extends Controller
         }
 
         $botToken = config('services.discord.bot_token');
+        $botClientId = config('services.discord.bot_client_id');
+        
         if (!$botToken) {
             return back()->with('error', 'Bot Token nicht konfiguriert!');
         }
+        
+        if (!$botClientId) {
+            return back()->with('error', 'Bot Client ID nicht konfiguriert!');
+        }
 
         try {
-            $payload = [];
+            $globalPayload = []; // Für Avatar und Banner (global)
+            $guildPayload = []; // Für Nickname (server-spezifisch)
 
-            // Bot-Name ändern
-            if ($request->has('username') && !empty($request->username)) {
-                $payload['username'] = $request->username;
+            // Bot-Name ändern (nur für diesen Server - Nickname)
+            if ($request->has('username')) {
+                // Leerer String oder null = Nickname entfernen (zeigt dann globalen Namen)
+                $nickname = $request->username;
+                if (empty($nickname)) {
+                    $guildPayload['nick'] = null; // Entfernt den Nickname
+                } else {
+                    $guildPayload['nick'] = $nickname;
+                }
             }
 
-            // Avatar ändern
+            // Avatar ändern (global)
             if ($request->hasFile('avatar')) {
                 $avatarFile = $request->file('avatar');
                 if ($avatarFile->isValid() && $avatarFile->getSize() <= 8 * 1024 * 1024) {
                     // Konvertiere Bild zu Base64 Data URL
                     $imageData = base64_encode(file_get_contents($avatarFile->getRealPath()));
                     $mimeType = $avatarFile->getMimeType();
-                    $payload['avatar'] = "data:{$mimeType};base64,{$imageData}";
+                    $globalPayload['avatar'] = "data:{$mimeType};base64,{$imageData}";
                 } else {
                     return back()->with('error', 'Avatar-Datei ist zu groß (max. 8MB) oder ungültig.');
                 }
             }
 
-            // Banner ändern
+            // Banner ändern (global)
             if ($request->hasFile('banner')) {
                 $bannerFile = $request->file('banner');
                 if ($bannerFile->isValid() && $bannerFile->getSize() <= 8 * 1024 * 1024) {
                     // Konvertiere Bild zu Base64 Data URL
                     $imageData = base64_encode(file_get_contents($bannerFile->getRealPath()));
                     $mimeType = $bannerFile->getMimeType();
-                    $payload['banner'] = "data:{$mimeType};base64,{$imageData}";
+                    $globalPayload['banner'] = "data:{$mimeType};base64,{$imageData}";
                 } else {
                     return back()->with('error', 'Banner-Datei ist zu groß (max. 8MB) oder ungültig.');
                 }
             }
 
-            if (empty($payload)) {
+            if (empty($globalPayload) && empty($guildPayload)) {
                 return back()->with('error', 'Keine Änderungen vorgenommen.');
             }
 
-            // Discord API: PATCH /users/@me
-            // Hinweis: Dies funktioniert nur, wenn der Bot-Owner die Änderung vornimmt
-            // Für Bots benötigt man OAuth2 Token des Bot-Owners, nicht Bot Token
-            // Alternativ: Nutze OAuth2 Flow für Bot-Owner
-            
-            // Versuche mit Bot Token (funktioniert nur für bestimmte Operationen)
-            $response = Http::withHeaders([
-                'Authorization' => 'Bot ' . $botToken,
-                'Content-Type' => 'application/json',
-            ])->timeout(10)->patch('https://discord.com/api/v10/users/@me', $payload);
+            $errors = [];
 
-            if ($response->successful()) {
-                return back()->with('success', 'Bot-Profil erfolgreich aktualisiert!');
-            } else {
-                $errorData = $response->json();
-                $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des Bot-Profils.';
-                \Log::error('Discord API Error bei Bot-Personalisierung:', [
-                    'status' => $response->status(),
-                    'response' => $errorData,
-                ]);
-                return back()->with('error', 'Fehler: ' . $errorMessage);
+            // 1. Ändere globales Profil (Avatar/Banner) - PATCH /users/@me
+            // Hinweis: Dies funktioniert nur mit OAuth2 Token des Bot-Owners
+            // Für Bots benötigt man OAuth2 Token des Bot-Owners, nicht Bot Token
+            // Versuche es trotzdem mit Bot Token (kann fehlschlagen)
+            if (!empty($globalPayload)) {
+                $globalResponse = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                    'Content-Type' => 'application/json',
+                ])->timeout(10)->patch('https://discord.com/api/v10/users/@me', $globalPayload);
+
+                if (!$globalResponse->successful()) {
+                    $errorData = $globalResponse->json();
+                    $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des globalen Bot-Profils.';
+                    $errors[] = 'Avatar/Banner: ' . $errorMessage;
+                    \Log::error('Discord API Error bei globaler Bot-Personalisierung:', [
+                        'status' => $globalResponse->status(),
+                        'response' => $errorData,
+                    ]);
+                }
             }
+
+            // 2. Ändere Server-spezifischen Nickname - PATCH /guilds/{guild.id}/members/{user.id}
+            if (!empty($guildPayload)) {
+                $guildResponse = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                    'Content-Type' => 'application/json',
+                ])->timeout(10)->patch(
+                    "https://discord.com/api/v10/guilds/{$guild}/members/{$botClientId}",
+                    $guildPayload
+                );
+
+                if (!$guildResponse->successful()) {
+                    $errorData = $guildResponse->json();
+                    $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des Bot-Nicknames.';
+                    $errors[] = 'Name: ' . $errorMessage;
+                    \Log::error('Discord API Error bei Bot-Nickname-Update:', [
+                        'status' => $guildResponse->status(),
+                        'response' => $errorData,
+                        'guild' => $guild,
+                        'bot_id' => $botClientId,
+                    ]);
+                }
+            }
+
+            if (!empty($errors)) {
+                return back()->with('error', 'Fehler beim Aktualisieren: ' . implode(' | ', $errors));
+            }
+
+            return back()->with('success', 'Bot-Profil erfolgreich aktualisiert!');
         } catch (\Exception $e) {
             \Log::error('Fehler bei Bot-Personalisierung:', [
                 'error' => $e->getMessage(),

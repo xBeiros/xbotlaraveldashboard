@@ -544,7 +544,15 @@ async function savePersonalization() {
     const originalBannerData = bannerOriginal.value;
     
     // Wenn Avatar vorhanden ist, rendere das transformierte Bild (auch wenn keine Transformation)
-    if (avatarOriginal.value && personalizationForm.avatar) {
+    // WICHTIG: Rendere immer, wenn avatarOriginal vorhanden ist, auch wenn personalizationForm.avatar nicht gesetzt ist
+    if (avatarOriginal.value) {
+        // Stelle sicher, dass personalizationForm.avatar gesetzt ist (für das erste Mal)
+        if (!personalizationForm.avatar) {
+            // Erstelle eine temporäre Datei aus avatarOriginal
+            const response = await fetch(avatarOriginal.value);
+            const blob = await response.blob();
+            personalizationForm.avatar = new File([blob], 'avatar.png', { type: 'image/png' });
+        }
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
@@ -611,7 +619,15 @@ async function savePersonalization() {
     }
     
     // Wenn Banner vorhanden ist, rendere das transformierte Bild (auch wenn keine Transformation)
-    if (bannerOriginal.value && personalizationForm.banner) {
+    // WICHTIG: Rendere immer, wenn bannerOriginal vorhanden ist, auch wenn personalizationForm.banner nicht gesetzt ist
+    if (bannerOriginal.value) {
+        // Stelle sicher, dass personalizationForm.banner gesetzt ist (für das erste Mal)
+        if (!personalizationForm.banner) {
+            // Erstelle eine temporäre Datei aus bannerOriginal
+            const response = await fetch(bannerOriginal.value);
+            const blob = await response.blob();
+            personalizationForm.banner = new File([blob], 'banner.png', { type: 'image/png' });
+        }
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
