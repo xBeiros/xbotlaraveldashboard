@@ -138,7 +138,10 @@
                     <div class="sticky top-8">
                         <div class="bg-[#2f3136] rounded-lg border border-[#202225] p-6">
                             <div class="flex items-center justify-between mb-4">
-                                <h4 class="text-sm font-semibold text-white">{{ t('ticketSystem.ticketPost.preview') }}</h4>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="text-sm font-semibold text-white">{{ t('ticketSystem.ticketPost.preview') }}</h4>
+                                    <span class="text-xs text-gray-500">{{ t('ticketSystem.ticketPost.previewNote') }}</span>
+                                </div>
                                 <div class="flex items-center gap-2 text-xs text-gray-400">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -201,13 +204,13 @@
                                 <div class="mt-3 relative" data-preview-dropdown>
                                     <div 
                                         @click="previewDropdownOpen = !previewDropdownOpen"
-                                        class="bg-[#36393f] rounded-lg border border-[#202225] px-4 py-3 hover:bg-[#40444b] transition-colors cursor-pointer"
+                                        class="bg-[#36393f] rounded-lg border border-[#202225] px-3 py-2 hover:bg-[#40444b] transition-colors cursor-pointer"
                                     >
                                         <div class="flex items-center justify-between">
-                                            <span class="text-base text-[#dcddde] font-normal">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
+                                            <span class="text-sm text-[#dcddde] font-normal">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
                                             <!-- Discord Standard Chevron Icon -->
                                             <svg 
-                                                class="w-5 h-5 text-[#b9bbbe] transition-transform flex-shrink-0"
+                                                class="w-4 h-4 text-[#b9bbbe] transition-transform flex-shrink-0"
                                                 :class="{ 'rotate-180': previewDropdownOpen }"
                                                 viewBox="0 0 20 20"
                                                 fill="currentColor"
@@ -217,26 +220,26 @@
                                         </div>
                                     </div>
                                     
-                                    <!-- Dropdown Menu -->
+                                    <!-- Dropdown Menu (nach oben) -->
                                     <div 
                                         v-if="previewDropdownOpen"
-                                        class="absolute top-full left-0 right-0 mt-1 bg-[#18191c] border border-[#1e1f22] rounded-lg shadow-2xl overflow-hidden z-10 max-h-[300px] overflow-y-auto"
+                                        class="absolute bottom-full left-0 right-0 mb-1 bg-[#18191c] border border-[#1e1f22] rounded-lg shadow-2xl overflow-hidden z-10 max-h-[250px] overflow-y-auto"
                                     >
                                         <div 
                                             v-if="ticketCategories.filter(c => c.enabled).length === 0"
-                                            class="px-4 py-3 text-base text-[#b9bbbe] text-center"
+                                            class="px-3 py-2 text-sm text-[#b9bbbe] text-center"
                                         >
                                             {{ t('ticketSystem.categories.noCategories') }}
                                         </div>
                                         <div
                                             v-for="category in ticketCategories.filter(c => c.enabled)"
                                             :key="category.id"
-                                            class="px-4 py-3 hover:bg-[#2f3136] cursor-pointer transition-colors flex items-center gap-3 group"
+                                            class="px-3 py-2 hover:bg-[#2f3136] cursor-pointer transition-colors flex items-center gap-2 group"
                                         >
-                                            <span class="text-xl flex-shrink-0">{{ category.emoji || '🎫' }}</span>
+                                            <span class="text-base flex-shrink-0">{{ category.emoji || '🎫' }}</span>
                                             <div class="flex-1 min-w-0">
-                                                <div class="text-base font-normal text-[#dcddde] group-hover:text-white">{{ category.name }}</div>
-                                                <div v-if="category.description" class="text-sm text-[#b9bbbe] mt-0.5">{{ category.description }}</div>
+                                                <div class="text-sm font-normal text-[#dcddde] group-hover:text-white">{{ category.name }}</div>
+                                                <div v-if="category.description" class="text-xs text-[#b9bbbe] mt-0.5">{{ category.description }}</div>
                                             </div>
                                         </div>
                                     </div>

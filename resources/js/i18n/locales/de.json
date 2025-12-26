@@ -80,6 +80,7 @@
       "title": "Ticket-Post",
       "channelLabel": "Kanal für Ticket-Post *",
       "preview": "Vorschau",
+      "previewNote": "(Nur eine grobe Vorschau)",
       "selectCategory": "Kategorie auswählen...",
       "embedTitle": "Embed Titel",
       "embedTitlePlaceholder": "Ticket System",

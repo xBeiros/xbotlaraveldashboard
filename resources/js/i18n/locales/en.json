@@ -80,6 +80,7 @@
       "title": "Ticket Post",
       "channelLabel": "Channel for ticket post *",
       "preview": "Preview",
+      "previewNote": "(Rough preview only)",
       "selectCategory": "Select category...",
       "embedTitle": "Embed title",
       "embedTitlePlaceholder": "Ticket System",

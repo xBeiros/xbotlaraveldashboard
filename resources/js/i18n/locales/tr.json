@@ -80,6 +80,7 @@
       "title": "Bilet Gönderisi",
       "channelLabel": "Bilet gönderisi için kanal *",
       "preview": "Önizleme",
+      "previewNote": "(Sadece kaba bir önizleme)",
       "selectCategory": "Kategori seç...",
       "embedTitle": "Gömülü başlık",
       "embedTitlePlaceholder": "Bilet Sistemi",
