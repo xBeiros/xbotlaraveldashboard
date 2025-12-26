@@ -134,7 +134,7 @@
                 </div>
 
                 <!-- Right: Sticky Preview Bar -->
-                <div class="w-96 flex-shrink-0">
+                <div class="w-[520px] flex-shrink-0">
                     <div class="sticky top-8">
                         <div class="bg-[#2f3136] rounded-lg border border-[#202225] p-6">
                             <div class="flex items-center justify-between mb-4">
