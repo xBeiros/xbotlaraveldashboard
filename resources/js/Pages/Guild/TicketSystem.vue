@@ -236,7 +236,7 @@
                                             :key="category.id"
                                             class="px-3 py-2 hover:bg-[#2f3136] cursor-pointer transition-colors flex items-center gap-2 group"
                                         >
-                                            <span class="text-base flex-shrink-0">{{ category.emoji || '🎫' }}</span>
+                                            <span class="text-base flex-shrink-0">{{ formatEmoji(category.emoji) }}</span>
                                             <div class="flex-1 min-w-0">
                                                 <div class="text-sm font-normal text-[#dcddde] group-hover:text-white">{{ category.name }}</div>
                                                 <div v-if="category.description" class="text-xs text-[#b9bbbe] mt-0.5">{{ category.description }}</div>
@@ -271,7 +271,7 @@
                             >
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
-                                        <span class="text-lg">{{ category.emoji || '🎫' }}</span>
+                                        <span class="text-lg">{{ formatEmoji(category.emoji) }}</span>
                                         <div>
                                             <div class="text-sm font-medium text-white">{{ category.name }}</div>
                                             <div class="text-xs text-gray-400">
@@ -729,4 +729,14 @@ onMounted(() => {
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside);
 });
+
+// Format Emoji - entfernt :emoji: Format
+function formatEmoji(emoji) {
+    if (!emoji) return '🎫';
+    // Wenn es im :emoji: Format ist, entferne die Doppelpunkte
+    if (emoji.startsWith(':') && emoji.endsWith(':')) {
+        return emoji.slice(1, -1);
+    }
+    return emoji;
+}
 </script>
