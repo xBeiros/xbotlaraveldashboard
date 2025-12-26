@@ -127,10 +127,10 @@ function refreshGuilds() {
                     v-for="guild in guilds"
                     :key="guild.id"
                     class="rounded-lg overflow-hidden transition-colors flex flex-col"
-                    style="width: 262px;"
+                    style="width: 282px;"
                 >
                     <!-- Background mit verschwommenem Profilbild - nur für Icon/Name Bereich -->
-                    <div class="relative overflow-hidden rounded-lg" style="height: 150px;">
+                    <div class="relative overflow-hidden rounded-lg" style="height: 160px;">
                         <div
                             v-if="guild.icon_url"
                             class="absolute inset-0 bg-cover bg-center"
