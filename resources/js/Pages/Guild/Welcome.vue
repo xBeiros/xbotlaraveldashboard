@@ -256,7 +256,7 @@ function saveGoodbyeConfig() {
                                     required
                                     class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                 >
-                                    <option value="">Bitte wählen...</option>
+                                    <option value="">{{ t('common.pleaseSelect') }}</option>
                                     <template v-for="channel in channels" :key="channel.id">
                                         <option
                                             v-if="channel.type === 4 && (channel.is_category || channel.type === 4)"
@@ -274,14 +274,14 @@ function saveGoodbyeConfig() {
                                     </template>
                                 </select>
                                 <p v-if="!channels || channels.length === 0" class="text-xs text-red-400 mt-1">
-                                    Keine Channels gefunden. Bitte stelle sicher, dass der Bot Zugriff auf die Channels hat.
+                                    {{ t('welcome.welcomeSection.noChannels') }}
                                 </p>
                             </div>
 
                             <!-- Nachrichtentyp-Auswahl -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-3">
-                                    Nachrichtentyp auswählen
+                                    {{ t('welcome.welcomeSection.selectMessageType') }}
                                 </label>
                                 <div class="grid grid-cols-3 gap-3">
                                     <label class="relative cursor-pointer">
@@ -352,7 +352,7 @@ function saveGoodbyeConfig() {
                             <div v-if="welcomeMessageType === 'embed'" class="space-y-4">
                                 <!-- Embed Vorschau -->
                                 <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">Vorschau</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
                                     <div class="bg-[#2f3136] rounded-lg p-4 max-w-md">
                                         <!-- Discord-ähnliche Embed-Vorschau -->
                                         <div 
@@ -396,7 +396,7 @@ function saveGoodbyeConfig() {
                                     <input
                                         type="text"
                                         v-model="welcomeForm.embed_title"
-                                        placeholder="{user} ist dem Server beigetreten"
+                                        :placeholder="t('welcome.welcomeSection.embedTitlePlaceholder')"
                                         class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     />
                                 </div>
@@ -405,7 +405,7 @@ function saveGoodbyeConfig() {
                                     <textarea
                                         v-model="welcomeForm.embed_description"
                                         rows="3"
-                                        placeholder="Willkommen auf {server}! Du bist Mitglied #{memberCount}"
+                                        :placeholder="t('welcome.welcomeSection.embedDescriptionPlaceholder')"
                                         class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     ></textarea>
                                 </div>
@@ -431,7 +431,7 @@ function saveGoodbyeConfig() {
                                         v-model="welcomeForm.embed_footer"
                                         class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                                     />
-                                    <label class="text-sm text-gray-300">Footer anzeigen (Server-Name und Zeitstempel)</label>
+                                    <label class="text-sm text-gray-300">{{ t('welcome.welcomeSection.showFooter') }}</label>
                                 </div>
                             </div>
 
@@ -439,7 +439,7 @@ function saveGoodbyeConfig() {
                             <div v-if="welcomeMessageType === 'card'" class="space-y-4">
                                 <!-- Vorschau -->
                                 <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">Vorschau</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
                                     <div 
                                         class="relative rounded-lg overflow-hidden"
                                         :style="{
@@ -498,19 +498,19 @@ function saveGoodbyeConfig() {
 
                                 <!-- Personalisierung -->
                                 <div>
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">Personalisiere deine Willkommenskarte</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.customizeCard') }}</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Schriftart</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.font') }}</label>
                                             <input
                                                 type="text"
                                                 v-model="welcomeForm.card_font"
-                                                placeholder="Suche nach einer Schriftart..."
+                                                :placeholder="t('welcome.welcomeSection.fontPlaceholder')"
                                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Titel</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.titleLabel') }}</label>
                                             <input
                                                 type="text"
                                                 v-model="welcomeForm.card_title"
@@ -519,19 +519,19 @@ function saveGoodbyeConfig() {
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Avatar-Position</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.avatarPosition') }}</label>
                                             <select
                                                 v-model="welcomeForm.card_avatar_position"
                                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                             >
-                                                <option value="top">Über dem Text</option>
-                                                <option value="left">Links vom Text</option>
-                                                <option value="right">Rechts vom Text</option>
-                                                <option value="bottom">Unter dem Text</option>
+                                                <option value="top">{{ t('welcome.welcomeSection.avatarPositionTop') }}</option>
+                                                <option value="left">{{ t('welcome.welcomeSection.avatarPositionLeft') }}</option>
+                                                <option value="right">{{ t('welcome.welcomeSection.avatarPositionRight') }}</option>
+                                                <option value="bottom">{{ t('welcome.welcomeSection.avatarPositionBottom') }}</option>
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Textfarbe</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.textColor') }}</label>
                                             <div class="grid grid-cols-5 gap-2 mb-2">
                                                 <button
                                                     v-for="color in colorOptions"
@@ -553,7 +553,7 @@ function saveGoodbyeConfig() {
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Hintergrundfarbe</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.backgroundColor') }}</label>
                                             <div class="grid grid-cols-5 gap-2 mb-2">
                                                 <button
                                                     v-for="color in colorOptions"
@@ -576,7 +576,7 @@ function saveGoodbyeConfig() {
                                         </div>
                                         <div>
                                             <label class="block text-sm font-medium text-gray-300 mb-2">
-                                                Deckkraft der Überlagerung: {{ welcomeForm.card_overlay_opacity }}%
+                                                {{ t('welcome.welcomeSection.overlayOpacity') }}: {{ welcomeForm.card_overlay_opacity }}%
                                             </label>
                                             <input
                                                 type="range"
@@ -587,7 +587,7 @@ function saveGoodbyeConfig() {
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Hintergrund</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.background') }}</label>
                                             <div class="relative">
                                                 <input
                                                     type="file"
@@ -604,9 +604,9 @@ function saveGoodbyeConfig() {
                                                     <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
-                                                    <p class="text-sm text-gray-300 font-medium mb-1">Hintergrundbild hochladen</p>
-                                                    <p class="text-xs text-gray-400">Klicke hier oder ziehe ein Bild hierher</p>
-                                                    <p class="text-xs text-gray-500 mt-1">Max. 5MB, JPG, PNG, GIF</p>
+                                                    <p class="text-sm text-gray-300 font-medium mb-1">{{ t('welcome.welcomeSection.uploadBackground') }}</p>
+                                                    <p class="text-xs text-gray-400">{{ t('welcome.welcomeSection.clickOrDrag') }}</p>
+                                                    <p class="text-xs text-gray-500 mt-1">{{ t('welcome.welcomeSection.maxSize') }}</p>
                                                 </label>
                                                 <div v-if="welcomeForm.card_background_image" class="mt-3 border-2 border-dashed border-[#202225] rounded-lg p-4">
                                                     <img 
@@ -619,7 +619,7 @@ function saveGoodbyeConfig() {
                                                         @click="removeBackgroundImage"
                                                         class="mt-2 text-xs text-red-400 hover:text-red-300 underline"
                                                     >
-                                                        Bild entfernen
+                                                        {{ t('welcome.welcomeSection.removeImage') }}
                                                     </button>
                                                 </div>
                                             </div>
@@ -695,7 +695,7 @@ function saveGoodbyeConfig() {
                                     required
                                     class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                 >
-                                    <option value="">Bitte wählen...</option>
+                                    <option value="">{{ t('common.pleaseSelect') }}</option>
                                     <template v-for="channel in channels" :key="channel.id">
                                         <option
                                             v-if="channel.type === 4 && (channel.is_category || channel.type === 4)"
@@ -713,14 +713,14 @@ function saveGoodbyeConfig() {
                                     </template>
                                 </select>
                                 <p v-if="!channels || channels.length === 0" class="text-xs text-red-400 mt-1">
-                                    Keine Channels gefunden. Bitte stelle sicher, dass der Bot Zugriff auf die Channels hat.
+                                    {{ t('welcome.welcomeSection.noChannels') }}
                                 </p>
                             </div>
 
                             <!-- Nachrichtentyp-Auswahl -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-300 mb-3">
-                                    Nachrichtentyp auswählen
+                                    {{ t('welcome.welcomeSection.selectMessageType') }}
                                 </label>
                                 <div class="grid grid-cols-3 gap-3">
                                     <label class="relative cursor-pointer">
@@ -780,7 +780,7 @@ function saveGoodbyeConfig() {
                                     ></textarea>
                                     <div class="flex justify-between items-center mt-1">
                                         <p class="text-xs text-gray-400">
-                                            Verfügbare Platzhalter: <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{server}</code>
+                                            {{ t('welcome.goodbyeSection.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{server}</code>
                                         </p>
                                         <span class="text-xs text-gray-400">{{ goodbyeMessageLength }} / 2000</span>
                                     </div>
@@ -791,7 +791,7 @@ function saveGoodbyeConfig() {
                             <div v-if="goodbyeMessageType === 'embed'" class="space-y-4">
                                 <!-- Embed Vorschau -->
                                 <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">Vorschau</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
                                     <div class="bg-[#2f3136] rounded-lg p-4 max-w-md">
                                         <!-- Discord-ähnliche Embed-Vorschau -->
                                         <div 
@@ -831,25 +831,25 @@ function saveGoodbyeConfig() {
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Titel</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.goodbyeSection.titleLabel') }}</label>
                                     <input
                                         type="text"
                                         v-model="goodbyeForm.embed_title"
-                                        placeholder="{user} hat den Server verlassen"
+                                        :placeholder="t('welcome.goodbyeSection.embedTitlePlaceholder')"
                                         class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Beschreibung</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.goodbyeSection.descriptionLabel') }}</label>
                                     <textarea
                                         v-model="goodbyeForm.embed_description"
                                         rows="3"
-                                        placeholder="Wir werden dich vermissen!"
+                                        :placeholder="t('welcome.goodbyeSection.embedDescriptionPlaceholder')"
                                         class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     ></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Farbe</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.goodbyeSection.colorLabel') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -870,7 +870,7 @@ function saveGoodbyeConfig() {
                                         v-model="goodbyeForm.embed_footer"
                                         class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                                     />
-                                    <label class="text-sm text-gray-300">Footer anzeigen (Server-Name und Zeitstempel)</label>
+                                    <label class="text-sm text-gray-300">{{ t('welcome.welcomeSection.showFooter') }}</label>
                                 </div>
                             </div>
 
@@ -878,7 +878,7 @@ function saveGoodbyeConfig() {
                             <div v-if="goodbyeMessageType === 'card'" class="space-y-4">
                                 <!-- Vorschau -->
                                 <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">Vorschau</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
                                     <div 
                                         class="relative rounded-lg overflow-hidden"
                                         :style="{
@@ -937,19 +937,19 @@ function saveGoodbyeConfig() {
 
                                 <!-- Personalisierung -->
                                 <div>
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">Personalisiere deine Abschiedskarte</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.goodbyeSection.customizeCard') }}</h4>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Schriftart</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.font') }}</label>
                                             <input
                                                 type="text"
                                                 v-model="goodbyeForm.card_font"
-                                                placeholder="Suche nach einer Schriftart..."
+                                                :placeholder="t('welcome.welcomeSection.fontPlaceholder')"
                                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Titel</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.titleLabel') }}</label>
                                             <input
                                                 type="text"
                                                 v-model="goodbyeForm.card_title"
@@ -958,19 +958,19 @@ function saveGoodbyeConfig() {
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Avatar-Position</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.goodbyeSection.avatarPosition') }}</label>
                                             <select
                                                 v-model="goodbyeForm.card_avatar_position"
                                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                             >
-                                                <option value="top">Über dem Text</option>
-                                                <option value="left">Links vom Text</option>
-                                                <option value="right">Rechts vom Text</option>
-                                                <option value="bottom">Unter dem Text</option>
+                                                <option value="top">{{ t('welcome.goodbyeSection.avatarPositionTop') }}</option>
+                                                <option value="left">{{ t('welcome.goodbyeSection.avatarPositionLeft') }}</option>
+                                                <option value="right">{{ t('welcome.goodbyeSection.avatarPositionRight') }}</option>
+                                                <option value="bottom">{{ t('welcome.goodbyeSection.avatarPositionBottom') }}</option>
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Textfarbe</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.textColor') }}</label>
                                             <div class="grid grid-cols-5 gap-2 mb-2">
                                                 <button
                                                     v-for="color in colorOptions"
@@ -992,7 +992,7 @@ function saveGoodbyeConfig() {
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Hintergrundfarbe</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.backgroundColor') }}</label>
                                             <div class="grid grid-cols-5 gap-2 mb-2">
                                                 <button
                                                     v-for="color in colorOptions"
@@ -1026,7 +1026,7 @@ function saveGoodbyeConfig() {
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-300 mb-2">Hintergrund</label>
+                                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.background') }}</label>
                                             <div class="relative">
                                                 <input
                                                     type="file"
@@ -1043,9 +1043,9 @@ function saveGoodbyeConfig() {
                                                     <svg class="w-10 h-10 mx-auto text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                     </svg>
-                                                    <p class="text-sm text-gray-300 font-medium mb-1">Hintergrundbild hochladen</p>
-                                                    <p class="text-xs text-gray-400">Klicke hier oder ziehe ein Bild hierher</p>
-                                                    <p class="text-xs text-gray-500 mt-1">Max. 5MB, JPG, PNG, GIF</p>
+                                                    <p class="text-sm text-gray-300 font-medium mb-1">{{ t('welcome.welcomeSection.uploadBackground') }}</p>
+                                                    <p class="text-xs text-gray-400">{{ t('welcome.welcomeSection.clickOrDrag') }}</p>
+                                                    <p class="text-xs text-gray-500 mt-1">{{ t('welcome.welcomeSection.maxSize') }}</p>
                                                 </label>
                                                 <div v-if="goodbyeForm.card_background_image" class="mt-3 border-2 border-dashed border-[#202225] rounded-lg p-4">
                                                     <img 
@@ -1058,7 +1058,7 @@ function saveGoodbyeConfig() {
                                                         @click="removeGoodbyeBackgroundImage"
                                                         class="mt-2 text-xs text-red-400 hover:text-red-300 underline"
                                                     >
-                                                        Bild entfernen
+                                                        {{ t('welcome.welcomeSection.removeImage') }}
                                                     </button>
                                                 </div>
                                             </div>
