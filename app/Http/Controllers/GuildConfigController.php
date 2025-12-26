@@ -1487,10 +1487,12 @@ class GuildConfigController extends Controller
             }
 
             if (!empty($errors)) {
-                return back()->with('error', 'Fehler beim Aktualisieren: ' . implode(' | ', $errors))->with('botInfo', $botInfo);
+                return back()->with('error', 'Fehler beim Aktualisieren: ' . implode(' | ', $errors));
             }
 
-            return back()->with('success', 'Server-Profil erfolgreich aktualisiert!')->with('botInfo', $botInfo);
+            // Lade die Seite neu, damit botInfo korrekt aktualisiert wird
+            return redirect()->route('guild.server-management', ['guild' => $guild])
+                ->with('success', 'Server-Profil erfolgreich aktualisiert!');
         } catch (\Exception $e) {
             \Log::error('Fehler bei Bot-Personalisierung:', [
                 'error' => $e->getMessage(),

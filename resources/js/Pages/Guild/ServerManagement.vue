@@ -793,28 +793,41 @@ async function savePersonalization() {
                 personalizationForm.username = page.props.botInfo.username;
             }
             
-            // Nach erfolgreichem Speichern: Stelle das Original-Bild wieder her, damit man weiter bearbeiten kann
-            if (originalAvatarData) {
-                avatarOriginal.value = originalAvatarData;
-                // Aktualisiere die Vorschau mit dem transformierten Bild
-                if (personalizationForm.avatar) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        avatarPreview.value = e.target.result;
-                    };
-                    reader.readAsDataURL(personalizationForm.avatar);
+            // Aktualisiere Avatar und Banner Preview mit den neuen Daten vom Server
+            if (page.props.botInfo?.avatar) {
+                avatarPreview.value = page.props.botInfo.avatar;
+                // Wenn kein avatarOriginal vorhanden ist, setze es auf die Preview
+                if (!avatarOriginal.value) {
+                    avatarOriginal.value = page.props.botInfo.avatar;
                 }
             }
-            if (originalBannerData) {
+            if (page.props.botInfo?.banner) {
+                bannerPreview.value = page.props.botInfo.banner;
+                // Wenn kein bannerOriginal vorhanden ist, setze es auf die Preview
+                if (!bannerOriginal.value) {
+                    bannerOriginal.value = page.props.botInfo.banner;
+                }
+            }
+            
+            // Nach erfolgreichem Speichern: Stelle das Original-Bild wieder her, damit man weiter bearbeiten kann
+            // Aber nur wenn wir ein neues Bild hochgeladen haben
+            if (originalAvatarData && personalizationForm.avatar) {
+                avatarOriginal.value = originalAvatarData;
+                // Aktualisiere die Vorschau mit dem transformierten Bild
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    avatarPreview.value = e.target.result;
+                };
+                reader.readAsDataURL(personalizationForm.avatar);
+            }
+            if (originalBannerData && personalizationForm.banner) {
                 bannerOriginal.value = originalBannerData;
                 // Aktualisiere die Vorschau mit dem transformierten Bild
-                if (personalizationForm.banner) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        bannerPreview.value = e.target.result;
-                    };
-                    reader.readAsDataURL(personalizationForm.banner);
-                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    bannerPreview.value = e.target.result;
+                };
+                reader.readAsDataURL(personalizationForm.banner);
             }
         },
     });
