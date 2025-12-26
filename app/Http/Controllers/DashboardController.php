@@ -210,8 +210,9 @@ class DashboardController extends Controller
         $goodbyeConfig = $guildModel->goodbyeConfig()->firstOrCreate([]);
 
         // Lade alle Guilds für Sidebar
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
@@ -314,8 +315,9 @@ class DashboardController extends Controller
         $goodbyeConfig = $guildModel->goodbyeConfig()->firstOrCreate([]);
 
         // Lade alle Guilds für Sidebar
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
@@ -419,8 +421,9 @@ class DashboardController extends Controller
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Lade alle Guilds für Sidebar
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
@@ -699,8 +702,9 @@ class DashboardController extends Controller
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Lade alle Guilds für Sidebar
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
