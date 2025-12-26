@@ -247,71 +247,72 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Ticket-Kategorien unter der Vorschau -->
+                    <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225] mt-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-white">{{ t('ticketSystem.categories.title') }}</h2>
+                            <button
+                                @click="openCategoryModal()"
+                                class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors flex items-center gap-2"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                {{ t('ticketSystem.categories.addCategory') }}
+                            </button>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div
+                                v-for="category in ticketCategories"
+                                :key="category.id"
+                                class="bg-[#36393f] rounded-lg p-4 border border-[#202225] hover:border-[#5865f2] transition-colors"
+                            >
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-lg">{{ category.emoji || '🎫' }}</span>
+                                        <div>
+                                            <div class="text-sm font-medium text-white">{{ category.name }}</div>
+                                            <div class="text-xs text-gray-400">
+                                                {{ categories.find(c => c.id === category.category_id)?.name || t('ticketSystem.categories.noCategory') }} • 
+                                                {{ t('ticketSystem.categories.format') }}: {{ category.channel_name_format }}
+                                            </div>
+                                        </div>
+                                        <span
+                                            :class="[
+                                                'px-2 py-0.5 rounded text-xs font-medium ml-2',
+                                                category.enabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
+                                            ]"
+                                        >
+                                            {{ category.enabled ? t('common.active') : t('common.inactive') }}
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button
+                                            @click="openCategoryModal(category)"
+                                            class="px-3 py-1.5 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded text-sm font-medium transition-colors"
+                                        >
+                                            {{ t('common.edit') }}
+                                        </button>
+                                        <button
+                                            @click="deleteCategory(category.id)"
+                                            class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium transition-colors"
+                                        >
+                                            {{ t('common.delete') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="ticketCategories.length === 0" class="text-center py-8 text-gray-400">
+                                <p>{{ t('ticketSystem.categories.noCategories') }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div class="space-y-6 mt-6">
-                <!-- Ticket-Kategorien -->
-                <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
-                    <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-white">{{ t('ticketSystem.categories.title') }}</h2>
-                        <button
-                            @click="openCategoryModal()"
-                            class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors flex items-center gap-2"
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                            {{ t('ticketSystem.categories.addCategory') }}
-                        </button>
-                    </div>
-
-                    <div class="space-y-3">
-                        <div
-                            v-for="category in ticketCategories"
-                            :key="category.id"
-                            class="bg-[#36393f] rounded-lg p-4 border border-[#202225] hover:border-[#5865f2] transition-colors"
-                        >
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <span class="text-lg">{{ category.emoji || '🎫' }}</span>
-                                    <div>
-                                        <div class="text-sm font-medium text-white">{{ category.name }}</div>
-                                        <div class="text-xs text-gray-400">
-                                            {{ categories.find(c => c.id === category.category_id)?.name || t('ticketSystem.categories.noCategory') }} • 
-                                            {{ t('ticketSystem.categories.format') }}: {{ category.channel_name_format }}
-                                        </div>
-                                    </div>
-                                    <span
-                                        :class="[
-                                            'px-2 py-0.5 rounded text-xs font-medium ml-2',
-                                            category.enabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
-                                        ]"
-                                    >
-                                        {{ category.enabled ? t('common.active') : t('common.inactive') }}
-                                    </span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <button
-                                        @click="openCategoryModal(category)"
-                                        class="px-3 py-1.5 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded text-sm font-medium transition-colors"
-                                    >
-                                        {{ t('common.edit') }}
-                                    </button>
-                                    <button
-                                        @click="deleteCategory(category.id)"
-                                        class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium transition-colors"
-                                    >
-                                        {{ t('common.delete') }}
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div v-if="ticketCategories.length === 0" class="text-center py-8 text-gray-400">
-                            <p>{{ t('ticketSystem.categories.noCategories') }}</p>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- Ticket-Transcripts -->
                 <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
