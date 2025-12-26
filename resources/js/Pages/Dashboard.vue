@@ -122,11 +122,11 @@ function refreshGuilds() {
                 <p class="text-gray-400">Du hast noch keine Server. Bitte logge dich mit Discord ein, um deine Server zu sehen.</p>
             </div>
 
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 <div
                     v-for="guild in guilds"
                     :key="guild.id"
-                    class="rounded-lg overflow-hidden transition-colors relative"
+                    class="rounded-lg overflow-hidden transition-colors relative flex flex-col"
                     style="width: 262px; height: 152px;"
                 >
                     <!-- Background mit verschwommenem Profilbild -->
@@ -144,52 +144,54 @@ function refreshGuilds() {
                             v-else
                             class="absolute inset-0 bg-gradient-to-r from-[#5865f2] to-[#4752c4] opacity-60"
                         ></div>
-                        
+                    </div>
+
+                    <!-- Content Container -->
+                    <div class="relative z-10 flex flex-col items-center justify-center flex-1 px-4 pt-6 pb-4">
                         <!-- Server Icon zentriert -->
-                        <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="mb-3">
                             <img
                                 v-if="guild.icon_url"
                                 :src="guild.icon_url"
                                 :alt="guild.name"
-                                class="w-20 h-20 rounded-full border-4 border-[#2f3136] shadow-lg"
+                                class="w-16 h-16 rounded-full border-4 border-[#2f3136] shadow-lg"
                             />
                             <div
                                 v-else
-                                class="w-20 h-20 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-3xl font-bold border-4 border-[#2f3136] shadow-lg"
+                                class="w-16 h-16 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-2xl font-bold border-4 border-[#2f3136] shadow-lg"
                             >
                                 {{ guild.name.charAt(0).toUpperCase() }}
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Server Informationen und Button -->
-                    <div class="absolute bottom-0 left-0 right-0 p-4">
-                        <div class="mb-3">
-                            <h3 class="text-lg font-semibold text-white truncate mb-1">
+                        <!-- Server Informationen -->
+                        <div class="text-center mb-3 flex-1 flex flex-col justify-center">
+                            <h3 class="text-base font-semibold text-white truncate mb-1 w-full">
                                 {{ guild.name }}
                             </h3>
-                            <p class="text-sm text-gray-400">
+                            <p class="text-xs text-gray-400">
                                 {{ guild.owner ? 'Eigentümer' : 'Bot Master' }}
                             </p>
                         </div>
 
+                        <!-- Button -->
                         <button
                             v-if="!guild.bot_joined && guild.can_manage"
                             @click="inviteBot(guild.id)"
-                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium"
+                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
                         >
                             Bot einladen
                         </button>
                         <button
                             v-else-if="guild.bot_joined && guild.can_manage"
                             @click="selectGuild(guild)"
-                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium"
+                            class="w-full bg-[#4e545c] hover:bg-[#5d6269] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
                         >
                             Einrichtung
                         </button>
                         <div
                             v-else
-                            class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium"
+                            class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
                         >
                             Keine Berechtigung
                         </div>
