@@ -126,11 +126,11 @@ function refreshGuilds() {
                 <div
                     v-for="guild in guilds"
                     :key="guild.id"
-                    class="rounded-lg overflow-hidden transition-colors relative flex flex-col"
-                    style="width: 262px; height: 152px;"
+                    class="rounded-lg overflow-hidden transition-colors flex flex-col bg-[#2f3136]"
+                    style="width: 262px;"
                 >
-                    <!-- Background mit verschwommenem Profilbild -->
-                    <div class="absolute inset-0 overflow-hidden">
+                    <!-- Background mit verschwommenem Profilbild - nur für Icon/Name Bereich -->
+                    <div class="relative overflow-hidden" style="height: 120px;">
                         <div
                             v-if="guild.icon_url"
                             class="absolute inset-0 bg-cover bg-center"
@@ -144,58 +144,58 @@ function refreshGuilds() {
                             v-else
                             class="absolute inset-0 bg-gradient-to-r from-[#5865f2] to-[#4752c4] opacity-60"
                         ></div>
+
+                        <!-- Content Container innerhalb des verschwommenen Bereichs -->
+                        <div class="relative z-10 flex flex-col h-full">
+                            <!-- Icon Bereich oben -->
+                            <div class="flex-1 flex items-center justify-center pt-6 pb-2">
+                                <img
+                                    v-if="guild.icon_url"
+                                    :src="guild.icon_url"
+                                    :alt="guild.name"
+                                    class="w-16 h-16 rounded-full border-4 border-[#2f3136] shadow-lg"
+                                />
+                                <div
+                                    v-else
+                                    class="w-16 h-16 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-2xl font-bold border-4 border-[#2f3136] shadow-lg"
+                                >
+                                    {{ guild.name.charAt(0).toUpperCase() }}
+                                </div>
+                            </div>
+
+                            <!-- Server Informationen unter Icon -->
+                            <div class="text-center px-4 pb-4">
+                                <h3 class="text-base font-semibold text-white truncate mb-1">
+                                    {{ guild.name }}
+                                </h3>
+                                <p class="text-xs text-gray-400">
+                                    {{ guild.owner ? 'Eigentümer' : 'Bot Master' }}
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Content Container -->
-                    <div class="relative z-10 flex flex-col h-full">
-                        <!-- Icon Bereich oben -->
-                        <div class="flex-1 flex items-center justify-center pt-6 pb-2">
-                            <img
-                                v-if="guild.icon_url"
-                                :src="guild.icon_url"
-                                :alt="guild.name"
-                                class="w-16 h-16 rounded-full border-4 border-[#2f3136] shadow-lg"
-                            />
-                            <div
-                                v-else
-                                class="w-16 h-16 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-2xl font-bold border-4 border-[#2f3136] shadow-lg"
-                            >
-                                {{ guild.name.charAt(0).toUpperCase() }}
-                            </div>
-                        </div>
-
-                        <!-- Server Informationen unter Icon -->
-                        <div class="text-center px-4 pb-2">
-                            <h3 class="text-base font-semibold text-white truncate mb-1">
-                                {{ guild.name }}
-                            </h3>
-                            <p class="text-xs text-gray-400">
-                                {{ guild.owner ? 'Eigentümer' : 'Bot Master' }}
-                            </p>
-                        </div>
-
-                        <!-- Button direkt unter den Informationen -->
-                        <div class="px-4 pb-4">
-                            <button
-                                v-if="!guild.bot_joined && guild.can_manage"
-                                @click="inviteBot(guild.id)"
-                                class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
-                            >
-                                Bot einladen
-                            </button>
-                            <button
-                                v-else-if="guild.bot_joined && guild.can_manage"
-                                @click="selectGuild(guild)"
-                                class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
-                            >
-                                Weiter
-                            </button>
-                            <div
-                                v-else
-                                class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
-                            >
-                                Keine Berechtigung
-                            </div>
+                    <!-- Button außerhalb des verschwommenen Bereichs -->
+                    <div class="px-4 py-3 bg-[#2f3136]">
+                        <button
+                            v-if="!guild.bot_joined && guild.can_manage"
+                            @click="inviteBot(guild.id)"
+                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
+                        >
+                            Bot einladen
+                        </button>
+                        <button
+                            v-else-if="guild.bot_joined && guild.can_manage"
+                            @click="selectGuild(guild)"
+                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
+                        >
+                            Weiter
+                        </button>
+                        <div
+                            v-else
+                            class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
+                        >
+                            Keine Berechtigung
                         </div>
                     </div>
                 </div>
