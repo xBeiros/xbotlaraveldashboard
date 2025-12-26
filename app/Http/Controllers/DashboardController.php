@@ -519,6 +519,30 @@ class DashboardController extends Controller
                 ];
             });
 
+        // Hole Bot-Info
+        $botInfo = null;
+        $botToken = config('services.discord.bot_token');
+        $botClientId = config('services.discord.bot_client_id');
+        if ($botToken && $botClientId) {
+            try {
+                $botResponse = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                ])->timeout(5)->get('https://discord.com/api/v10/users/@me');
+                
+                if ($botResponse->successful()) {
+                    $botData = $botResponse->json();
+                    $botInfo = [
+                        'id' => $botData['id'] ?? null,
+                        'username' => $botData['username'] ?? null,
+                        'avatar' => isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null,
+                        'banner' => isset($botData['banner']) ? "https://cdn.discordapp.com/banners/{$botData['id']}/{$botData['banner']}.png" : null,
+                    ];
+                }
+            } catch (\Exception $e) {
+                \Log::warning("Fehler beim Abrufen der Bot-Info: " . $e->getMessage());
+            }
+        }
+
         return Inertia::render('Guild/ServerManagement', [
             'guild' => [
                 'id' => $userGuild->guild_id,
@@ -532,6 +556,7 @@ class DashboardController extends Controller
                 'bot_active' => $guildModel->bot_active ?? true,
                 'language' => $guildModel->language ?? 'de',
             ],
+            'botInfo' => $botInfo,
             'channels' => $this->fetchGuildChannels($guild),
             'categories' => $this->fetchGuildCategories($guild),
             'roles' => $this->fetchGuildRoles($guild),

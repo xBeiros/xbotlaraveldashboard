@@ -1328,4 +1328,89 @@ class GuildConfigController extends Controller
 
         return back()->with('success', 'Transcript-Einstellung erfolgreich gespeichert!');
     }
+
+    public function updateBotPersonalization(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return back()->with('error', 'Bot Token nicht konfiguriert!');
+        }
+
+        try {
+            $payload = [];
+
+            // Bot-Name ändern
+            if ($request->has('username') && !empty($request->username)) {
+                $payload['username'] = $request->username;
+            }
+
+            // Avatar ändern
+            if ($request->hasFile('avatar')) {
+                $avatarFile = $request->file('avatar');
+                if ($avatarFile->isValid() && $avatarFile->getSize() <= 8 * 1024 * 1024) {
+                    // Konvertiere Bild zu Base64 Data URL
+                    $imageData = base64_encode(file_get_contents($avatarFile->getRealPath()));
+                    $mimeType = $avatarFile->getMimeType();
+                    $payload['avatar'] = "data:{$mimeType};base64,{$imageData}";
+                } else {
+                    return back()->with('error', 'Avatar-Datei ist zu groß (max. 8MB) oder ungültig.');
+                }
+            }
+
+            // Banner ändern
+            if ($request->hasFile('banner')) {
+                $bannerFile = $request->file('banner');
+                if ($bannerFile->isValid() && $bannerFile->getSize() <= 8 * 1024 * 1024) {
+                    // Konvertiere Bild zu Base64 Data URL
+                    $imageData = base64_encode(file_get_contents($bannerFile->getRealPath()));
+                    $mimeType = $bannerFile->getMimeType();
+                    $payload['banner'] = "data:{$mimeType};base64,{$imageData}";
+                } else {
+                    return back()->with('error', 'Banner-Datei ist zu groß (max. 8MB) oder ungültig.');
+                }
+            }
+
+            if (empty($payload)) {
+                return back()->with('error', 'Keine Änderungen vorgenommen.');
+            }
+
+            // Discord API: PATCH /users/@me
+            // Hinweis: Dies funktioniert nur, wenn der Bot-Owner die Änderung vornimmt
+            // Für Bots benötigt man OAuth2 Token des Bot-Owners, nicht Bot Token
+            // Alternativ: Nutze OAuth2 Flow für Bot-Owner
+            
+            // Versuche mit Bot Token (funktioniert nur für bestimmte Operationen)
+            $response = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+                'Content-Type' => 'application/json',
+            ])->timeout(10)->patch('https://discord.com/api/v10/users/@me', $payload);
+
+            if ($response->successful()) {
+                return back()->with('success', 'Bot-Profil erfolgreich aktualisiert!');
+            } else {
+                $errorData = $response->json();
+                $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des Bot-Profils.';
+                \Log::error('Discord API Error bei Bot-Personalisierung:', [
+                    'status' => $response->status(),
+                    'response' => $errorData,
+                ]);
+                return back()->with('error', 'Fehler: ' . $errorMessage);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Fehler bei Bot-Personalisierung:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+            return back()->with('error', 'Fehler beim Aktualisieren des Bot-Profils: ' . $e->getMessage());
+        }
+    }
 }

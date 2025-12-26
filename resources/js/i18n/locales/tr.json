@@ -72,7 +72,22 @@
     "title": "Ayarlar",
     "serverLanguage": "Sunucu Dili",
     "selectLanguage": "Dil Seç",
-    "languageDescription": "Bu sunucu için dili seçin. Bu ayar bot mesajlarının ve kontrol panelinin dilini etkiler."
+    "languageDescription": "Bu sunucu için dili seçin. Bu ayar bot mesajlarının ve kontrol panelinin dilini etkiler.",
+    "botPersonalization": {
+      "title": "Bot Kişiselleştirme",
+      "description": "Discord botunuzun görünümünü kişiselleştirin. İsim, profil resmi ve banner'ı değiştirin.",
+      "botName": "Bot Adı",
+      "botNamePlaceholder": "Yeni bot adı",
+      "botNameHelp": "Discord'da bot için gösterilen isim (maks. 32 karakter).",
+      "avatar": "Profil Resmi",
+      "selectAvatar": "Profil Resmi Seç",
+      "avatarHelp": "Bot için bir profil resmi yükleyin (maks. 8MB, PNG/JPG/GIF).",
+      "avatarSizeError": "Profil resmi dosyası çok büyük (maks. 8MB).",
+      "banner": "Banner",
+      "selectBanner": "Banner Seç",
+      "bannerHelp": "Bot için bir banner yükleyin (maks. 8MB, PNG/JPG/GIF).",
+      "bannerSizeError": "Banner dosyası çok büyük (maks. 8MB)."
+    }
   },
   "ticketSystem": {
     "title": "Bilet Sistemi",

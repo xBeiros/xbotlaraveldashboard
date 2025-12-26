@@ -83,6 +83,8 @@ Route::middleware('auth')->group(function () {
         ->name('guild.server-management');
     Route::put('/guild/{guild}/server-management', [\App\Http\Controllers\GuildConfigController::class, 'updateServerManagement'])
         ->name('guild.server-management.update');
+    Route::post('/guild/{guild}/bot-personalization', [\App\Http\Controllers\GuildConfigController::class, 'updateBotPersonalization'])
+        ->name('guild.bot-personalization.update');
     
     // Ticket System
     Route::get('/guild/{guild}/ticket-system', [\App\Http\Controllers\DashboardController::class, 'ticketSystem'])

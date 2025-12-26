@@ -72,7 +72,22 @@
     "title": "Settings",
     "serverLanguage": "Server Language",
     "selectLanguage": "Select Language",
-    "languageDescription": "Choose the language for this server. This setting affects the language of bot messages and the dashboard."
+    "languageDescription": "Choose the language for this server. This setting affects the language of bot messages and the dashboard.",
+    "botPersonalization": {
+      "title": "Bot Personalization",
+      "description": "Personalize your Discord bot's appearance. Change name, avatar, and banner.",
+      "botName": "Bot Name",
+      "botNamePlaceholder": "New bot name",
+      "botNameHelp": "The name displayed for the bot in Discord (max. 32 characters).",
+      "avatar": "Avatar",
+      "selectAvatar": "Select Avatar",
+      "avatarHelp": "Upload an avatar for the bot (max. 8MB, PNG/JPG/GIF).",
+      "avatarSizeError": "Avatar file is too large (max. 8MB).",
+      "banner": "Banner",
+      "selectBanner": "Select Banner",
+      "bannerHelp": "Upload a banner for the bot (max. 8MB, PNG/JPG/GIF).",
+      "bannerSizeError": "Banner file is too large (max. 8MB)."
+    }
   },
   "ticketSystem": {
     "title": "Ticket System",
