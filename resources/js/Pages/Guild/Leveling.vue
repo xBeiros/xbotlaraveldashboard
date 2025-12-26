@@ -266,7 +266,7 @@ onUnmounted(() => {
                                 class="w-full flex items-center justify-between p-4 text-left"
                             >
                                 <div class="flex items-center gap-2">
-                                    <span class="text-lg font-semibold text-white">XP-Rate</span>
+                                    <span class="text-lg font-semibold text-white">{{ t('leveling.xpRate.title') }}</span>
                                     <span class="text-xs">👑</span>
                                 </div>
                                 <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': xpRateOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -274,11 +274,11 @@ onUnmounted(() => {
                                 </svg>
                             </button>
                             <div v-show="xpRateOpen" class="border-t border-[#202225] p-6 space-y-6">
-                                <p class="text-sm text-gray-400">Ändere den Schwierigkeitsgrad des Stufenaufstiegs, indem du die Geschwindigkeit, mit der deiner Mitglieder XP erhalten, anpasst.</p>
+                                <p class="text-sm text-gray-400">{{ t('leveling.xpRate.description') }}</p>
                                 
                                 <!-- XP-Rate Slider -->
                                 <div class="relative">
-                                    <label class="block text-sm font-medium text-gray-300 mb-3">XP-Multiplikator</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-3">{{ t('leveling.xpRate.multiplier') }}</label>
                                     <div class="relative">
                                         <input
                                             type="range"
@@ -300,7 +300,7 @@ onUnmounted(() => {
                                 <!-- Min/Max XP -->
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-300 mb-2">Minimale XP pro Nachricht</label>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.xpRate.minXp') }}</label>
                                         <input
                                             type="number"
                                             v-model.number="form.min_xp"
@@ -310,7 +310,7 @@ onUnmounted(() => {
                                         />
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-300 mb-2">Maximale XP pro Nachricht</label>
+                                        <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.xpRate.maxXp') }}</label>
                                         <input
                                             type="number"
                                             v-model.number="form.max_xp"
@@ -323,7 +323,7 @@ onUnmounted(() => {
 
                                 <!-- Cooldown -->
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Cooldown zwischen XP-Vergabe (Sekunden)</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.xpRate.cooldown') }}</label>
                                     <input
                                         type="number"
                                         v-model.number="form.cooldown_seconds"
@@ -331,33 +331,33 @@ onUnmounted(() => {
                                         max="300"
                                         class="w-full rounded bg-[#2f3136] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     />
-                                    <p class="text-xs text-gray-400 mt-1">Zeit, die zwischen zwei XP-Vergaben vergehen muss</p>
+                                    <p class="text-xs text-gray-400 mt-1">{{ t('leveling.xpRate.cooldownDescription') }}</p>
                                 </div>
 
                                 <!-- Level-Informationen -->
                                 <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-3">Level-Informationen</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-3">{{ t('leveling.xpRate.levelInfo') }}</h4>
                                     <div class="space-y-2 text-sm">
                                         <div class="flex justify-between text-gray-400">
-                                            <span>Durchschnittliche XP pro Nachricht:</span>
+                                            <span>{{ t('leveling.xpRate.averageXp') }}:</span>
                                             <span class="text-white font-semibold">{{ Math.round((form.min_xp + form.max_xp) / 2 * Number(form.xp_rate || 1.00)) }} XP</span>
                                         </div>
                                         <div class="flex justify-between text-gray-400">
-                                            <span>XP für Level 5:</span>
+                                            <span>{{ t('leveling.xpRate.xpForLevel', { level: 5 }) }}:</span>
                                             <span class="text-white font-semibold">{{ Math.ceil(Math.pow(5 / 0.1, 2)) }} XP</span>
                                         </div>
                                         <div class="flex justify-between text-gray-400">
-                                            <span>XP für Level 10:</span>
+                                            <span>{{ t('leveling.xpRate.xpForLevel', { level: 10 }) }}:</span>
                                             <span class="text-white font-semibold">{{ Math.ceil(Math.pow(10 / 0.1, 2)) }} XP</span>
                                         </div>
                                         <div class="flex justify-between text-gray-400">
-                                            <span>XP für Level 20:</span>
+                                            <span>{{ t('leveling.xpRate.xpForLevel', { level: 20 }) }}:</span>
                                             <span class="text-white font-semibold">{{ Math.ceil(Math.pow(20 / 0.1, 2)) }} XP</span>
                                         </div>
                                         <div class="border-t border-[#202225] pt-2 mt-2">
                                             <div class="flex justify-between text-gray-400">
-                                                <span>Geschätzte Nachrichten für Level 10:</span>
-                                                <span class="text-white font-semibold">~{{ Math.ceil(Math.pow(10 / 0.1, 2) / ((form.min_xp + form.max_xp) / 2 * Number(form.xp_rate || 1.00))) }} Nachrichten</span>
+                                                <span>{{ t('leveling.xpRate.estimatedMessages', { level: 10 }) }}:</span>
+                                                <span class="text-white font-semibold">~{{ Math.ceil(Math.pow(10 / 0.1, 2) / ((form.min_xp + form.max_xp) / 2 * Number(form.xp_rate || 1.00))) }} {{ t('leveling.xpRate.messages') }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -372,37 +372,37 @@ onUnmounted(() => {
                                 @click="levelUpAnnouncementOpen = !levelUpAnnouncementOpen"
                                 class="w-full flex items-center justify-between p-4 text-left"
                             >
-                                <span class="text-lg font-semibold text-white">Ankündigung des Levelaufstiegs</span>
+                                <span class="text-lg font-semibold text-white">{{ t('leveling.levelUpAnnouncement.title') }}</span>
                                 <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': levelUpAnnouncementOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
                             <div v-show="levelUpAnnouncementOpen" class="border-t border-[#202225] p-6 space-y-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Ankündigungstyp</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.levelUpAnnouncement.type') }}</label>
                                     <select
                                         v-model="form.level_up_type"
                                         class="w-full rounded bg-[#2f3136] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     >
-                                        <option value="current_channel">Aktueller Kanal</option>
-                                        <option value="channel">Benutzerdefinierter Kanal</option>
-                                        <option value="dm">Private Nachricht</option>
+                                        <option value="current_channel">{{ t('leveling.levelUpAnnouncement.currentChannel') }}</option>
+                                        <option value="channel">{{ t('leveling.levelUpAnnouncement.specificChannel') }}</option>
+                                        <option value="dm">{{ t('leveling.levelUpAnnouncement.dm') }}</option>
                                     </select>
                                 </div>
                                 <div v-if="form.level_up_type === 'channel'">
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Ankündigungskanal</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.levelUpAnnouncement.channel') }}</label>
                                     <select
                                         v-model="form.level_up_channel_id"
                                         class="w-full rounded bg-[#2f3136] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     >
-                                        <option value="">Kein Kanal ausgewählt</option>
+                                        <option value="">{{ t('common.pleaseSelect') }}</option>
                                         <option v-for="channel in channels.filter(c => c.type === 0)" :key="channel.id" :value="channel.id">
                                             # {{ channel.name }}
                                         </option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Level Up Ankündigungsnachricht</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.levelUpAnnouncement.message') }}</label>
                                     <textarea
                                         v-model="form.level_up_message"
                                         rows="3"
@@ -411,7 +411,7 @@ onUnmounted(() => {
                                     ></textarea>
                                     <div class="flex justify-between mt-1">
                                         <p class="text-xs text-gray-400">
-                                            Verfügbare Platzhalter: <code class="bg-[#202225] px-1 rounded">{player}</code>, <code class="bg-[#202225] px-1 rounded">{level}</code>
+                                            {{ t('leveling.levelUpAnnouncement.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded">{player}</code>, <code class="bg-[#202225] px-1 rounded">{level}</code>
                                         </p>
                                         <span class="text-xs text-gray-400">{{ form.level_up_message.length }} / 2000</span>
                                     </div>
@@ -427,7 +427,7 @@ onUnmounted(() => {
                                 class="w-full flex items-center justify-between p-4 text-left"
                             >
                                 <div class="flex items-center gap-2">
-                                    <span class="text-lg font-semibold text-white">Rollenbelohnungen</span>
+                                    <span class="text-lg font-semibold text-white">{{ t('leveling.roleRewards.title') }}</span>
                                     <span class="text-xs">👑</span>
                                 </div>
                                 <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': roleRewardsOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -435,10 +435,10 @@ onUnmounted(() => {
                                 </svg>
                             </button>
                             <div v-show="roleRewardsOpen" class="border-t border-[#202225] p-6 space-y-4">
-                                <p class="text-sm text-gray-400">Rollenbelohnungen sind Rollen, die ein Spieler automatisch erhält, wenn er eine bestimmte Stufe erreicht. Du kannst sie stapeln oder nur die höchste Rollenbelohnung behalten.</p>
+                                <p class="text-sm text-gray-400">{{ t('leveling.roleRewards.description') }}</p>
                                 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-3">Rolle Belohnungsart</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-3">{{ t('leveling.roleRewards.type') }}</label>
                                     <div class="space-y-3">
                                         <label class="flex items-start gap-3 cursor-pointer">
                                             <input
@@ -448,8 +448,8 @@ onUnmounted(() => {
                                                 class="mt-1"
                                             />
                                             <div>
-                                                <div class="text-sm font-medium text-white">Vorherige Belohnungen stapeln</div>
-                                                <div class="text-xs text-gray-400">Benutzer können mehrere Belohnungen auf einmal erhalten</div>
+                                                <div class="text-sm font-medium text-white">{{ t('leveling.roleRewards.stack') }}</div>
+                                                <div class="text-xs text-gray-400">{{ t('leveling.roleRewards.stackDescription') }}</div>
                                             </div>
                                         </label>
                                         <label class="flex items-start gap-3 cursor-pointer">
@@ -460,8 +460,8 @@ onUnmounted(() => {
                                                 class="mt-1"
                                             />
                                             <div>
-                                                <div class="text-sm font-medium text-white">Frühere Belohnungen entfernen</div>
-                                                <div class="text-xs text-gray-400">Die Nutzer erhalten nur die höchste Rollenbelohnung</div>
+                                                <div class="text-sm font-medium text-white">{{ t('leveling.roleRewards.replace') }}</div>
+                                                <div class="text-xs text-gray-400">{{ t('leveling.roleRewards.replaceDescription') }}</div>
                                             </div>
                                         </label>
                                     </div>
@@ -474,13 +474,13 @@ onUnmounted(() => {
                                         class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                                     />
                                     <div>
-                                        <label class="text-sm text-gray-300">Rollenbelohnung entfernen, nachdem Mitglied XP verloren hat</label>
-                                        <p class="text-xs text-gray-400">Üblicherweise nach einem /remove-xp-Befehl</p>
+                                        <label class="text-sm text-gray-300">{{ t('leveling.roleRewards.removeOnXpLoss') }}</label>
+                                        <p class="text-xs text-gray-400">{{ t('leveling.roleRewards.removeOnXpLossDescription') }}</p>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Rollenbelohnungen</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.roleRewards.title') }}</label>
                                     <button
                                         type="button"
                                         @click="showRoleRewardModal = true"
@@ -489,7 +489,7 @@ onUnmounted(() => {
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                         </svg>
-                                        <span>Wähle eine Rolle</span>
+                                        <span>{{ t('leveling.roleRewards.addReward') }}</span>
                                     </button>
                                     
                                     <div v-if="roleRewards.length > 0" class="mt-4 space-y-2">
@@ -499,7 +499,7 @@ onUnmounted(() => {
                                             class="flex items-center justify-between p-3 bg-[#2f3136] rounded border border-[#202225]"
                                         >
                                             <div>
-                                                <span class="text-sm text-white">Level {{ reward.level }}</span>
+                                                <span class="text-sm text-white">{{ t('leveling.roleRewards.level') }} {{ reward.level }}</span>
                                                 <span class="text-sm text-gray-400 ml-2">→ @{{ getRoleName(reward.role_id) }}</span>
                                             </div>
                                             <button
@@ -524,13 +524,13 @@ onUnmounted(() => {
                                 @click="excludedRolesOpen = !excludedRolesOpen"
                                 class="w-full flex items-center justify-between p-4 text-left"
                             >
-                                <span class="text-lg font-semibold text-white">Von XP ausgeschlossene Rolle</span>
+                                <span class="text-lg font-semibold text-white">{{ t('leveling.excludedRoles.title') }}</span>
                                 <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': excludedRolesOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
                             <div v-show="excludedRolesOpen" class="border-t border-[#202225] p-6 space-y-4">
-                                <p class="text-sm text-gray-400">Du kannst hier Rollen festlegen, die verhindern, dass Benutzer XP erhalten.</p>
+                                <p class="text-sm text-gray-400">{{ t('leveling.excludedRoles.description') }}</p>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-300 mb-3">Optionen</label>
@@ -543,7 +543,7 @@ onUnmounted(() => {
                                                 class="mt-1"
                                             />
                                             <div>
-                                                <div class="text-sm font-medium text-white">Verweigere allen Rollen, um XP zu erhalten, außer</div>
+                                                <div class="text-sm font-medium text-white">{{ t('leveling.excludedRoles.denyAllExcept') }}</div>
                                             </div>
                                         </label>
                                         <label class="flex items-start gap-3 cursor-pointer">
@@ -554,7 +554,7 @@ onUnmounted(() => {
                                                 class="mt-1"
                                             />
                                             <div>
-                                                <div class="text-sm font-medium text-white">Erlaubt allen Rollen, XP zu erhalten, außer</div>
+                                                <div class="text-sm font-medium text-white">{{ t('leveling.excludedRoles.allowAllExcept') }}</div>
                                             </div>
                                         </label>
                                     </div>
@@ -566,7 +566,7 @@ onUnmounted(() => {
                                         @click.stop="excludedRoleSelectorOpen = !excludedRoleSelectorOpen; nextTick(() => updateExcludedRoleDropdownPosition())"
                                         class="w-full flex items-center justify-between px-3 py-2 bg-[#2f3136] border border-[#202225] rounded text-white hover:border-[#5865f2] transition-colors"
                                     >
-                                        <span class="text-sm text-gray-300">Wähle eine Rolle</span>
+                                        <span class="text-sm text-gray-300">{{ t('common.pleaseSelect') }}</span>
                                         <svg class="w-4 h-4 text-gray-400 transition-transform" :class="{ 'rotate-180': excludedRoleSelectorOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                         </svg>
@@ -589,7 +589,7 @@ onUnmounted(() => {
                                                     <span class="text-sm" :style="{ color: getRoleColor(role.id) }">@{{ role.name }}</span>
                                                 </div>
                                                 <div v-if="roles.filter(r => !excludedRolesList.includes(r.id)).length === 0" class="px-4 py-2 text-sm text-gray-400">
-                                                    Alle Rollen bereits ausgewählt
+                                                    {{ t('common.noMoreItems') }}
                                                 </div>
                                             </div>
                                         </transition>
@@ -629,13 +629,13 @@ onUnmounted(() => {
                                 @click="excludedChannelsOpen = !excludedChannelsOpen"
                                 class="w-full flex items-center justify-between p-4 text-left"
                             >
-                                <span class="text-lg font-semibold text-white">Von XP ausgeschlossene Kanäle</span>
+                                <span class="text-lg font-semibold text-white">{{ t('leveling.excludedChannels.title') }}</span>
                                 <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': excludedChannelsOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
                             <div v-show="excludedChannelsOpen" class="border-t border-[#202225] p-6 space-y-4">
-                                <p class="text-sm text-gray-400">Du kannst auch verhindern, dass deine Mitglieder XP erhalten, wenn sie Nachrichten in bestimmten Textkanälen senden.</p>
+                                <p class="text-sm text-gray-400">{{ t('leveling.excludedChannels.description') }}</p>
                                 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-300 mb-3">Optionen</label>
@@ -648,7 +648,7 @@ onUnmounted(() => {
                                                 class="mt-1"
                                             />
                                             <div>
-                                                <div class="text-sm font-medium text-white">Für alle Kanäle verweigern, außer</div>
+                                                <div class="text-sm font-medium text-white">{{ t('leveling.excludedChannels.denyAllExcept') }}</div>
                                             </div>
                                         </label>
                                         <label class="flex items-start gap-3 cursor-pointer">
@@ -659,7 +659,7 @@ onUnmounted(() => {
                                                 class="mt-1"
                                             />
                                             <div>
-                                                <div class="text-sm font-medium text-white">Für alle Kanäle zulassen, außer</div>
+                                                <div class="text-sm font-medium text-white">{{ t('leveling.excludedChannels.allowAllExcept') }}</div>
                                             </div>
                                         </label>
                                     </div>
@@ -671,7 +671,7 @@ onUnmounted(() => {
                                         @click.stop="excludedChannelSelectorOpen = !excludedChannelSelectorOpen; nextTick(() => updateExcludedChannelDropdownPosition())"
                                         class="w-full flex items-center justify-between px-3 py-2 bg-[#2f3136] border border-[#202225] rounded text-white hover:border-[#5865f2] transition-colors"
                                     >
-                                        <span class="text-sm text-gray-300">Wähle einen Kanal</span>
+                                        <span class="text-sm text-gray-300">{{ t('common.pleaseSelect') }}</span>
                                         <svg class="w-4 h-4 text-gray-400 transition-transform" :class="{ 'rotate-180': excludedChannelSelectorOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                         </svg>
@@ -694,7 +694,7 @@ onUnmounted(() => {
                                                     <span class="text-sm text-gray-300"># {{ channel.name }}</span>
                                                 </div>
                                                 <div v-if="channels.filter(c => c.type === 0 && !excludedChannelsList.includes(c.id)).length === 0" class="px-4 py-2 text-sm text-gray-400">
-                                                    Alle Channels bereits ausgewählt
+                                                    {{ t('common.noMoreItems') }}
                                                 </div>
                                             </div>
                                         </transition>
@@ -729,13 +729,13 @@ onUnmounted(() => {
                                 @click="rankCardOpen = !rankCardOpen"
                                 class="w-full flex items-center justify-between p-4 text-left"
                             >
-                                <span class="text-lg font-semibold text-white">Standard-Serverrangkarte</span>
+                                <span class="text-lg font-semibold text-white">{{ t('leveling.rankCard.title') }}</span>
                                 <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': rankCardOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
                             <div v-show="rankCardOpen" class="border-t border-[#202225] p-6 space-y-4">
-                                <p class="text-sm text-gray-400">Du kannst die voreingestellte /rank-Karte auf deinem Server anpassen. Standardmäßig hat jedes Mitglied deines Servers diese Rangkarte.</p>
+                                <p class="text-sm text-gray-400">{{ t('leveling.rankCard.description') }}</p>
                                 
                                 <!-- Rank Card Preview -->
                                 <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
@@ -764,7 +764,7 @@ onUnmounted(() => {
                                     @click="showRankCardModal = true"
                                     class="w-full px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded transition-colors font-medium"
                                 >
-                                    Serverrangkarte bearbeiten
+                                    {{ t('leveling.rankCard.edit') }}
                                 </button>
                             </div>
                         </div>
@@ -789,10 +789,10 @@ onUnmounted(() => {
                 @click.self="showRoleRewardModal = false"
             >
                 <div class="bg-[#2f3136] rounded-lg border border-[#202225] p-6 w-full max-w-md">
-                    <h3 class="text-xl font-semibold text-white mb-4">Rollenbelohnung hinzufügen</h3>
+                    <h3 class="text-xl font-semibold text-white mb-4">{{ t('leveling.roleRewards.addReward') }}</h3>
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Level</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.roleRewards.level') }}</label>
                             <input
                                 type="number"
                                 v-model.number="newRoleReward.level"
@@ -801,12 +801,12 @@ onUnmounted(() => {
                             />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Rolle</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.roleRewards.role') }}</label>
                             <select
                                 v-model="newRoleReward.role_id"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             >
-                                <option value="">Rolle auswählen...</option>
+                                <option value="">{{ t('common.pleaseSelect') }}</option>
                                 <option v-for="role in roles" :key="role.id" :value="role.id">
                                     @{{ role.name }}
                                 </option>
@@ -818,14 +818,14 @@ onUnmounted(() => {
                                 @click="showRoleRewardModal = false"
                                 class="px-4 py-2 bg-[#36393f] hover:bg-[#2f3136] text-white rounded transition-colors"
                             >
-                                Abbrechen
+                                {{ t('common.cancel') }}
                             </button>
                             <button
                                 type="button"
                                 @click="addRoleReward"
                                 class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded transition-colors"
                             >
-                                Hinzufügen
+                                {{ t('common.add') }}
                             </button>
                         </div>
                     </div>
@@ -842,7 +842,7 @@ onUnmounted(() => {
             >
                 <div class="bg-[#2f3136] rounded-lg border border-[#202225] p-6 w-full max-w-4xl my-8">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-xl font-semibold text-white">Rangkarte bearbeiten</h3>
+                        <h3 class="text-xl font-semibold text-white">{{ t('leveling.rankCard.edit') }}</h3>
                         <button
                             @click="showRankCardModal = false"
                             class="text-gray-400 hover:text-white"
@@ -878,7 +878,7 @@ onUnmounted(() => {
 
                         <!-- Hintergrund Typ -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-3">Hintergrund Typ</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-3">{{ t('leveling.rankCard.backgroundType') }}</label>
                             <div class="grid grid-cols-3 gap-3">
                                 <label class="relative cursor-pointer">
                                     <input
@@ -888,7 +888,7 @@ onUnmounted(() => {
                                         class="peer sr-only"
                                     />
                                     <div class="rounded-lg border-2 p-4 text-center transition-all peer-checked:border-[#5865f2] peer-checked:bg-[#5865f2]/10 border-[#202225] hover:border-[#36393f]">
-                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Farbe</p>
+                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('leveling.rankCard.color') }}</p>
                                     </div>
                                 </label>
                                 <label class="relative cursor-pointer">
@@ -899,7 +899,7 @@ onUnmounted(() => {
                                         class="peer sr-only"
                                     />
                                     <div class="rounded-lg border-2 p-4 text-center transition-all peer-checked:border-[#5865f2] peer-checked:bg-[#5865f2]/10 border-[#202225] hover:border-[#36393f]">
-                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Preset</p>
+                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('leveling.rankCard.image') }}</p>
                                     </div>
                                 </label>
                                 <label class="relative cursor-pointer">
@@ -910,7 +910,7 @@ onUnmounted(() => {
                                         class="peer sr-only"
                                     />
                                     <div class="rounded-lg border-2 p-4 text-center transition-all peer-checked:border-[#5865f2] peer-checked:bg-[#5865f2]/10 border-[#202225] hover:border-[#36393f]">
-                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Benutzerdefiniert</p>
+                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('leveling.rankCard.customUrl') }}</p>
                                     </div>
                                 </label>
                             </div>
@@ -918,7 +918,7 @@ onUnmounted(() => {
 
                         <!-- Hintergrund Farbe -->
                         <div v-if="rankCardForm.background_type === 'color'">
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Hintergrundfarbe</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.rankCard.backgroundColor') }}</label>
                             <div class="flex gap-2">
                                 <input
                                     type="color"
@@ -936,27 +936,27 @@ onUnmounted(() => {
 
                         <!-- Preset Hintergrund -->
                         <div v-if="rankCardForm.background_type === 'image'">
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Preset Hintergrund</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.rankCard.backgroundImage') }}</label>
                             <select
                                 v-model="rankCardForm.background_image"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             >
-                                <option value="">Kein Hintergrund</option>
-                                <option value="forest">Wald</option>
-                                <option value="doors">Türen</option>
-                                <option value="night">Nacht</option>
-                                <option value="storm">Sturm</option>
-                                <option value="sunset">Sonnenuntergang</option>
-                                <option value="mountains">Berge</option>
-                                <option value="rain">Regen</option>
-                                <option value="grid">Gitter</option>
-                                <option value="wood">Holz</option>
+                                <option value="">{{ t('leveling.rankCard.noBackground') }}</option>
+                                <option value="forest">{{ t('leveling.rankCard.presetForest') }}</option>
+                                <option value="doors">{{ t('leveling.rankCard.presetDoors') }}</option>
+                                <option value="night">{{ t('leveling.rankCard.presetNight') }}</option>
+                                <option value="storm">{{ t('leveling.rankCard.presetStorm') }}</option>
+                                <option value="sunset">{{ t('leveling.rankCard.presetSunset') }}</option>
+                                <option value="mountains">{{ t('leveling.rankCard.presetMountains') }}</option>
+                                <option value="rain">{{ t('leveling.rankCard.presetRain') }}</option>
+                                <option value="grid">{{ t('leveling.rankCard.presetGrid') }}</option>
+                                <option value="wood">{{ t('leveling.rankCard.presetWood') }}</option>
                             </select>
                         </div>
 
                         <!-- Benutzerdefinierter Hintergrund -->
                         <div v-if="rankCardForm.background_type === 'custom'">
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Benutzerdefinierter Hintergrund URL</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.rankCard.customUrl') }}</label>
                             <input
                                 type="url"
                                 v-model="rankCardForm.custom_background_url"
@@ -967,7 +967,7 @@ onUnmounted(() => {
 
                         <!-- Deckkraft der Überlagerung -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Deckkraft der Überlagerung: {{ rankCardForm.overlay_opacity }}%</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.rankCard.overlayOpacity') }}: {{ rankCardForm.overlay_opacity }}%</label>
                             <input
                                 type="range"
                                 v-model.number="rankCardForm.overlay_opacity"
@@ -979,10 +979,10 @@ onUnmounted(() => {
 
                         <!-- Farben -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-3">Farben</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-3">{{ t('leveling.rankCard.colors') }}</label>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Textfarbe</label>
+                                    <label class="block text-xs text-gray-400 mb-1">{{ t('leveling.rankCard.textColor') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -997,7 +997,7 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Rang-Textfarbe</label>
+                                    <label class="block text-xs text-gray-400 mb-1">{{ t('leveling.rankCard.rankTextColor') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -1012,7 +1012,7 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">Level-Textfarbe</label>
+                                    <label class="block text-xs text-gray-400 mb-1">{{ t('leveling.rankCard.levelTextColor') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -1027,7 +1027,7 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block text-xs text-gray-400 mb-1">XP-Textfarbe</label>
+                                    <label class="block text-xs text-gray-400 mb-1">{{ t('leveling.rankCard.xpTextColor') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -1042,7 +1042,7 @@ onUnmounted(() => {
                                     </div>
                                 </div>
                                 <div class="col-span-2">
-                                    <label class="block text-xs text-gray-400 mb-1">Fortschrittsbalken-Farbe</label>
+                                    <label class="block text-xs text-gray-400 mb-1">{{ t('leveling.rankCard.progressBarColor') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -1061,7 +1061,7 @@ onUnmounted(() => {
                             <!-- Willkommensnachricht -->
                             <div class="space-y-4 mt-6">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Willkommensnachricht</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('leveling.rankCard.welcomeMessage') }}</label>
                                     <textarea
                                         v-model="rankCardForm.welcome_message"
                                         rows="4"
@@ -1069,7 +1069,7 @@ onUnmounted(() => {
                                         class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     ></textarea>
                                     <p class="text-xs text-gray-400 mt-1">
-                                        Verfügbare Platzhalter: <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{user}</code>, 
+                                        {{ t('leveling.rankCard.availablePlaceholders') }} <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{user}</code>, 
                                         <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{level}</code>, 
                                         <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{rank}</code>, 
                                         <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{xp}</code>
@@ -1084,7 +1084,7 @@ onUnmounted(() => {
                                 @click="showRankCardModal = false"
                                 class="px-4 py-2 bg-[#36393f] hover:bg-[#2f3136] text-white rounded transition-colors"
                             >
-                                Abbrechen
+                                {{ t('common.cancel') }}
                             </button>
                             <button
                                 type="submit"
