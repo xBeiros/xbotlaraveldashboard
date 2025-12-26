@@ -13,7 +13,7 @@ const selectedGuild = ref(null);
 const refreshing = ref(false);
 
 function inviteBot(guildId) {
-    // Öffne Bot-Einladung in neuem Browser-Tab
+    // Öffne Bot-Einladung in neuem Popup-Fenster
     if (!guildId) {
         console.error('Guild ID fehlt');
         alert('Fehler: Server-ID fehlt. Bitte versuche es erneut.');
@@ -38,9 +38,18 @@ function inviteBot(guildId) {
         inviteUrl = `/bot/invite?guild_id=${guildId}`;
     }
     
-    // Öffne die Einladungs-URL in neuem Tab
-    console.log('Öffne Bot-Einladung für Guild:', guildId, 'in neuem Tab');
-    window.open(inviteUrl, '_blank', 'noopener,noreferrer');
+    // Öffne die Einladungs-URL in neuem Popup-Fenster (ähnlich wie Discord OAuth)
+    console.log('Öffne Bot-Einladung für Guild:', guildId, 'in neuem Popup-Fenster');
+    const width = 600;
+    const height = 700;
+    const left = (window.screen.width / 2) - (width / 2);
+    const top = (window.screen.height / 2) - (height / 2);
+    
+    window.open(
+        inviteUrl,
+        'DiscordBotInvite',
+        `width=${width},height=${height},left=${left},top=${top},toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes`
+    );
 }
 
 function selectGuild(guild) {
