@@ -201,18 +201,18 @@
                                 <div class="mt-3 relative" data-preview-dropdown>
                                     <div 
                                         @click="previewDropdownOpen = !previewDropdownOpen"
-                                        class="bg-[#36393f] rounded-lg border border-[#202225] p-3 hover:bg-[#40444b] transition-colors cursor-pointer"
+                                        class="bg-[#36393f] rounded-lg border border-[#202225] px-4 py-3 hover:bg-[#40444b] transition-colors cursor-pointer"
                                     >
                                         <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-300 font-medium">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
+                                            <span class="text-base text-[#dcddde] font-normal">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
+                                            <!-- Discord Standard Chevron Icon -->
                                             <svg 
-                                                class="w-4 h-4 text-gray-400 transition-transform"
+                                                class="w-5 h-5 text-[#b9bbbe] transition-transform flex-shrink-0"
                                                 :class="{ 'rotate-180': previewDropdownOpen }"
-                                                fill="none" 
-                                                stroke="currentColor" 
-                                                viewBox="0 0 24 24"
+                                                viewBox="0 0 20 20"
+                                                fill="currentColor"
                                             >
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                                             </svg>
                                         </div>
                                     </div>
@@ -220,23 +220,23 @@
                                     <!-- Dropdown Menu -->
                                     <div 
                                         v-if="previewDropdownOpen"
-                                        class="absolute top-full left-0 right-0 mt-2 bg-[#2f3136] border border-[#202225] rounded-lg shadow-xl overflow-hidden z-10"
+                                        class="absolute top-full left-0 right-0 mt-1 bg-[#18191c] border border-[#1e1f22] rounded-lg shadow-2xl overflow-hidden z-10 max-h-[300px] overflow-y-auto"
                                     >
                                         <div 
                                             v-if="ticketCategories.filter(c => c.enabled).length === 0"
-                                            class="px-4 py-3 text-sm text-gray-400 text-center"
+                                            class="px-4 py-3 text-base text-[#b9bbbe] text-center"
                                         >
                                             {{ t('ticketSystem.categories.noCategories') }}
                                         </div>
                                         <div
                                             v-for="category in ticketCategories.filter(c => c.enabled)"
                                             :key="category.id"
-                                            class="px-4 py-3 hover:bg-[#36393f] cursor-pointer transition-colors flex items-center gap-3"
+                                            class="px-4 py-3 hover:bg-[#2f3136] cursor-pointer transition-colors flex items-center gap-3 group"
                                         >
-                                            <span class="text-lg">{{ category.emoji || '🎫' }}</span>
+                                            <span class="text-xl flex-shrink-0">{{ category.emoji || '🎫' }}</span>
                                             <div class="flex-1 min-w-0">
-                                                <div class="text-sm font-medium text-white">{{ category.name }}</div>
-                                                <div v-if="category.description" class="text-xs text-gray-400 mt-0.5">{{ category.description }}</div>
+                                                <div class="text-base font-normal text-[#dcddde] group-hover:text-white">{{ category.name }}</div>
+                                                <div v-if="category.description" class="text-sm text-[#b9bbbe] mt-0.5">{{ category.description }}</div>
                                             </div>
                                         </div>
                                     </div>
