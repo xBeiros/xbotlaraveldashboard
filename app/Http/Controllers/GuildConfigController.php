@@ -1423,7 +1423,7 @@ class GuildConfigController extends Controller
 
             // 2. Rufe Bot-API auf, um Server-Nickname sofort zu aktualisieren
             // Der Bot kann seinen eigenen Nickname über Discord.js ändern (benötigt MANAGE_NICKNAMES)
-            if (!empty($guildPayload) && !empty($updateData['bot_nickname'])) {
+            if (isset($updateData['bot_nickname'])) {
                 $botApiUrl = config('services.discord.bot_api_url', 'http://localhost:3001');
                 $botApiToken = config('services.discord.bot_api_token', 'change-me-in-production');
                 

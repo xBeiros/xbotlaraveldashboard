@@ -41,6 +41,8 @@ return [
         'redirect' => env('DISCORD_REDIRECT_URI', env('APP_URL') . '/auth/discord/callback'),
         'bot_client_id' => env('DISCORD_BOT_CLIENT_ID'),
         'bot_token' => env('DISCORD_BOT_TOKEN'),
+        'bot_api_url' => env('BOT_API_URL', 'http://localhost:3001'),
+        'bot_api_token' => env('BOT_API_TOKEN', 'change-me-in-production'),
     ],
 
 ];
