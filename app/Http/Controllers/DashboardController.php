@@ -202,24 +202,8 @@ class DashboardController extends Controller
             return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
         }
 
-        // Lade bot_joined Status nach verifyAndUpdateBotStatus (wurde dort bereits aktualisiert)
-        $userGuild->refresh();
-        $botOnServer = $userGuild->bot_joined ?? false;
-
-        // Lade oder erstelle Guild aus Datenbank
-        $guildModel = Guild::firstOrCreate(
-            ['discord_id' => $guild],
-            [
-                'name' => $userGuild->name,
-                'icon' => $userGuild->icon,
-                'owner_id' => $user->discord_id,
-                'bot_active' => $botOnServer,
-                'prefix' => '!',
-            ]
-        );
-        
-        // Aktualisiere bot_active Status basierend auf bot_joined
-        $guildModel->update(['bot_active' => $botOnServer]);
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Lade oder erstelle Konfigurationen
         $welcomeConfig = $guildModel->welcomeConfig()->firstOrCreate([]);
@@ -316,26 +300,14 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
-        // Prüfe ob Bot noch auf dem Server ist
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
         $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
         if ($botCheck !== true) {
-            return $botCheck; // Redirect mit Fehlermeldung
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
         }
 
-        // Lade oder erstelle Guild aus Datenbank
-        $guildModel = Guild::firstOrCreate(
-            ['discord_id' => $guild],
-            [
-                'name' => $userGuild->name,
-                'icon' => $userGuild->icon,
-                'owner_id' => $user->discord_id,
-                'bot_active' => true,
-                'prefix' => '!',
-            ]
-        );
-        
-        // Aktualisiere bot_active Status
-        $guildModel->update(['bot_active' => true]);
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Lade oder erstelle Konfigurationen
         $welcomeConfig = $guildModel->welcomeConfig()->firstOrCreate([]);
@@ -437,26 +409,14 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
-        // Prüfe ob Bot noch auf dem Server ist
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
         $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
         if ($botCheck !== true) {
-            return $botCheck; // Redirect mit Fehlermeldung
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
         }
 
-        // Lade oder erstelle Guild aus Datenbank
-        $guildModel = Guild::firstOrCreate(
-            ['discord_id' => $guild],
-            [
-                'name' => $userGuild->name,
-                'icon' => $userGuild->icon,
-                'owner_id' => $user->discord_id,
-                'bot_active' => true,
-                'prefix' => '!',
-            ]
-        );
-        
-        // Aktualisiere bot_active Status
-        $guildModel->update(['bot_active' => true]);
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Lade alle Guilds für Sidebar
         // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
@@ -529,25 +489,14 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
-        // Prüfe ob Bot noch auf dem Server ist
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
         $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
         if ($botCheck !== true) {
-            return $botCheck; // Redirect mit Fehlermeldung
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
         }
 
-        $guildModel = Guild::firstOrCreate(
-            ['discord_id' => $guild],
-            [
-                'name' => $userGuild->name,
-                'icon' => $userGuild->icon,
-                'owner_id' => $user->discord_id,
-                'bot_active' => true,
-                'prefix' => '!',
-            ]
-        );
-        
-        // Aktualisiere bot_active Status
-        $guildModel->update(['bot_active' => true]);
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
@@ -740,26 +689,14 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
-        // Prüfe ob Bot noch auf dem Server ist
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
         $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
         if ($botCheck !== true) {
-            return $botCheck; // Redirect mit Fehlermeldung
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
         }
 
-        // Lade oder erstelle Guild aus Datenbank
-        $guildModel = Guild::firstOrCreate(
-            ['discord_id' => $guild],
-            [
-                'name' => $userGuild->name,
-                'icon' => $userGuild->icon,
-                'owner_id' => $user->discord_id,
-                'bot_active' => true,
-                'prefix' => '!',
-            ]
-        );
-        
-        // Aktualisiere bot_active Status
-        $guildModel->update(['bot_active' => true]);
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Lade alle Guilds für Sidebar
         // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
@@ -871,6 +808,34 @@ class DashboardController extends Controller
         return true;
     }
 
+    /**
+     * Helper-Methode: Lädt bot_joined Status nach verifyAndUpdateBotStatus
+     * und erstellt/aktualisiert Guild-Model mit korrektem bot_active Status
+     */
+    private function getOrCreateGuildModel($guildId, $userGuild, $user)
+    {
+        // Lade bot_joined Status nach verifyAndUpdateBotStatus (wurde dort bereits aktualisiert)
+        $userGuild->refresh();
+        $botOnServer = $userGuild->bot_joined ?? false;
+
+        // Lade oder erstelle Guild aus Datenbank
+        $guildModel = Guild::firstOrCreate(
+            ['discord_id' => $guildId],
+            [
+                'name' => $userGuild->name,
+                'icon' => $userGuild->icon,
+                'owner_id' => $user->discord_id,
+                'bot_active' => $botOnServer,
+                'prefix' => '!',
+            ]
+        );
+        
+        // Aktualisiere bot_active Status basierend auf bot_joined (wurde bereits in verifyAndUpdateBotStatus gesetzt)
+        $guildModel->update(['bot_active' => $botOnServer]);
+        
+        return $guildModel;
+    }
+
     private function fetchGuildChannels($guildId)
     {
         $botToken = config('services.discord.bot_token');
@@ -960,25 +925,14 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
-        // Prüfe ob Bot noch auf dem Server ist
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
         $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
         if ($botCheck !== true) {
-            return $botCheck; // Redirect mit Fehlermeldung
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
         }
 
-        $guildModel = Guild::firstOrCreate(
-            ['discord_id' => $guild],
-            [
-                'name' => $userGuild->name,
-                'icon' => $userGuild->icon,
-                'owner_id' => $user->discord_id,
-                'bot_active' => true,
-                'prefix' => '!',
-            ]
-        );
-        
-        // Aktualisiere bot_active Status
-        $guildModel->update(['bot_active' => true]);
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
@@ -1247,25 +1201,14 @@ class DashboardController extends Controller
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
-        // Prüfe ob Bot noch auf dem Server ist
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
         $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
         if ($botCheck !== true) {
-            return $botCheck; // Redirect mit Fehlermeldung
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
         }
 
-        $guildModel = Guild::firstOrCreate(
-            ['discord_id' => $guild],
-            [
-                'name' => $userGuild->name,
-                'icon' => $userGuild->icon,
-                'owner_id' => $user->discord_id,
-                'bot_active' => true,
-                'prefix' => '!',
-            ]
-        );
-        
-        // Aktualisiere bot_active Status
-        $guildModel->update(['bot_active' => true]);
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
         // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
         $allGuilds = UserGuild::where('user_id', $user->id)
