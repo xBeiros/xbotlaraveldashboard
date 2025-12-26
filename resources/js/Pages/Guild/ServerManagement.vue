@@ -350,7 +350,7 @@ const bannerTransform = computed(() => {
 const avatarEditorTransform = computed(() => {
     const scale = avatarZoom.value / 100;
     return {
-        transform: `scale(${scale}) translate(${avatarPosition.value.x}px, ${avatarPosition.value.y}px)`,
+        transform: `scale(${scale}) translate(${avatarPosition.value.x / scale}px, ${avatarPosition.value.y / scale}px)`,
         transformOrigin: 'center center',
         width: '100%',
         height: '100%',
@@ -361,7 +361,7 @@ const avatarEditorTransform = computed(() => {
 const bannerEditorTransform = computed(() => {
     const scale = bannerZoom.value / 100;
     return {
-        transform: `scale(${scale}) translate(${bannerPosition.value.x}px, ${bannerPosition.value.y}px)`,
+        transform: `scale(${scale}) translate(${bannerPosition.value.x / scale}px, ${bannerPosition.value.y / scale}px)`,
         transformOrigin: 'center center',
         width: '100%',
         height: '100%',
@@ -510,7 +510,7 @@ function removeBanner() {
 }
 
 async function savePersonalization() {
-    // Wenn Avatar transformiert wurde, rendere das transformierte Bild
+    // Wenn Avatar vorhanden ist, rendere das transformierte Bild (auch wenn keine Transformation)
     if (avatarOriginal.value && personalizationForm.avatar) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
@@ -533,21 +533,28 @@ async function savePersonalization() {
                 const imgAspect = img.width / img.height;
                 
                 // Berechne die Bildgröße, die im Editor angezeigt wird (object-fit: cover)
-                let displaySize;
+                // Im Editor wird das Bild so skaliert, dass es den Container vollständig füllt
+                let displayWidth, displayHeight;
                 if (imgAspect >= 1) {
-                    // Bild ist quadratisch oder breiter
-                    displaySize = editorSize;
+                    // Bild ist quadratisch oder breiter - Höhe bestimmt die Größe
+                    displayHeight = editorSize;
+                    displayWidth = displayHeight * imgAspect;
                 } else {
-                    // Bild ist höher
-                    displaySize = editorSize * imgAspect;
+                    // Bild ist höher - Breite bestimmt die Größe
+                    displayWidth = editorSize;
+                    displayHeight = displayWidth / imgAspect;
                 }
                 
                 // Skaliere mit Zoom
-                const scaledSize = displaySize * zoomScale;
-                const scaledWidth = img.width * (scaledSize / displaySize);
-                const scaledHeight = img.height * (scaledSize / displaySize);
+                const scaledDisplayWidth = displayWidth * zoomScale;
+                const scaledDisplayHeight = displayHeight * zoomScale;
+                
+                // Berechne die tatsächliche Bildgröße im Canvas (basierend auf skaliertem Display)
+                const scaledWidth = img.width * (scaledDisplayWidth / displayWidth);
+                const scaledHeight = img.height * (scaledDisplayHeight / displayHeight);
                 
                 // Skaliere die Position vom Editor auf Canvas
+                // Die Position ist relativ zum Editor-Container
                 const positionScale = targetSize / editorSize;
                 const offsetX = avatarPosition.value.x * positionScale;
                 const offsetY = avatarPosition.value.y * positionScale;
@@ -570,8 +577,8 @@ async function savePersonalization() {
         });
     }
     
-    // Wenn Banner transformiert wurde, rendere das transformierte Bild
-    if (bannerOriginal.value && personalizationForm.banner && (bannerZoom.value !== 100 || bannerPosition.value.x !== 0 || bannerPosition.value.y !== 0)) {
+    // Wenn Banner vorhanden ist, rendere das transformierte Bild (auch wenn keine Transformation)
+    if (bannerOriginal.value && personalizationForm.banner) {
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const img = new Image();
@@ -583,23 +590,45 @@ async function savePersonalization() {
                 canvas.width = targetWidth;
                 canvas.height = targetHeight;
                 
+                // Hole die tatsächliche Editor-Container-Größe
+                const editorContainer = bannerEditorContainer.value;
+                const editorWidth = editorContainer ? editorContainer.offsetWidth : 384;
+                const editorHeight = editorContainer ? editorContainer.offsetHeight : 192;
+                
                 // Berechne die Skalierung basierend auf Zoom
-                const scale = bannerZoom.value / 100;
+                const zoomScale = bannerZoom.value / 100;
                 
-                // Berechne die Bildgröße nach Skalierung
-                const scaledWidth = img.width * scale;
-                const scaledHeight = img.height * scale;
+                // Berechne das Seitenverhältnis
+                const imgAspect = img.width / img.height;
+                const editorAspect = editorWidth / editorHeight;
                 
-                // Berechne die Position - zentriert + Offset
-                // Die Position ist relativ zum Container, müssen wir auf Canvas-Größe skalieren
-                const editorWidth = 384; // Geschätzte Editor-Breite
-                const editorHeight = 192; // Geschätzte Editor-Höhe
+                // Berechne die Bildgröße, die im Editor angezeigt wird (object-fit: cover)
+                let displayWidth, displayHeight;
+                if (imgAspect > editorAspect) {
+                    // Bild ist breiter - Höhe bestimmt die Größe
+                    displayHeight = editorHeight;
+                    displayWidth = displayHeight * imgAspect;
+                } else {
+                    // Bild ist höher - Breite bestimmt die Größe
+                    displayWidth = editorWidth;
+                    displayHeight = displayWidth / imgAspect;
+                }
+                
+                // Skaliere mit Zoom
+                const scaledDisplayWidth = displayWidth * zoomScale;
+                const scaledDisplayHeight = displayHeight * zoomScale;
+                
+                // Berechne die tatsächliche Bildgröße im Canvas (basierend auf skaliertem Display)
+                const scaledWidth = img.width * (scaledDisplayWidth / displayWidth);
+                const scaledHeight = img.height * (scaledDisplayHeight / displayHeight);
+                
+                // Skaliere die Position vom Editor auf Canvas
                 const positionScaleX = targetWidth / editorWidth;
                 const positionScaleY = targetHeight / editorHeight;
                 const offsetX = bannerPosition.value.x * positionScaleX;
                 const offsetY = bannerPosition.value.y * positionScaleY;
                 
-                // Zentriere das Bild und füge Offset hinzu
+                // Berechne die Position im Canvas (zentriert + Offset)
                 const x = (targetWidth / 2) - (scaledWidth / 2) + offsetX;
                 const y = (targetHeight / 2) - (scaledHeight / 2) + offsetY;
                 
