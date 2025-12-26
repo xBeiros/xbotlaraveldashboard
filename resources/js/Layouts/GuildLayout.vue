@@ -18,7 +18,6 @@ const props = defineProps({
 
 const showingSidebar = ref(true);
 const basicInfoOpen = ref(true);
-const socialNotificationsOpen = ref(false);
 const serverManagementOpen = ref(false);
 
 function switchGuild(guildId) {
@@ -206,28 +205,6 @@ function switchGuild(guildId) {
                                 </svg>
                                 <span class="text-sm">{{ t('navigation.leveling') }}</span>
                             </Link>
-                        </div>
-                    </div>
-                    
-                    <!-- Social Media Benachrichtigungen Dropdown -->
-                    <div>
-                        <button
-                            @click="socialNotificationsOpen = !socialNotificationsOpen"
-                            class="w-full flex items-center justify-between px-3 py-2 rounded mb-1 transition-colors text-gray-300 hover:text-white"
-                        >
-                            <span class="text-xs font-semibold uppercase">{{ t('navigation.socialNotifications') }}</span>
-                            <svg
-                                class="w-4 h-4 transition-transform duration-200"
-                                :class="{ 'rotate-180': socialNotificationsOpen }"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                            >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                        </button>
-                        
-                        <div v-show="socialNotificationsOpen" class="ml-4 space-y-1 mt-1">
                             <Link
                                 :href="route('guild.social', { guild: guild?.id })"
                                 :class="[
@@ -238,7 +215,7 @@ function switchGuild(guildId) {
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
-                                <span class="text-sm">{{ t('navigation.notifications') }}</span>
+                                <span class="text-sm">{{ t('navigation.socialNotifications') }}</span>
                             </Link>
                         </div>
                     </div>
