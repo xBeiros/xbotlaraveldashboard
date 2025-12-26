@@ -38,7 +38,7 @@ function switchGuild(guildId) {
                 </div>
                 <!-- Server Dropdown -->
                 <div class="pb-4 border-b border-[#202225] mb-4">
-                    <Dropdown align="left" width="64">
+                    <Dropdown align="left" width="full">
                         <template #trigger>
                             <button class="w-full flex items-center gap-3 p-2 hover:bg-[#36393f] rounded text-left">
                                 <img
@@ -295,7 +295,7 @@ function switchGuild(guildId) {
             <nav class="bg-[#1F2129] h-20 flex items-center justify-end px-6">
                 <div class="flex items-center gap-4">
                     <!-- Server Dropdown -->
-                    <Dropdown align="right" width="64">
+                    <Dropdown align="right" width="full">
                         <template #trigger>
                             <button class="flex items-center gap-2 hover:bg-[#36393f] px-3 py-2 rounded">
                                 <img
