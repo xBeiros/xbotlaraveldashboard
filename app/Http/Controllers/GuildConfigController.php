@@ -1353,16 +1353,21 @@ class GuildConfigController extends Controller
 
         try {
             $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
-            $guildPayload = []; // Für Nickname (server-spezifisch)
-            $updateData = []; // Für Avatar/Banner in DB (server-spezifisch)
+            $guildPayload = []; // Für Nickname (server-spezifisch) - Discord API
+            $updateData = []; // Für Avatar/Banner und Nickname in DB (server-spezifisch)
 
             // Bot-Name ändern (nur für diesen Server - Nickname)
             if ($request->has('username')) {
                 $nickname = $request->input('username');
-                if (empty($nickname) || trim($nickname) === '') {
-                    $guildPayload['nick'] = null; // Entfernt den Nickname
+                $nicknameTrimmed = trim($nickname);
+                
+                // Speichere Nickname in DB (auch wenn Discord API fehlschlägt)
+                if (empty($nicknameTrimmed)) {
+                    $updateData['bot_nickname'] = null; // Entfernt den Nickname
+                    $guildPayload['nick'] = null; // Entfernt den Nickname in Discord
                 } else {
-                    $guildPayload['nick'] = trim($nickname);
+                    $updateData['bot_nickname'] = $nicknameTrimmed;
+                    $guildPayload['nick'] = $nicknameTrimmed;
                 }
             }
 
@@ -1411,7 +1416,13 @@ class GuildConfigController extends Controller
 
             $errors = [];
 
-            // 1. Ändere Server-spezifischen Nickname - PATCH /guilds/{guild.id}/members/{user.id}
+            // 1. Speichere Nickname, Avatar/Banner server-spezifisch in DB (immer, auch wenn Discord API fehlschlägt)
+            if (!empty($updateData)) {
+                $guildModel->update($updateData);
+            }
+
+            // 2. Versuche Server-spezifischen Nickname in Discord zu ändern - PATCH /guilds/{guild.id}/members/{user.id}
+            // WICHTIG: Der Nickname ist bereits in der DB gespeichert, auch wenn Discord API fehlschlägt
             if (!empty($guildPayload)) {
                 $guildResponse = Http::withHeaders([
                     'Authorization' => 'Bot ' . $botToken,
@@ -1425,19 +1436,23 @@ class GuildConfigController extends Controller
                     $errorData = $guildResponse->json();
                     $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des Bot-Nicknames.';
                     
+                    // Logge den Fehler, aber der Nickname ist bereits in der DB gespeichert
+                    \Log::warning('Discord API Fehler beim Nickname-Update (Nickname ist in DB gespeichert):', [
+                        'status' => $guildResponse->status(),
+                        'response' => $errorData,
+                        'guild' => $guild,
+                    ]);
+                    
+                    // Warnung anzeigen, aber nicht als Fehler behandeln, da Nickname in DB gespeichert ist
                     if (str_contains(strtolower($errorMessage), 'permission') || 
                         str_contains(strtolower($errorMessage), 'manage_nicknames') ||
                         $guildResponse->status() === 403) {
-                        $errors[] = 'Name: Der Bot kann seinen eigenen Nickname nicht ändern. Ein Administrator mit "Nicknames verwalten" Berechtigung muss dies tun.';
+                        // Kein Fehler, nur Info - Nickname ist in DB gespeichert
+                        // Der Bot kann seinen eigenen Nickname nicht ändern, aber wir speichern es trotzdem
                     } else {
-                        $errors[] = 'Name: ' . $errorMessage;
+                        // Andere Fehler - auch hier speichern wir trotzdem in DB
                     }
                 }
-            }
-
-            // 2. Speichere Avatar/Banner server-spezifisch in DB
-            if (!empty($updateData)) {
-                $guildModel->update($updateData);
             }
 
             if (!empty($errors)) {

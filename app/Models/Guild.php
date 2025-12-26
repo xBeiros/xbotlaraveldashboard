@@ -20,6 +20,7 @@ class Guild extends Model
         'ticket_transcript_enabled',
         'bot_avatar',
         'bot_banner',
+        'bot_nickname',
     ];
 
     protected $casts = [
