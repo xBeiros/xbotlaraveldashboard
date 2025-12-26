@@ -18,7 +18,7 @@ const props = defineProps({
 
 const showingSidebar = ref(true);
 const basicInfoOpen = ref(true);
-const serverManagementOpen = ref(false);
+const serverManagementOpen = ref(true);
 
 function switchGuild(guildId) {
     router.visit(route('guild.config', { guild: guildId }));
