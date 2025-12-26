@@ -66,7 +66,7 @@ function switchGuild(guildId) {
                                 <div
                                     v-for="g in guilds"
                                     :key="g.id"
-                                    @click="switchGuild(g.id)"
+                                    @click.stop="switchGuild(g.id)"
                                     :class="[
                                         'px-2 py-1.5 hover:bg-[#36393f] cursor-pointer flex items-center gap-2 rounded',
                                         g.id === guild?.id ? 'border border-[#5865f2] bg-[#36393f]' : ''
