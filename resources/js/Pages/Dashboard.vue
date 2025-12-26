@@ -175,27 +175,30 @@ function refreshGuilds() {
                         </div>
                     </div>
 
-                    <!-- Button außerhalb des verschwommenen Bereichs -->
-                    <div class="px-4 py-3 bg-[#2f3136]">
-                        <button
-                            v-if="!guild.bot_joined && guild.can_manage"
-                            @click="inviteBot(guild.id)"
-                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
-                        >
-                            Bot einladen
-                        </button>
-                        <button
-                            v-else-if="guild.bot_joined && guild.can_manage"
-                            @click="selectGuild(guild)"
-                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
-                        >
-                            Weiter
-                        </button>
-                        <div
-                            v-else
-                            class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
-                        >
-                            Keine Berechtigung
+                    <!-- Wrapper für Button-Bereich -->
+                    <div>
+                        <!-- Button außerhalb des verschwommenen Bereichs -->
+                        <div class="px-4 py-3 bg-[#2f3136]">
+                            <button
+                                v-if="!guild.bot_joined && guild.can_manage"
+                                @click="inviteBot(guild.id)"
+                                class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
+                            >
+                                Bot einladen
+                            </button>
+                            <button
+                                v-else-if="guild.bot_joined && guild.can_manage"
+                                @click="selectGuild(guild)"
+                                class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
+                            >
+                                Weiter
+                            </button>
+                            <div
+                                v-else
+                                class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
+                            >
+                                Keine Berechtigung
+                            </div>
                         </div>
                     </div>
                 </div>
