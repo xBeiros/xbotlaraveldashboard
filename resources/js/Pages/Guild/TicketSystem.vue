@@ -82,7 +82,7 @@
                                                 class="flex items-center gap-2 pt-2 border-t border-[#202225]"
                                             >
                                                 <img :src="guild.icon_url" alt="Server Icon" class="w-4 h-4 rounded-full" />
-                                                <span class="text-xs text-gray-400">{{ guild.name }} • Heute um {{ new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }) }}</span>
+                                                <span class="text-xs text-gray-400">{{ guild.name }} • {{ new Date().toLocaleDateString() }} {{ new Date().toLocaleTimeString() }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -106,7 +106,7 @@
                                 <input
                                     type="text"
                                     v-model="ticketPostForm.embed_title"
-                                    placeholder="Ticket System"
+                                    :placeholder="t('ticketSystem.ticketPost.embedTitlePlaceholder')"
                                     class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                 />
                             </div>
@@ -115,7 +115,7 @@
                                 <textarea
                                     v-model="ticketPostForm.embed_description"
                                     rows="3"
-                                    placeholder="Wähle eine der Optionen aus, um ein Ticket zu erstellen!"
+                                    :placeholder="t('ticketSystem.ticketPost.embedDescriptionPlaceholder')"
                                     class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                 ></textarea>
                             </div>
@@ -258,7 +258,7 @@
                             <div class="flex items-center justify-between">
                                 <div>
                                     <div class="text-sm font-medium text-white">
-                                        Ticket #{{ transcript.id }} - {{ transcript.category_name }}
+                                        {{ t('ticketSystem.transcripts.ticketNumber', { id: transcript.id }) }} - {{ transcript.category_name }}
                                     </div>
                                     <div class="text-xs text-gray-400 mt-1">
                                         {{ t('ticketSystem.transcripts.closedAt') }} {{ transcript.closed_at || t('ticketSystem.transcripts.unknown') }}
@@ -321,7 +321,7 @@
                             <input
                                 type="text"
                                 v-model="categoryForm.emoji"
-                                placeholder="🎫 oder :ticket:"
+                                :placeholder="t('ticketSystem.categories.emojiPlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             />
                         </div>
@@ -331,7 +331,7 @@
                             <textarea
                                 v-model="categoryForm.description"
                                 rows="2"
-                                placeholder="Beschreibung der Kategorie"
+                                :placeholder="t('ticketSystem.categories.descriptionPlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             ></textarea>
                         </div>
@@ -341,7 +341,7 @@
                             <textarea
                                 v-model="categoryForm.welcome_message"
                                 rows="4"
-                                placeholder="Willkommen in deinem Ticket, {user}! Bitte beschreibe dein Anliegen.&#10;&#10;Ein Supporter wird sich bald bei dir melden."
+                                :placeholder="t('ticketSystem.categories.welcomeMessagePlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             ></textarea>
                             <p class="text-xs text-gray-400 mt-1">
@@ -374,7 +374,7 @@
                                 type="text"
                                 v-model="categoryForm.channel_name_format"
                                 required
-                                placeholder="ticket-{user}"
+                                :placeholder="t('ticketSystem.categories.channelNameFormatPlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             />
                             <p class="text-xs text-gray-400 mt-1">
@@ -532,7 +532,7 @@ function openCategoryModal(category = null) {
         categoryForm.enabled = category.enabled;
         categoryForm.order = category.order;
         selectedSupporterRoles.value = (category.supporter_roles || []).map(roleId => {
-            return props.roles.find(r => r.id === roleId) || { id: roleId, name: t('ticketSystem.transcripts.unknown') + ' Rolle' };
+            return props.roles.find(r => r.id === roleId) || { id: roleId, name: t('ticketSystem.transcripts.unknown') + ' ' + t('ticketSystem.categories.role') };
         }).filter(r => r);
     } else {
         categoryForm.reset();

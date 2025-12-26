@@ -78,19 +78,21 @@
     "title": "Ticket-System",
     "ticketPost": {
       "title": "Ticket-Post",
-      "channelLabel": "Kanal für Ticket-Post",
+      "channelLabel": "Kanal für Ticket-Post *",
       "preview": "Vorschau",
-      "selectCategory": "Wähle eine Kategorie...",
-      "embedTitle": "Titel",
-      "embedDescription": "Beschreibung",
-      "embedColor": "Farbe",
+      "selectCategory": "Kategorie auswählen...",
+      "embedTitle": "Embed Titel",
+      "embedTitlePlaceholder": "Ticket System",
+      "embedDescription": "Embed Beschreibung",
+      "embedDescriptionPlaceholder": "Wähle eine der Optionen aus, um ein Ticket zu erstellen!",
+      "embedColor": "Embed Farbe",
       "embedBanner": "Banner URL",
       "embedImage": "Bild URL",
-      "embedFooter": "Footer anzeigen",
+      "embedFooter": "Footer anzeigen (Server-Name und Zeitstempel)",
       "savePost": "Post speichern",
       "resendPost": "Post erneut senden",
       "sending": "Sende...",
-      "confirmResend": "Möchtest du den Ticket-Post wirklich erneut senden? Die alte Nachricht wird nicht gelöscht."
+      "confirmResend": "Möchtest du diesen Post wirklich erneut senden?"
     },
     "categories": {
       "title": "Ticket-Kategorien",
@@ -101,11 +103,15 @@
       "confirmDelete": "Möchtest du diese Kategorie wirklich löschen?",
       "name": "Name",
       "emoji": "Emoji",
+      "emojiPlaceholder": "🎫 oder :ticket:",
       "description": "Beschreibung",
+      "descriptionPlaceholder": "Beschreibung der Kategorie",
       "welcomeMessage": "Willkommensnachricht",
+      "welcomeMessagePlaceholder": "Willkommen in deinem Ticket, {user}! Bitte beschreibe dein Anliegen.\n\nEin Supporter wird sich bald bei dir melden.",
       "discordCategory": "Discord-Kategorie",
       "discordCategoryHelp": "Die Kategorie, in der Ticket-Channels erstellt werden",
       "channelNameFormat": "Channel-Namen-Format",
+      "channelNameFormatPlaceholder": "ticket-{user}",
       "channelNameFormatHelp": "Verfügbare Platzhalter: {user}, {date}, {id}",
       "supporterRoles": "Supporter-Rollen",
       "addRole": "Rolle hinzufügen...",
@@ -114,6 +120,7 @@
       "createCategory": "Neue Kategorie erstellen",
       "noCategory": "Keine Kategorie",
       "format": "Format",
+      "role": "Rolle",
       "placeholders": {
         "user": "wird durch den Benutzernamen ersetzt"
       }
@@ -123,6 +130,7 @@
       "showTranscript": "Transcript anzeigen",
       "closedAt": "Geschlossen am:",
       "unknown": "Unbekannt",
+      "ticketNumber": "Ticket #{id}",
       "noTranscripts": "Noch keine Transcripts verfügbar.",
       "autoDelete": "Transcripts werden automatisch nach 7 Tagen gelöscht."
     }
