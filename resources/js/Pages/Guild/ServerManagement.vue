@@ -389,8 +389,25 @@ function handleAvatarChange(event) {
 }
 
 function openAvatarEditor() {
-    if (avatarOriginal.value) {
+    // Wenn kein avatarOriginal vorhanden ist, aber eine Datei im Formular, lade sie
+    if (!avatarOriginal.value && personalizationForm.avatar) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            avatarOriginal.value = e.target.result;
+            avatarEditorOpen.value = true;
+        };
+        reader.readAsDataURL(personalizationForm.avatar);
+    } else if (avatarOriginal.value) {
         avatarEditorOpen.value = true;
+    } else if (avatarPreview.value) {
+        // Falls nur eine Vorschau vorhanden ist, verwende diese
+        avatarOriginal.value = avatarPreview.value;
+        avatarEditorOpen.value = true;
+    } else {
+        // Wenn nichts vorhanden ist, öffne den File-Input
+        if (avatarInput.value) {
+            avatarInput.value.click();
+        }
     }
 }
 
