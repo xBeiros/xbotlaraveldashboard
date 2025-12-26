@@ -1057,6 +1057,7 @@ class DashboardController extends Controller
 
     /**
      * Prüfe Bot-Status für mehrere Guilds parallel (Performance-Optimierung)
+     * Verwendet die Bot-Guild-Liste statt Member-API (funktioniert auch ohne Admin-Rechte)
      */
     private function checkBotsOnGuildsParallel($guilds, $botClientId, $botToken, $user)
     {
@@ -1064,35 +1065,32 @@ class DashboardController extends Controller
             return;
         }
         
-        // Erstelle Requests für alle zu prüfenden Guilds
-        $requests = [];
-        foreach ($guilds as $guild) {
-            $guildId = $guild->guild_id;
-            $requests["guild_{$guildId}"] = Http::withHeaders([
-                'Authorization' => 'Bot ' . $botToken,
-            ])->timeout(3)->get("https://discord.com/api/v10/guilds/{$guildId}/members/{$botClientId}");
-        }
-        
-        // Führe alle Requests parallel aus
         try {
-            $responses = Http::pool(fn ($pool) => $requests);
+            // Hole alle Guilds, auf denen der Bot ist (funktioniert unabhängig von Bot-Rechten)
+            $botGuildsResponse = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->timeout(5)->get('https://discord.com/api/v10/users/@me/guilds');
+            
+            $botGuildIds = [];
+            if ($botGuildsResponse->successful()) {
+                $botGuilds = $botGuildsResponse->json();
+                $botGuildIds = collect($botGuilds)->pluck('id')->toArray();
+            }
             
             // Verarbeite Ergebnisse
             foreach ($guilds as $guild) {
                 $guildId = $guild->guild_id;
-                $key = "guild_{$guildId}";
-                $response = $responses[$key] ?? null;
+                $botJoined = in_array($guildId, $botGuildIds);
                 
-                $botJoined = false;
-                
-                if ($response && $response->successful()) {
-                    // Bot ist auf Server
-                    $botJoined = true;
+                if ($botJoined) {
+                    // Bot ist auf Server - aktualisiere Guild-Info falls vorhanden
+                    $botGuildInfo = collect($botGuildsResponse->json())->firstWhere('id', $guildId);
+                    
                     Guild::updateOrCreate(
                         ['discord_id' => $guildId],
                         [
-                            'name' => $guild->name,
-                            'icon' => $guild->icon,
+                            'name' => $botGuildInfo['name'] ?? $guild->name,
+                            'icon' => $botGuildInfo['icon'] ?? $guild->icon,
                             'owner_id' => $user->discord_id ?? null,
                             'bot_active' => true,
                             'prefix' => '!',
@@ -1108,23 +1106,27 @@ class DashboardController extends Controller
             }
         } catch (\Exception $e) {
             \Log::warning("Fehler bei paralleler Bot-Status-Prüfung: " . $e->getMessage());
-            // Fallback: Prüfe einzeln (langsamer, aber funktioniert)
+            // Fallback: Prüfe einzeln (verwendet auch Bot-Guild-Liste)
             foreach ($guilds as $guild) {
-                $apiCheck = $this->checkBotOnGuild($guild->guild_id, $botClientId, $botToken);
-                $guild->update(['bot_joined' => $apiCheck]);
-                if ($apiCheck) {
-                    Guild::updateOrCreate(
-                        ['discord_id' => $guild->guild_id],
-                        [
-                            'name' => $guild->name,
-                            'icon' => $guild->icon,
-                            'owner_id' => $user->discord_id ?? null,
-                            'bot_active' => true,
-                            'prefix' => '!',
-                        ]
-                    );
-                } else {
-                    Guild::where('discord_id', $guild->guild_id)->update(['bot_active' => false]);
+                try {
+                    $apiCheck = $this->checkBotOnGuild($guild->guild_id, $botClientId, $botToken);
+                    $guild->update(['bot_joined' => $apiCheck]);
+                    if ($apiCheck) {
+                        Guild::updateOrCreate(
+                            ['discord_id' => $guild->guild_id],
+                            [
+                                'name' => $guild->name,
+                                'icon' => $guild->icon,
+                                'owner_id' => $user->discord_id ?? null,
+                                'bot_active' => true,
+                                'prefix' => '!',
+                            ]
+                        );
+                    } else {
+                        Guild::where('discord_id', $guild->guild_id)->update(['bot_active' => false]);
+                    }
+                } catch (\Exception $guildError) {
+                    \Log::warning("Fehler bei Einzelprüfung für Guild {$guild->guild_id}: " . $guildError->getMessage());
                 }
             }
         }
@@ -1138,13 +1140,30 @@ class DashboardController extends Controller
         }
 
         try {
-            // Prüfe über Bot-Member-Liste (am zuverlässigsten)
-            $memberResponse = Http::withHeaders([
+            // Verwende Bot-Guild-Liste statt Member-API (funktioniert auch ohne Admin-Rechte)
+            $botGuildsResponse = Http::withHeaders([
                 'Authorization' => 'Bot ' . $botToken,
-            ])->timeout(3)->get("https://discord.com/api/v10/guilds/{$guildId}/members/{$botClientId}");
+            ])->timeout(5)->get('https://discord.com/api/v10/users/@me/guilds');
             
-            if ($memberResponse->successful()) {
-                return true;
+            if ($botGuildsResponse->successful()) {
+                $botGuilds = $botGuildsResponse->json();
+                $botGuildIds = collect($botGuilds)->pluck('id')->toArray();
+                
+                // Prüfe ob Bot auf diesem Server ist
+                return in_array($guildId, $botGuildIds);
+            }
+            
+            // Fallback: Versuche Member-API (kann bei fehlenden Rechten fehlschlagen)
+            try {
+                $memberResponse = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                ])->timeout(3)->get("https://discord.com/api/v10/guilds/{$guildId}/members/{$botClientId}");
+                
+                if ($memberResponse->successful()) {
+                    return true;
+                }
+            } catch (\Exception $memberError) {
+                \Log::debug("Member API check failed for guild {$guildId}: " . $memberError->getMessage());
             }
             
             return false;
