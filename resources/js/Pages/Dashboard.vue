@@ -130,7 +130,7 @@ function refreshGuilds() {
                     style="width: 262px;"
                 >
                     <!-- Background mit verschwommenem Profilbild - nur für Icon/Name Bereich -->
-                    <div class="relative overflow-hidden rounded-lg" style="height: 140px;">
+                    <div class="relative overflow-hidden rounded-lg" style="height: 150px;">
                         <div
                             v-if="guild.icon_url"
                             class="absolute inset-0 bg-cover bg-center"
@@ -178,7 +178,7 @@ function refreshGuilds() {
                     <!-- Wrapper für Button-Bereich -->
                     <div>
                         <!-- Button außerhalb des verschwommenen Bereichs -->
-                        <div class="px-4 py-3">
+                        <div class="py-3">
                             <button
                                 v-if="!guild.bot_joined && guild.can_manage"
                                 @click="inviteBot(guild.id)"
