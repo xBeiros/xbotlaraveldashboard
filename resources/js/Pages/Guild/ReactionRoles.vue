@@ -164,7 +164,7 @@ function deleteReactionRole(id) {
 const sendingMessage = ref({});
 
 function resendReactionRoleMessage(reactionRoleId) {
-    if (confirm('Möchtest du diese Nachricht erneut senden? Die alte Nachricht wird nicht gelöscht.')) {
+    if (confirm(t('reactionRoles.confirmResend'))) {
         sendingMessage.value[reactionRoleId] = true;
         router.post(route('guild.reaction-roles.resend', { guild: props.guild.id, id: reactionRoleId }), {}, {
             preserveScroll: true,
@@ -368,7 +368,7 @@ const renderedDescription = computed(() => {
                                           rr.enabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
                                       ]"
                                   >
-                                      {{ rr.enabled ? 'Aktiv' : 'Inaktiv' }}
+                                      {{ rr.enabled ? t('common.active') : t('common.inactive') }}
                                   </span>
                               </div>
                             <div class="flex items-center gap-2 ml-4">
@@ -446,14 +446,14 @@ const renderedDescription = computed(() => {
                     <!-- Kanal-Auswahl -->
                     <div>
                         <label class="block text-sm font-medium text-gray-300 mb-2">
-                            Kanal *
+                            {{ t('reactionRoles.channel') }}
                         </label>
                         <select
                             v-model="reactionRoleForm.channel_id"
                             required
                             class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                         >
-                            <option value="">Bitte wählen...</option>
+                            <option value="">{{ t('common.pleaseSelect') }}</option>
                             <template v-for="channel in channels" :key="channel.id">
                                 <option
                                     v-if="channel.type === 4 && channel.is_category"
@@ -474,7 +474,7 @@ const renderedDescription = computed(() => {
 
                     <!-- Embed Vorschau -->
                     <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                        <h4 class="text-sm font-medium text-gray-300 mb-4">Vorschau</h4>
+                        <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
                         <div class="flex justify-center">
                             <div class="bg-[#2f3136] rounded-lg p-4" style="max-width: 520px; width: 100%;">
                                 <!-- Banner -->
@@ -526,7 +526,7 @@ const renderedDescription = computed(() => {
                                         class="px-3 py-1.5 bg-[#36393f] rounded-full border border-[#202225] flex items-center gap-2"
                                     >
                                         <span class="text-lg">{{ reaction.emoji }}</span>
-                                        <span class="text-sm text-gray-300">{{ reaction.label || 'Rolle' }}</span>
+                                        <span class="text-sm text-gray-300">{{ reaction.label || t('reactionRoles.role') }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -536,25 +536,25 @@ const renderedDescription = computed(() => {
                     <!-- Embed Konfiguration -->
                     <div class="space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Titel</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('reactionRoles.embedTitle') }}</label>
                             <input
                                 type="text"
                                 v-model="reactionRoleForm.embed_title"
-                                placeholder="Titel der Nachricht"
+                                :placeholder="t('reactionRoles.embedTitlePlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Beschreibung</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('reactionRoles.embedDescription') }}</label>
                             <textarea
                                 v-model="reactionRoleForm.embed_description"
                                 rows="3"
-                                placeholder="Beschreibung der Nachricht"
+                                :placeholder="t('reactionRoles.embedDescriptionPlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             ></textarea>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Farbe</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('reactionRoles.embedColor') }}</label>
                             <div class="flex gap-2">
                                 <input
                                     type="color"
@@ -570,17 +570,17 @@ const renderedDescription = computed(() => {
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Banner URL</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('reactionRoles.embedBanner') }}</label>
                             <input
                                 type="url"
                                 v-model="reactionRoleForm.embed_banner"
                                 placeholder="https://example.com/banner.png"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             />
-                            <p class="text-xs text-gray-400 mt-1">Banner wird oben im Embed angezeigt (max. Höhe: 128px)</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ t('reactionRoles.embedBannerDescription') }}</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Thumbnail URL</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('reactionRoles.embedThumbnail') }}</label>
                             <input
                                 type="url"
                                 v-model="reactionRoleForm.embed_thumbnail"
@@ -589,7 +589,7 @@ const renderedDescription = computed(() => {
                             />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Bild URL</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('reactionRoles.embedImage') }}</label>
                             <input
                                 type="url"
                                 v-model="reactionRoleForm.embed_image"
@@ -603,20 +603,20 @@ const renderedDescription = computed(() => {
                                 v-model="reactionRoleForm.embed_footer"
                                 class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                             />
-                            <label class="text-sm text-gray-300">Footer anzeigen (Server-Name und Zeitstempel)</label>
+                            <label class="text-sm text-gray-300">{{ t('reactionRoles.showFooter') }}</label>
                         </div>
                     </div>
 
                     <!-- Reaktionsrollen -->
                     <div>
                         <div class="flex items-center justify-between mb-4">
-                            <label class="block text-sm font-medium text-gray-300">Reaktionsrollen</label>
+                            <label class="block text-sm font-medium text-gray-300">{{ t('reactionRoles.reactions') }}</label>
                             <button
                                 type="button"
                                 @click="addReactionRole"
                                 class="px-3 py-1.5 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded text-sm font-medium transition-colors"
                             >
-                                + Hinzufügen
+                                {{ t('reactionRoles.addReaction') }}
                             </button>
                         </div>
                         <div class="space-y-3">
@@ -645,22 +645,22 @@ const renderedDescription = computed(() => {
                                     <!-- Content -->
                                     <div class="flex-1 grid grid-cols-3 gap-4">
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-400 mb-1">Emoji</label>
+                                            <label class="block text-xs font-medium text-gray-400 mb-1">{{ t('reactionRoles.emoji') }}</label>
                                             <input
                                                 type="text"
                                                 v-model="reaction.emoji"
-                                                placeholder="👍 oder :thumbsup:"
+                                                :placeholder="t('reactionRoles.emojiPlaceholder')"
                                                 class="w-full rounded bg-[#2f3136] border border-[#202225] text-white px-3 py-2 text-sm focus:outline-none focus:border-[#5865f2]"
                                             />
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-400 mb-1">Rolle *</label>
+                                            <label class="block text-xs font-medium text-gray-400 mb-1">{{ t('reactionRoles.role') }}</label>
                                             <select
                                                 v-model="reaction.role_id"
                                                 required
                                                 class="w-full rounded bg-[#2f3136] border border-[#202225] text-white px-3 py-2 text-sm focus:outline-none focus:border-[#5865f2]"
                                             >
-                                                <option value="">Bitte wählen...</option>
+                                                <option value="">{{ t('common.pleaseSelect') }}</option>
                                                 <option
                                                     v-for="role in roles"
                                                     :key="role.id"
@@ -671,12 +671,12 @@ const renderedDescription = computed(() => {
                                             </select>
                                         </div>
                                         <div>
-                                            <label class="block text-xs font-medium text-gray-400 mb-1">Label (optional)</label>
+                                            <label class="block text-xs font-medium text-gray-400 mb-1">{{ t('reactionRoles.label') }}</label>
                                             <div class="flex gap-2">
                                                 <input
                                                     type="text"
                                                     v-model="reaction.label"
-                                                    placeholder="Beschreibung"
+                                                    :placeholder="t('reactionRoles.labelPlaceholder')"
                                                     class="flex-1 rounded bg-[#2f3136] border border-[#202225] text-white px-3 py-2 text-sm focus:outline-none focus:border-[#5865f2]"
                                                 />
                                                 <button
@@ -692,7 +692,7 @@ const renderedDescription = computed(() => {
                                 </div>
                             </div>
                             <div v-if="reactionRoleReactions.length === 0" class="text-center py-8 text-gray-400 text-sm">
-                                <p>Noch keine Reaktionsrollen hinzugefügt.</p>
+                                <p>{{ t('reactionRoles.noReactions') }}</p>
                             </div>
                         </div>
                     </div>
