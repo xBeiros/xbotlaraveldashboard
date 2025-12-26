@@ -127,6 +127,8 @@
     },
     "transcripts": {
       "title": "Bilet Transkriptleri",
+      "enabled": "Transkriptleri etkinleştir",
+      "disabledMessage": "Transkriptler devre dışı. Biletler kapatıldığında transkript oluşturulmayacak veya gönderilmeyecek.",
       "showTranscript": "Transkripti göster",
       "closedAt": "Kapatıldı:",
       "unknown": "Bilinmiyor",

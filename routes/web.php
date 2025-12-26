@@ -99,6 +99,8 @@ Route::middleware('auth')->group(function () {
         ->name('guild.ticket-categories.delete');
     Route::get('/guild/{guild}/tickets/{ticketId}/transcript', [\App\Http\Controllers\GuildConfigController::class, 'getTicketTranscript'])
         ->name('guild.ticket.transcript');
+    Route::put('/guild/{guild}/ticket-transcript-setting', [\App\Http\Controllers\GuildConfigController::class, 'updateTicketTranscriptSetting'])
+        ->name('guild.ticket-transcript-setting.update');
 });
 
 require __DIR__.'/auth.php';

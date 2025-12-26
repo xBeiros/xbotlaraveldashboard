@@ -127,6 +127,8 @@
     },
     "transcripts": {
       "title": "Ticket Transcripts",
+      "enabled": "Enable transcripts",
+      "disabledMessage": "Transcripts are disabled. When closing tickets, no transcripts will be created or sent.",
       "showTranscript": "Show transcript",
       "closedAt": "Closed at:",
       "unknown": "Unknown",

@@ -17,10 +17,12 @@ class Guild extends Model
         'bot_active',
         'prefix',
         'language',
+        'ticket_transcript_enabled',
     ];
 
     protected $casts = [
         'bot_active' => 'boolean',
+        'ticket_transcript_enabled' => 'boolean',
     ];
 
     public function welcomeConfig()

@@ -247,7 +247,22 @@
 
                 <!-- Ticket-Transcripts -->
                 <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
-                    <h2 class="text-lg font-semibold text-white mb-4">{{ t('ticketSystem.transcripts.title') }}</h2>
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-white">{{ t('ticketSystem.transcripts.title') }}</h2>
+                        <div class="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                :checked="transcriptEnabled"
+                                @change="updateTranscriptSetting"
+                                class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
+                            />
+                            <label class="text-sm text-gray-300">{{ t('ticketSystem.transcripts.enabled') }}</label>
+                        </div>
+                    </div>
+                    
+                    <div v-if="!transcriptEnabled" class="mb-4 p-4 bg-yellow-500/20 border border-yellow-500 rounded-lg text-yellow-400 text-sm">
+                        {{ t('ticketSystem.transcripts.disabledMessage') }}
+                    </div>
                     
                     <div class="space-y-3">
                         <div
@@ -469,6 +484,10 @@ const props = defineProps({
         type: Array,
         default: () => []
     },
+    ticketTranscriptEnabled: {
+        type: Boolean,
+        default: true,
+    },
 });
 
 // Ticket Post
@@ -484,6 +503,9 @@ const ticketPostForm = useForm({
 });
 
 const resendingPost = ref(false);
+
+// Transcript Setting
+const transcriptEnabled = ref(props.ticketTranscriptEnabled ?? true);
 
 // Ticket Categories
 const showCategoryModal = ref(false);
@@ -610,5 +632,14 @@ function resendTicketPost() {
             },
         });
     }
+}
+
+function updateTranscriptSetting() {
+    transcriptEnabled.value = !transcriptEnabled.value;
+    router.put(route('guild.ticket-transcript-setting.update', { guild: props.guild.id }), {
+        transcript_enabled: transcriptEnabled.value,
+    }, {
+        preserveScroll: true,
+    });
 }
 </script>

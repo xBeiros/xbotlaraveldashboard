@@ -1308,4 +1308,24 @@ class GuildConfigController extends Controller
             ->header('Content-Type', 'text/html; charset=utf-8')
             ->header('Content-Disposition', 'inline; filename="ticket-transcript-' . $ticketId . '.html"');
     }
+
+    public function updateTicketTranscriptSetting(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        
+        $guildModel->update([
+            'ticket_transcript_enabled' => $request->transcript_enabled ?? true,
+        ]);
+
+        return back()->with('success', 'Transcript-Einstellung erfolgreich gespeichert!');
+    }
 }

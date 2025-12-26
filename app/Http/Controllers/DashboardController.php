@@ -672,6 +672,7 @@ class DashboardController extends Controller
                         'has_transcript' => !empty($ticket->transcript),
                     ];
                 }),
+            'ticketTranscriptEnabled' => $guildModel->ticket_transcript_enabled ?? true,
         ]);
     }
 

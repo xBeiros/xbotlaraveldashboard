@@ -127,6 +127,8 @@
     },
     "transcripts": {
       "title": "Ticket-Transcripts",
+      "enabled": "Transcripts aktivieren",
+      "disabledMessage": "Transcripts sind deaktiviert. Beim Schließen von Tickets werden keine Transcripts erstellt oder versendet.",
       "showTranscript": "Transcript anzeigen",
       "closedAt": "Geschlossen am:",
       "unknown": "Unbekannt",
