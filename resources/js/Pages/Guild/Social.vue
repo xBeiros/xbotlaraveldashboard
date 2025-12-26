@@ -241,14 +241,14 @@ function getPlatformName(platform) {
                                 :disabled="form.processing"
                                 class="px-4 py-2 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium"
                             >
-                                {{ form.processing ? 'Speichere...' : 'Speichern' }}
+                                {{ form.processing ? t('common.saving') : t('common.save') }}
                             </button>
                             <button
                                 type="button"
                                 @click="closeForm"
                                 class="px-4 py-2 bg-[#36393f] hover:bg-[#2f3136] text-white rounded-lg transition-colors"
                             >
-                                Abbrechen
+                                {{ t('common.cancel') }}
                             </button>
                         </div>
                     </form>

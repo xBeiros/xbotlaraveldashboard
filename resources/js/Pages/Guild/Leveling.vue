@@ -776,7 +776,7 @@ onUnmounted(() => {
                     :disabled="form.processing"
                     class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded transition-colors disabled:opacity-50 font-medium"
                 >
-                    {{ form.processing ? 'Speichere...' : 'Speichern' }}
+                    {{ form.processing ? t('common.saving') : t('common.save') }}
                 </button>
             </form>
         </div>
@@ -1091,7 +1091,7 @@ onUnmounted(() => {
                                 :disabled="rankCardForm.processing"
                                 class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded transition-colors disabled:opacity-50"
                             >
-                                {{ rankCardForm.processing ? 'Speichere...' : 'Speichern' }}
+                                {{ rankCardForm.processing ? t('common.saving') : t('common.save') }}
                             </button>
                         </div>
                     </form>

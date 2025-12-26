@@ -704,14 +704,14 @@ const renderedDescription = computed(() => {
                             @click="closeReactionRoleModal"
                             class="px-6 py-2.5 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors font-medium"
                         >
-                            Abbrechen
+                            {{ t('common.cancel') }}
                         </button>
                         <button
                             type="submit"
                             :disabled="reactionRoleForm.processing"
                             class="px-6 py-2.5 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
                         >
-                            {{ reactionRoleForm.processing ? 'Speichere...' : 'Speichern' }}
+                            {{ reactionRoleForm.processing ? t('common.saving') : t('common.save') }}
                         </button>
                     </div>
                 </form>
