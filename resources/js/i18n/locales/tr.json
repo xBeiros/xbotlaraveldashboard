@@ -25,7 +25,9 @@
     "enabled": "Etkin",
     "disabled": "Devre Dışı",
     "active": "Aktif",
-    "inactive": "Pasif"
+    "inactive": "Pasif",
+    "select": "Seç",
+    "pleaseSelect": "Lütfen seçin..."
   },
   "languages": {
     "german": "Almanca",
@@ -69,5 +71,58 @@
     "serverLanguage": "Sunucu Dili",
     "selectLanguage": "Dil Seç",
     "languageDescription": "Bu sunucu için dili seçin. Bu ayar bot mesajlarının ve kontrol panelinin dilini etkiler."
+  },
+  "ticketSystem": {
+    "title": "Bilet Sistemi",
+    "ticketPost": {
+      "title": "Bilet Gönderisi",
+      "channelLabel": "Bilet Gönderisi için Kanal",
+      "preview": "Önizleme",
+      "selectCategory": "Bir kategori seçin...",
+      "embedTitle": "Başlık",
+      "embedDescription": "Açıklama",
+      "embedColor": "Renk",
+      "embedBanner": "Banner URL",
+      "embedImage": "Resim URL",
+      "embedFooter": "Alt Bilgiyi Göster",
+      "savePost": "Gönderiyi Kaydet",
+      "resendPost": "Gönderiyi Yeniden Gönder",
+      "sending": "Gönderiliyor...",
+      "confirmResend": "Bilet gönderisini gerçekten yeniden göndermek istiyor musunuz? Eski mesaj silinmeyecek."
+    },
+    "categories": {
+      "title": "Bilet Kategorileri",
+      "addCategory": "Kategori Ekle",
+      "noCategories": "Henüz bilet kategorisi oluşturulmadı.",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "confirmDelete": "Bu kategoriyi gerçekten silmek istiyor musunuz?",
+      "name": "İsim",
+      "emoji": "Emoji",
+      "description": "Açıklama",
+      "welcomeMessage": "Hoş Geldin Mesajı",
+      "discordCategory": "Discord Kategorisi",
+      "discordCategoryHelp": "Bilet kanallarının oluşturulacağı kategori",
+      "channelNameFormat": "Kanal İsmi Formatı",
+      "channelNameFormatHelp": "Mevcut yer tutucular: {user}, {date}, {id}",
+      "supporterRoles": "Destekçi Rolleri",
+      "addRole": "Rol ekle...",
+      "categoryActive": "Kategori aktif",
+      "editCategory": "Kategoriyi Düzenle",
+      "createCategory": "Yeni Kategori Oluştur",
+      "noCategory": "Kategori Yok",
+      "format": "Format",
+      "placeholders": {
+        "user": "kullanıcı adı ile değiştirilecek"
+      }
+    },
+    "transcripts": {
+      "title": "Bilet Transkriptleri",
+      "showTranscript": "Transkripti Göster",
+      "closedAt": "Kapatıldı:",
+      "unknown": "Bilinmiyor",
+      "noTranscripts": "Henüz transkript mevcut değil.",
+      "autoDelete": "Transkriptler 7 gün sonra otomatik olarak silinir."
+    }
   }
 }

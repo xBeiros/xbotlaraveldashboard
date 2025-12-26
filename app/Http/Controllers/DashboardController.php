@@ -854,6 +854,7 @@ class DashboardController extends Controller
                             'type' => $channel['type'], // 0 = Text, 4 = Category
                             'parent_id' => $channel['parent_id'] ?? null,
                             'position' => $channel['position'] ?? 0,
+                            'is_category' => $channel['type'] === 4, // Markiere Kategorien explizit
                         ];
                     })
                     ->values();
@@ -866,6 +867,7 @@ class DashboardController extends Controller
                 
                 // Kanäle ohne Kategorie zuerst
                 foreach ($textChannels->whereNull('parent_id') as $channel) {
+                    $channel['is_category'] = false; // Stelle sicher, dass Text-Kanäle is_category = false haben
                     $grouped[] = $channel;
                 }
                 
@@ -881,6 +883,7 @@ class DashboardController extends Controller
                     ];
                     // Kanäle in dieser Kategorie
                     foreach ($categoryChannels as $channel) {
+                        $channel['is_category'] = false; // Stelle sicher, dass Text-Kanäle is_category = false haben
                         $grouped[] = $channel;
                     }
                 }

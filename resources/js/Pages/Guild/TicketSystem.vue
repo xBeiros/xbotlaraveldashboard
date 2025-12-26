@@ -1,9 +1,9 @@
 <template>
-    <Head :title="`${guild.name} - Ticket-System`" />
+    <Head :title="`${guild.name} - ${t('ticketSystem.title')}`" />
 
     <GuildLayout :guild="guild" :guilds="guilds">
         <div class="p-8">
-            <h1 class="text-2xl font-bold mb-6 text-white">Ticket-System</h1>
+            <h1 class="text-2xl font-bold mb-6 text-white">{{ t('ticketSystem.title') }}</h1>
 
             <!-- Success/Error Messages -->
             <div v-if="$page.props.flash?.success" class="mb-4 p-4 bg-green-500/20 border border-green-500 rounded-lg text-green-400">
@@ -16,18 +16,18 @@
             <div class="space-y-6">
                 <!-- Ticket-Post Konfiguration -->
                 <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
-                    <h2 class="text-lg font-semibold text-white mb-4">Ticket-Post</h2>
+                    <h2 class="text-lg font-semibold text-white mb-4">{{ t('ticketSystem.ticketPost.title') }}</h2>
                     
                     <div class="space-y-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">
-                                Kanal für Ticket-Post
+                                {{ t('ticketSystem.ticketPost.channelLabel') }}
                             </label>
                             <select
                                 v-model="ticketPostForm.channel_id"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             >
-                                <option value="">Bitte wählen...</option>
+                                <option value="">{{ t('common.pleaseSelect') }}</option>
                                 <template v-for="channel in channels" :key="channel.id">
                                     <option
                                         v-if="channel.type === 4 && channel.is_category"
@@ -48,7 +48,7 @@
 
                         <!-- Embed Vorschau -->
                         <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                            <h4 class="text-sm font-medium text-gray-300 mb-4">Vorschau</h4>
+                            <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('ticketSystem.ticketPost.preview') }}</h4>
                             <div class="flex justify-center">
                                 <div class="bg-[#2f3136] rounded-lg p-4" style="max-width: 520px; width: 100%;">
                                     <!-- Banner -->
@@ -89,7 +89,7 @@
                                     <!-- Dropdown Vorschau -->
                                     <div class="mt-3 bg-[#2f3136] rounded border border-[#202225] p-3">
                                         <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-400">Wähle eine Kategorie...</span>
+                                            <span class="text-sm text-gray-400">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
                                             <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                             </svg>
@@ -102,7 +102,7 @@
                         <!-- Embed Konfiguration -->
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Titel</label>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedTitle') }}</label>
                                 <input
                                     type="text"
                                     v-model="ticketPostForm.embed_title"
@@ -111,7 +111,7 @@
                                 />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Beschreibung</label>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedDescription') }}</label>
                                 <textarea
                                     v-model="ticketPostForm.embed_description"
                                     rows="3"
@@ -120,7 +120,7 @@
                                 ></textarea>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Farbe</label>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedColor') }}</label>
                                 <div class="flex gap-2">
                                     <input
                                         type="color"
@@ -136,7 +136,7 @@
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Banner URL</label>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedBanner') }}</label>
                                 <input
                                     type="url"
                                     v-model="ticketPostForm.embed_banner"
@@ -145,7 +145,7 @@
                                 />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">Bild URL</label>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedImage') }}</label>
                                 <input
                                     type="url"
                                     v-model="ticketPostForm.embed_image"
@@ -159,7 +159,7 @@
                                     v-model="ticketPostForm.embed_footer"
                                     class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                                 />
-                                <label class="text-sm text-gray-300">Footer anzeigen</label>
+                                <label class="text-sm text-gray-300">{{ t('ticketSystem.ticketPost.embedFooter') }}</label>
                             </div>
                         </div>
                     </div>
@@ -171,14 +171,14 @@
                             :disabled="resendingPost"
                             class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
                         >
-                            {{ resendingPost ? 'Sende...' : 'Post erneut senden' }}
+                            {{ resendingPost ? t('ticketSystem.ticketPost.sending') : t('ticketSystem.ticketPost.resendPost') }}
                         </button>
                         <button
                             @click="saveTicketPost"
                             :disabled="ticketPostForm.processing"
                             class="px-6 py-2.5 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium"
                         >
-                            {{ ticketPostForm.processing ? 'Speichere...' : 'Post speichern' }}
+                            {{ ticketPostForm.processing ? t('common.saving') : t('ticketSystem.ticketPost.savePost') }}
                         </button>
                     </div>
                 </div>
@@ -186,7 +186,7 @@
                 <!-- Ticket-Kategorien -->
                 <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
                     <div class="flex items-center justify-between mb-4">
-                        <h2 class="text-lg font-semibold text-white">Ticket-Kategorien</h2>
+                        <h2 class="text-lg font-semibold text-white">{{ t('ticketSystem.categories.title') }}</h2>
                         <button
                             @click="openCategoryModal()"
                             class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors flex items-center gap-2"
@@ -194,7 +194,7 @@
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                             </svg>
-                            Kategorie hinzufügen
+                            {{ t('ticketSystem.categories.addCategory') }}
                         </button>
                     </div>
 
@@ -210,8 +210,8 @@
                                     <div>
                                         <div class="text-sm font-medium text-white">{{ category.name }}</div>
                                         <div class="text-xs text-gray-400">
-                                            {{ categories.find(c => c.id === category.category_id)?.name || 'Keine Kategorie' }} • 
-                                            Format: {{ category.channel_name_format }}
+                                            {{ categories.find(c => c.id === category.category_id)?.name || t('ticketSystem.categories.noCategory') }} • 
+                                            {{ t('ticketSystem.categories.format') }}: {{ category.channel_name_format }}
                                         </div>
                                     </div>
                                     <span
@@ -220,7 +220,7 @@
                                             category.enabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
                                         ]"
                                     >
-                                        {{ category.enabled ? 'Aktiv' : 'Inaktiv' }}
+                                        {{ category.enabled ? t('common.active') : t('common.inactive') }}
                                     </span>
                                 </div>
                                 <div class="flex items-center gap-2">
@@ -228,26 +228,26 @@
                                         @click="openCategoryModal(category)"
                                         class="px-3 py-1.5 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded text-sm font-medium transition-colors"
                                     >
-                                        Bearbeiten
+                                        {{ t('common.edit') }}
                                     </button>
                                     <button
                                         @click="deleteCategory(category.id)"
                                         class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm font-medium transition-colors"
                                     >
-                                        Löschen
+                                        {{ t('common.delete') }}
                                     </button>
                                 </div>
                             </div>
                         </div>
                         <div v-if="ticketCategories.length === 0" class="text-center py-8 text-gray-400">
-                            <p>Noch keine Ticket-Kategorien erstellt.</p>
+                            <p>{{ t('ticketSystem.categories.noCategories') }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Ticket-Transcripts -->
                 <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
-                    <h2 class="text-lg font-semibold text-white mb-4">Ticket-Transcripts</h2>
+                    <h2 class="text-lg font-semibold text-white mb-4">{{ t('ticketSystem.transcripts.title') }}</h2>
                     
                     <div class="space-y-3">
                         <div
@@ -261,7 +261,7 @@
                                         Ticket #{{ transcript.id }} - {{ transcript.category_name }}
                                     </div>
                                     <div class="text-xs text-gray-400 mt-1">
-                                        Geschlossen am: {{ transcript.closed_at || 'Unbekannt' }}
+                                        {{ t('ticketSystem.transcripts.closedAt') }} {{ transcript.closed_at || t('ticketSystem.transcripts.unknown') }}
                                     </div>
                                 </div>
                                 <a
@@ -269,13 +269,13 @@
                                     target="_blank"
                                     class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium"
                                 >
-                                    Transcript anzeigen
+                                    {{ t('ticketSystem.transcripts.showTranscript') }}
                                 </a>
                             </div>
                         </div>
                         <div v-if="ticketTranscripts.length === 0" class="text-center py-8 text-gray-400">
-                            <p>Noch keine Transcripts verfügbar.</p>
-                            <p class="text-xs mt-2">Transcripts werden automatisch nach 7 Tagen gelöscht.</p>
+                            <p>{{ t('ticketSystem.transcripts.noTranscripts') }}</p>
+                            <p class="text-xs mt-2">{{ t('ticketSystem.transcripts.autoDelete') }}</p>
                         </div>
                     </div>
                 </div>
@@ -291,7 +291,7 @@
                     <div class="p-6 border-b border-[#202225]">
                         <div class="flex items-center justify-between">
                             <h2 class="text-xl font-semibold text-white">
-                                {{ editingCategory ? 'Kategorie bearbeiten' : 'Neue Kategorie erstellen' }}
+                                {{ editingCategory ? t('ticketSystem.categories.editCategory') : t('ticketSystem.categories.createCategory') }}
                             </h2>
                             <button
                                 @click="closeCategoryModal"
@@ -306,7 +306,7 @@
 
                     <form @submit.prevent="saveCategory" class="p-6 space-y-6">
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Name *</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.categories.name') }} *</label>
                             <input
                                 type="text"
                                 v-model="categoryForm.name"
@@ -317,7 +317,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Emoji</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.categories.emoji') }}</label>
                             <input
                                 type="text"
                                 v-model="categoryForm.emoji"
@@ -327,7 +327,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Beschreibung</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.categories.description') }}</label>
                             <textarea
                                 v-model="categoryForm.description"
                                 rows="2"
@@ -337,7 +337,7 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Willkommensnachricht</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.categories.welcomeMessage') }}</label>
                             <textarea
                                 v-model="categoryForm.welcome_message"
                                 rows="4"
@@ -345,18 +345,18 @@
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             ></textarea>
                             <p class="text-xs text-gray-400 mt-1">
-                                Verfügbare Platzhalter: <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{user}</code> (wird durch den Benutzernamen ersetzt)
+                                {{ t('ticketSystem.categories.channelNameFormatHelp') }}: <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{user}</code> ({{ t('ticketSystem.categories.placeholders.user') }})
                             </p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Discord-Kategorie *</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.categories.discordCategory') }} *</label>
                             <select
                                 v-model="categoryForm.category_id"
                                 required
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             >
-                                <option value="">Bitte wählen...</option>
+                                <option value="">{{ t('common.pleaseSelect') }}</option>
                                 <option
                                     v-for="cat in categories"
                                     :key="cat.id"
@@ -365,11 +365,11 @@
                                     📁 {{ cat.name }}
                                 </option>
                             </select>
-                            <p class="text-xs text-gray-400 mt-1">Die Kategorie, in der Ticket-Channels erstellt werden</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ t('ticketSystem.categories.discordCategoryHelp') }}</p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Channel-Namen-Format *</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.categories.channelNameFormat') }} *</label>
                             <input
                                 type="text"
                                 v-model="categoryForm.channel_name_format"
@@ -378,14 +378,12 @@
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             />
                             <p class="text-xs text-gray-400 mt-1">
-                                Verfügbare Platzhalter: <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{user}</code>, 
-                                <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{date}</code>, 
-                                <code class="bg-[#1a1b1e] px-1 py-0.5 rounded">{id}</code>
+                                {{ t('ticketSystem.categories.channelNameFormatHelp') }}
                             </p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">Supporter-Rollen</label>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.categories.supporterRoles') }}</label>
                             <div class="space-y-2">
                                 <div
                                     v-for="role in selectedSupporterRoles"
@@ -407,7 +405,7 @@
                                     @change="addSupporterRole($event.target.value)"
                                     class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                 >
-                                    <option value="">Rolle hinzufügen...</option>
+                                    <option value="">{{ t('ticketSystem.categories.addRole') }}</option>
                                     <option
                                         v-for="role in availableRoles"
                                         :key="role.id"
@@ -425,7 +423,7 @@
                                 v-model="categoryForm.enabled"
                                 class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                             />
-                            <label class="text-sm text-gray-300">Kategorie aktiv</label>
+                            <label class="text-sm text-gray-300">{{ t('ticketSystem.categories.categoryActive') }}</label>
                         </div>
 
                         <div class="flex items-center justify-end pt-4 border-t border-[#202225] gap-3">
@@ -434,14 +432,14 @@
                                 @click="closeCategoryModal"
                                 class="px-6 py-2.5 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors font-medium"
                             >
-                                Abbrechen
+                                {{ t('common.cancel') }}
                             </button>
                             <button
                                 type="submit"
                                 :disabled="categoryForm.processing"
                                 class="px-6 py-2.5 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium"
                             >
-                                {{ categoryForm.processing ? 'Speichere...' : 'Speichern' }}
+                                {{ categoryForm.processing ? t('common.saving') : t('common.save') }}
                             </button>
                         </div>
                     </form>
@@ -455,6 +453,9 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
     guild: Object,
@@ -531,7 +532,7 @@ function openCategoryModal(category = null) {
         categoryForm.enabled = category.enabled;
         categoryForm.order = category.order;
         selectedSupporterRoles.value = (category.supporter_roles || []).map(roleId => {
-            return props.roles.find(r => r.id === roleId) || { id: roleId, name: 'Unbekannte Rolle' };
+            return props.roles.find(r => r.id === roleId) || { id: roleId, name: t('ticketSystem.transcripts.unknown') + ' Rolle' };
         }).filter(r => r);
     } else {
         categoryForm.reset();
@@ -586,7 +587,7 @@ function saveCategory() {
 }
 
 function deleteCategory(id) {
-    if (confirm('Möchtest du diese Kategorie wirklich löschen?')) {
+    if (confirm(t('ticketSystem.categories.confirmDelete'))) {
         router.delete(route('guild.ticket-categories.delete', { guild: props.guild.id, id }), {
             preserveScroll: true,
         });
@@ -600,7 +601,7 @@ function saveTicketPost() {
 }
 
 function resendTicketPost() {
-    if (confirm('Möchtest du den Ticket-Post wirklich erneut senden? Die alte Nachricht wird nicht gelöscht.')) {
+    if (confirm(t('ticketSystem.ticketPost.confirmResend'))) {
         resendingPost.value = true;
         router.post(route('guild.ticket-post.resend', { guild: props.guild.id }), {}, {
             preserveScroll: true,

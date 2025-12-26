@@ -25,7 +25,9 @@
     "enabled": "Enabled",
     "disabled": "Disabled",
     "active": "Active",
-    "inactive": "Inactive"
+    "inactive": "Inactive",
+    "select": "Select",
+    "pleaseSelect": "Please select..."
   },
   "languages": {
     "german": "German",
@@ -69,5 +71,58 @@
     "serverLanguage": "Server Language",
     "selectLanguage": "Select Language",
     "languageDescription": "Choose the language for this server. This setting affects the language of bot messages and the dashboard."
+  },
+  "ticketSystem": {
+    "title": "Ticket System",
+    "ticketPost": {
+      "title": "Ticket Post",
+      "channelLabel": "Channel for Ticket Post",
+      "preview": "Preview",
+      "selectCategory": "Select a category...",
+      "embedTitle": "Title",
+      "embedDescription": "Description",
+      "embedColor": "Color",
+      "embedBanner": "Banner URL",
+      "embedImage": "Image URL",
+      "embedFooter": "Show Footer",
+      "savePost": "Save Post",
+      "resendPost": "Resend Post",
+      "sending": "Sending...",
+      "confirmResend": "Do you really want to resend the ticket post? The old message will not be deleted."
+    },
+    "categories": {
+      "title": "Ticket Categories",
+      "addCategory": "Add Category",
+      "noCategories": "No ticket categories created yet.",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Do you really want to delete this category?",
+      "name": "Name",
+      "emoji": "Emoji",
+      "description": "Description",
+      "welcomeMessage": "Welcome Message",
+      "discordCategory": "Discord Category",
+      "discordCategoryHelp": "The category in which ticket channels are created",
+      "channelNameFormat": "Channel Name Format",
+      "channelNameFormatHelp": "Available placeholders: {user}, {date}, {id}",
+      "supporterRoles": "Supporter Roles",
+      "addRole": "Add role...",
+      "categoryActive": "Category active",
+      "editCategory": "Edit Category",
+      "createCategory": "Create New Category",
+      "noCategory": "No Category",
+      "format": "Format",
+      "placeholders": {
+        "user": "will be replaced by the username"
+      }
+    },
+    "transcripts": {
+      "title": "Ticket Transcripts",
+      "showTranscript": "Show Transcript",
+      "closedAt": "Closed at:",
+      "unknown": "Unknown",
+      "noTranscripts": "No transcripts available yet.",
+      "autoDelete": "Transcripts are automatically deleted after 7 days."
+    }
   }
 }

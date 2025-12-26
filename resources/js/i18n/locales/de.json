@@ -25,7 +25,9 @@
     "enabled": "Aktiviert",
     "disabled": "Deaktiviert",
     "active": "Aktiv",
-    "inactive": "Inaktiv"
+    "inactive": "Inaktiv",
+    "select": "Auswählen",
+    "pleaseSelect": "Bitte wählen..."
   },
   "languages": {
     "german": "Deutsch",
@@ -69,5 +71,58 @@
     "serverLanguage": "Serversprache",
     "selectLanguage": "Sprache auswählen",
     "languageDescription": "Wähle die Sprache für diesen Server aus. Diese Einstellung beeinflusst die Sprache der Bot-Nachrichten und des Dashboards."
+  },
+  "ticketSystem": {
+    "title": "Ticket-System",
+    "ticketPost": {
+      "title": "Ticket-Post",
+      "channelLabel": "Kanal für Ticket-Post",
+      "preview": "Vorschau",
+      "selectCategory": "Wähle eine Kategorie...",
+      "embedTitle": "Titel",
+      "embedDescription": "Beschreibung",
+      "embedColor": "Farbe",
+      "embedBanner": "Banner URL",
+      "embedImage": "Bild URL",
+      "embedFooter": "Footer anzeigen",
+      "savePost": "Post speichern",
+      "resendPost": "Post erneut senden",
+      "sending": "Sende...",
+      "confirmResend": "Möchtest du den Ticket-Post wirklich erneut senden? Die alte Nachricht wird nicht gelöscht."
+    },
+    "categories": {
+      "title": "Ticket-Kategorien",
+      "addCategory": "Kategorie hinzufügen",
+      "noCategories": "Noch keine Ticket-Kategorien erstellt.",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "confirmDelete": "Möchtest du diese Kategorie wirklich löschen?",
+      "name": "Name",
+      "emoji": "Emoji",
+      "description": "Beschreibung",
+      "welcomeMessage": "Willkommensnachricht",
+      "discordCategory": "Discord-Kategorie",
+      "discordCategoryHelp": "Die Kategorie, in der Ticket-Channels erstellt werden",
+      "channelNameFormat": "Channel-Namen-Format",
+      "channelNameFormatHelp": "Verfügbare Platzhalter: {user}, {date}, {id}",
+      "supporterRoles": "Supporter-Rollen",
+      "addRole": "Rolle hinzufügen...",
+      "categoryActive": "Kategorie aktiv",
+      "editCategory": "Kategorie bearbeiten",
+      "createCategory": "Neue Kategorie erstellen",
+      "noCategory": "Keine Kategorie",
+      "format": "Format",
+      "placeholders": {
+        "user": "wird durch den Benutzernamen ersetzt"
+      }
+    },
+    "transcripts": {
+      "title": "Ticket-Transcripts",
+      "showTranscript": "Transcript anzeigen",
+      "closedAt": "Geschlossen am:",
+      "unknown": "Unbekannt",
+      "noTranscripts": "Noch keine Transcripts verfügbar.",
+      "autoDelete": "Transcripts werden automatisch nach 7 Tagen gelöscht."
+    }
   }
 }
