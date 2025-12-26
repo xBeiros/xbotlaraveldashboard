@@ -38,9 +38,17 @@
                             <label class="block text-sm font-medium text-gray-300 mb-2">
                                 {{ $t('serverManagement.botPersonalization.avatar') }}
                             </label>
-                            <div class="flex items-center gap-4">
-                                <div v-if="avatarPreview" class="w-20 h-20 rounded-full overflow-hidden border-2 border-[#5865f2]">
-                                    <img :src="avatarPreview" alt="Avatar Preview" class="w-full h-full object-cover" />
+                            <div class="flex items-start gap-4">
+                                <div v-if="avatarPreview" class="flex-shrink-0">
+                                    <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-[#5865f2] bg-[#1a1b1e] relative">
+                                        <img 
+                                            :src="avatarPreview" 
+                                            alt="Avatar Preview" 
+                                            class="w-full h-full object-cover"
+                                            :style="avatarTransform"
+                                        />
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2 text-center">{{ $t('serverManagement.botPersonalization.preview') }}</p>
                                 </div>
                                 <div class="flex-1">
                                     <input
@@ -53,7 +61,7 @@
                                     <button
                                         type="button"
                                         @click="$refs.avatarInput.click()"
-                                        class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium"
+                                        class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium mb-2"
                                     >
                                         {{ $t('serverManagement.botPersonalization.selectAvatar') }}
                                     </button>
@@ -61,9 +69,64 @@
                                         v-if="avatarPreview"
                                         type="button"
                                         @click="removeAvatar"
-                                        class="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                                        class="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium mb-2"
                                     >
                                         {{ $t('common.delete') }}
+                                    </button>
+                                    
+                                    <!-- Avatar Editor -->
+                                    <div v-if="avatarEditorOpen" class="mt-4 space-y-3">
+                                        <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
+                                            <div class="relative w-full h-64 bg-[#0a0b0c] rounded-lg overflow-hidden cursor-move"
+                                                 @mousedown="startAvatarDrag"
+                                                 @mousemove="dragAvatar"
+                                                 @mouseup="stopAvatarDrag"
+                                                 @mouseleave="stopAvatarDrag"
+                                                 ref="avatarEditorContainer"
+                                            >
+                                                <img 
+                                                    :src="avatarOriginal" 
+                                                    alt="Avatar Editor" 
+                                                    class="absolute inset-0"
+                                                    :style="avatarEditorTransform"
+                                                    draggable="false"
+                                                />
+                                            </div>
+                                            <div class="mt-3 flex items-center gap-4">
+                                                <div class="flex-1">
+                                                    <label class="text-xs text-gray-400 mb-1 block">{{ $t('serverManagement.botPersonalization.zoom') }}</label>
+                                                    <input
+                                                        type="range"
+                                                        v-model="avatarZoom"
+                                                        min="100"
+                                                        max="300"
+                                                        step="10"
+                                                        class="w-full"
+                                                        @input="updateAvatarTransform"
+                                                    />
+                                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                                        <span>100%</span>
+                                                        <span>{{ avatarZoom }}%</span>
+                                                        <span>300%</span>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    @click="resetAvatarTransform"
+                                                    class="px-3 py-1.5 bg-[#36393f] hover:bg-[#40444b] text-white rounded text-xs font-medium transition-colors"
+                                                >
+                                                    {{ $t('serverManagement.botPersonalization.reset') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        v-if="avatarPreview && !avatarEditorOpen"
+                                        type="button"
+                                        @click="openAvatarEditor"
+                                        class="mt-2 px-4 py-2 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors text-sm font-medium"
+                                    >
+                                        {{ $t('serverManagement.botPersonalization.editAvatar') }}
                                     </button>
                                 </div>
                             </div>
@@ -74,9 +137,17 @@
                             <label class="block text-sm font-medium text-gray-300 mb-2">
                                 {{ $t('serverManagement.botPersonalization.banner') }}
                             </label>
-                            <div class="flex items-center gap-4">
-                                <div v-if="bannerPreview" class="w-40 h-20 rounded-lg overflow-hidden border-2 border-[#5865f2]">
-                                    <img :src="bannerPreview" alt="Banner Preview" class="w-full h-full object-cover" />
+                            <div class="flex items-start gap-4">
+                                <div v-if="bannerPreview" class="flex-shrink-0">
+                                    <div class="w-48 h-24 rounded-lg overflow-hidden border-2 border-[#5865f2] bg-[#1a1b1e] relative">
+                                        <img 
+                                            :src="bannerPreview" 
+                                            alt="Banner Preview" 
+                                            class="w-full h-full object-cover"
+                                            :style="bannerTransform"
+                                        />
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-2 text-center">{{ $t('serverManagement.botPersonalization.preview') }}</p>
                                 </div>
                                 <div class="flex-1">
                                     <input
@@ -89,7 +160,7 @@
                                     <button
                                         type="button"
                                         @click="$refs.bannerInput.click()"
-                                        class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium"
+                                        class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium mb-2"
                                     >
                                         {{ $t('serverManagement.botPersonalization.selectBanner') }}
                                     </button>
@@ -97,9 +168,64 @@
                                         v-if="bannerPreview"
                                         type="button"
                                         @click="removeBanner"
-                                        class="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                                        class="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium mb-2"
                                     >
                                         {{ $t('common.delete') }}
+                                    </button>
+                                    
+                                    <!-- Banner Editor -->
+                                    <div v-if="bannerEditorOpen" class="mt-4 space-y-3">
+                                        <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
+                                            <div class="relative w-full h-48 bg-[#0a0b0c] rounded-lg overflow-hidden cursor-move"
+                                                 @mousedown="startBannerDrag"
+                                                 @mousemove="dragBanner"
+                                                 @mouseup="stopBannerDrag"
+                                                 @mouseleave="stopBannerDrag"
+                                                 ref="bannerEditorContainer"
+                                            >
+                                                <img 
+                                                    :src="bannerOriginal" 
+                                                    alt="Banner Editor" 
+                                                    class="absolute inset-0"
+                                                    :style="bannerEditorTransform"
+                                                    draggable="false"
+                                                />
+                                            </div>
+                                            <div class="mt-3 flex items-center gap-4">
+                                                <div class="flex-1">
+                                                    <label class="text-xs text-gray-400 mb-1 block">{{ $t('serverManagement.botPersonalization.zoom') }}</label>
+                                                    <input
+                                                        type="range"
+                                                        v-model="bannerZoom"
+                                                        min="100"
+                                                        max="300"
+                                                        step="10"
+                                                        class="w-full"
+                                                        @input="updateBannerTransform"
+                                                    />
+                                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                                        <span>100%</span>
+                                                        <span>{{ bannerZoom }}%</span>
+                                                        <span>300%</span>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    @click="resetBannerTransform"
+                                                    class="px-3 py-1.5 bg-[#36393f] hover:bg-[#40444b] text-white rounded text-xs font-medium transition-colors"
+                                                >
+                                                    {{ $t('serverManagement.botPersonalization.reset') }}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button
+                                        v-if="bannerPreview && !bannerEditorOpen"
+                                        type="button"
+                                        @click="openBannerEditor"
+                                        class="mt-2 px-4 py-2 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors text-sm font-medium"
+                                    >
+                                        {{ $t('serverManagement.botPersonalization.editBanner') }}
                                     </button>
                                 </div>
                             </div>
@@ -158,7 +284,7 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
 const { t } = useI18n();
 
@@ -187,6 +313,62 @@ const bannerPreview = ref(props.botInfo?.banner || null);
 const avatarInput = ref(null);
 const bannerInput = ref(null);
 
+// Avatar Editor
+const avatarEditorOpen = ref(false);
+const avatarOriginal = ref(null);
+const avatarZoom = ref(100);
+const avatarPosition = ref({ x: 0, y: 0 });
+const avatarDragging = ref(false);
+const avatarDragStart = ref({ x: 0, y: 0 });
+const avatarEditorContainer = ref(null);
+
+// Banner Editor
+const bannerEditorOpen = ref(false);
+const bannerOriginal = ref(null);
+const bannerZoom = ref(100);
+const bannerPosition = ref({ x: 0, y: 0 });
+const bannerDragging = ref(false);
+const bannerDragStart = ref({ x: 0, y: 0 });
+const bannerEditorContainer = ref(null);
+
+const avatarTransform = computed(() => {
+    const scale = avatarZoom.value / 100;
+    return {
+        transform: `scale(${scale}) translate(${avatarPosition.value.x / scale}px, ${avatarPosition.value.y / scale}px)`,
+        transformOrigin: 'center center',
+    };
+});
+
+const bannerTransform = computed(() => {
+    const scale = bannerZoom.value / 100;
+    return {
+        transform: `scale(${scale}) translate(${bannerPosition.value.x / scale}px, ${bannerPosition.value.y / scale}px)`,
+        transformOrigin: 'center center',
+    };
+});
+
+const avatarEditorTransform = computed(() => {
+    const scale = avatarZoom.value / 100;
+    return {
+        transform: `scale(${scale}) translate(${avatarPosition.value.x / scale}px, ${avatarPosition.value.y / scale}px)`,
+        transformOrigin: 'center center',
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+    };
+});
+
+const bannerEditorTransform = computed(() => {
+    const scale = bannerZoom.value / 100;
+    return {
+        transform: `scale(${scale}) translate(${bannerPosition.value.x / scale}px, ${bannerPosition.value.y / scale}px)`,
+        transformOrigin: 'center center',
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+    };
+});
+
 function handleAvatarChange(event) {
     const file = event.target.files[0];
     if (file) {
@@ -197,10 +379,48 @@ function handleAvatarChange(event) {
         personalizationForm.avatar = file;
         const reader = new FileReader();
         reader.onload = (e) => {
+            avatarOriginal.value = e.target.result;
             avatarPreview.value = e.target.result;
+            avatarZoom.value = 100;
+            avatarPosition.value = { x: 0, y: 0 };
         };
         reader.readAsDataURL(file);
     }
+}
+
+function openAvatarEditor() {
+    if (avatarOriginal.value) {
+        avatarEditorOpen.value = true;
+    }
+}
+
+function startAvatarDrag(event) {
+    avatarDragging.value = true;
+    avatarDragStart.value = {
+        x: event.clientX - avatarPosition.value.x,
+        y: event.clientY - avatarPosition.value.y,
+    };
+}
+
+function dragAvatar(event) {
+    if (!avatarDragging.value) return;
+    avatarPosition.value = {
+        x: event.clientX - avatarDragStart.value.x,
+        y: event.clientY - avatarDragStart.value.y,
+    };
+}
+
+function stopAvatarDrag() {
+    avatarDragging.value = false;
+}
+
+function updateAvatarTransform() {
+    // Transform wird automatisch über computed property aktualisiert
+}
+
+function resetAvatarTransform() {
+    avatarZoom.value = 100;
+    avatarPosition.value = { x: 0, y: 0 };
 }
 
 function handleBannerChange(event) {
@@ -213,15 +433,57 @@ function handleBannerChange(event) {
         personalizationForm.banner = file;
         const reader = new FileReader();
         reader.onload = (e) => {
+            bannerOriginal.value = e.target.result;
             bannerPreview.value = e.target.result;
+            bannerZoom.value = 100;
+            bannerPosition.value = { x: 0, y: 0 };
         };
         reader.readAsDataURL(file);
     }
 }
 
+function openBannerEditor() {
+    if (bannerOriginal.value) {
+        bannerEditorOpen.value = true;
+    }
+}
+
+function startBannerDrag(event) {
+    bannerDragging.value = true;
+    bannerDragStart.value = {
+        x: event.clientX - bannerPosition.value.x,
+        y: event.clientY - bannerPosition.value.y,
+    };
+}
+
+function dragBanner(event) {
+    if (!bannerDragging.value) return;
+    bannerPosition.value = {
+        x: event.clientX - bannerDragStart.value.x,
+        y: event.clientY - bannerDragStart.value.y,
+    };
+}
+
+function stopBannerDrag() {
+    bannerDragging.value = false;
+}
+
+function updateBannerTransform() {
+    // Transform wird automatisch über computed property aktualisiert
+}
+
+function resetBannerTransform() {
+    bannerZoom.value = 100;
+    bannerPosition.value = { x: 0, y: 0 };
+}
+
 function removeAvatar() {
     personalizationForm.avatar = null;
     avatarPreview.value = null;
+    avatarOriginal.value = null;
+    avatarEditorOpen.value = false;
+    avatarZoom.value = 100;
+    avatarPosition.value = { x: 0, y: 0 };
     if (avatarInput.value) {
         avatarInput.value.value = '';
     }
@@ -230,12 +492,72 @@ function removeAvatar() {
 function removeBanner() {
     personalizationForm.banner = null;
     bannerPreview.value = null;
+    bannerOriginal.value = null;
+    bannerEditorOpen.value = false;
+    bannerZoom.value = 100;
+    bannerPosition.value = { x: 0, y: 0 };
     if (bannerInput.value) {
         bannerInput.value.value = '';
     }
 }
 
-function savePersonalization() {
+async function savePersonalization() {
+    // Wenn Avatar transformiert wurde, rendere das transformierte Bild
+    if (avatarEditorOpen.value && avatarOriginal.value && (avatarZoom.value !== 100 || avatarPosition.value.x !== 0 || avatarPosition.value.y !== 0)) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        await new Promise((resolve, reject) => {
+            img.onload = () => {
+                canvas.width = 128; // Discord Avatar Größe
+                canvas.height = 128;
+                
+                const scale = avatarZoom.value / 100;
+                const x = (canvas.width / 2) - (img.width * scale / 2) + (avatarPosition.value.x * scale);
+                const y = (canvas.height / 2) - (img.height * scale / 2) + (avatarPosition.value.y * scale);
+                
+                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                
+                canvas.toBlob((blob) => {
+                    const file = new File([blob], 'avatar.png', { type: 'image/png' });
+                    personalizationForm.avatar = file;
+                    resolve();
+                }, 'image/png');
+            };
+            img.onerror = reject;
+            img.src = avatarOriginal.value;
+        });
+    }
+    
+    // Wenn Banner transformiert wurde, rendere das transformierte Bild
+    if (bannerEditorOpen.value && bannerOriginal.value && (bannerZoom.value !== 100 || bannerPosition.value.x !== 0 || bannerPosition.value.y !== 0)) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+        
+        await new Promise((resolve, reject) => {
+            img.onload = () => {
+                canvas.width = 960; // Discord Banner Breite
+                canvas.height = 540; // Discord Banner Höhe
+                
+                const scale = bannerZoom.value / 100;
+                const x = (canvas.width / 2) - (img.width * scale / 2) + (bannerPosition.value.x * scale);
+                const y = (canvas.height / 2) - (img.height * scale / 2) + (bannerPosition.value.y * scale);
+                
+                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                
+                canvas.toBlob((blob) => {
+                    const file = new File([blob], 'banner.png', { type: 'image/png' });
+                    personalizationForm.banner = file;
+                    resolve();
+                }, 'image/png');
+            };
+            img.onerror = reject;
+            img.src = bannerOriginal.value;
+        });
+    }
+    
     personalizationForm.post(route('guild.bot-personalization.update', { guild: props.guild.id }), {
         preserveScroll: true,
         forceFormData: true,

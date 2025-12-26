@@ -86,7 +86,12 @@
       "banner": "Banner",
       "selectBanner": "Select Banner",
       "bannerHelp": "Upload a banner for the bot (max. 8MB, PNG/JPG/GIF).",
-      "bannerSizeError": "Banner file is too large (max. 8MB)."
+      "bannerSizeError": "Banner file is too large (max. 8MB).",
+      "preview": "Preview",
+      "zoom": "Zoom",
+      "reset": "Reset",
+      "editAvatar": "Edit Avatar",
+      "editBanner": "Edit Banner"
     }
   },
   "ticketSystem": {

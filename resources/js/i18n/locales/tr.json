@@ -86,7 +86,12 @@
       "banner": "Banner",
       "selectBanner": "Banner Seç",
       "bannerHelp": "Bot için bir banner yükleyin (maks. 8MB, PNG/JPG/GIF).",
-      "bannerSizeError": "Banner dosyası çok büyük (maks. 8MB)."
+      "bannerSizeError": "Banner dosyası çok büyük (maks. 8MB).",
+      "preview": "Önizleme",
+      "zoom": "Yakınlaştırma",
+      "reset": "Sıfırla",
+      "editAvatar": "Profil Resmini Düzenle",
+      "editBanner": "Banner'ı Düzenle"
     }
   },
   "ticketSystem": {
