@@ -98,14 +98,14 @@
                                                     <input
                                                         type="range"
                                                         v-model="avatarZoom"
-                                                        min="100"
+                                                        min="25"
                                                         max="300"
-                                                        step="10"
+                                                        step="5"
                                                         class="w-full"
                                                         @input="updateAvatarTransform"
                                                     />
                                                     <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                                        <span>100%</span>
+                                                        <span>25%</span>
                                                         <span>{{ avatarZoom }}%</span>
                                                         <span>300%</span>
                                                     </div>
@@ -197,14 +197,14 @@
                                                     <input
                                                         type="range"
                                                         v-model="bannerZoom"
-                                                        min="100"
+                                                        min="25"
                                                         max="300"
-                                                        step="10"
+                                                        step="5"
                                                         class="w-full"
                                                         @input="updateBannerTransform"
                                                     />
                                                     <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                                        <span>100%</span>
+                                                        <span>25%</span>
                                                         <span>{{ bannerZoom }}%</span>
                                                         <span>300%</span>
                                                     </div>
