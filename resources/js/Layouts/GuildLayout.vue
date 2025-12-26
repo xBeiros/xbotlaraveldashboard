@@ -62,30 +62,59 @@ function switchGuild(guildId) {
                             </button>
                         </template>
                         <template #content>
-                            <div class="max-h-96 overflow-y-auto">
+                            <div class="max-h-96 overflow-y-auto py-1">
                                 <div
                                     v-for="g in guilds"
                                     :key="g.id"
                                     @click="switchGuild(g.id)"
-                                    class="px-4 py-2 hover:bg-[#36393f] cursor-pointer flex items-center gap-3"
+                                    :class="[
+                                        'px-2 py-1.5 hover:bg-[#36393f] cursor-pointer flex items-center gap-2 rounded',
+                                        g.id === guild?.id ? 'border border-[#5865f2] bg-[#36393f]' : ''
+                                    ]"
                                 >
                                     <img
                                         v-if="g.icon_url"
                                         :src="g.icon_url"
                                         :alt="g.name"
-                                        class="w-8 h-8 rounded-full"
+                                        class="w-10 h-10 rounded-full"
                                     />
                                     <div
                                         v-else
-                                        class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs"
+                                        class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold"
                                     >
                                         {{ g.name.charAt(0).toUpperCase() }}
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-medium truncate">{{ g.name }}</div>
-                                        <div class="text-xs text-gray-400">{{ g.owner ? 'Eigentümer' : 'Bot Master' }}</div>
+                                        <div class="text-sm font-semibold text-white truncate">{{ g.name }}</div>
                                     </div>
+                                    <svg
+                                        v-if="g.id === guild?.id"
+                                        class="w-4 h-4 text-[#5865f2]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                    </svg>
                                 </div>
+                                
+                                <!-- Trennlinie -->
+                                <div class="border-t border-[#36393f] my-1"></div>
+                                
+                                <!-- Neuen Server Hinzufügen -->
+                                <Link
+                                    :href="route('dashboard')"
+                                    class="px-2 py-1.5 hover:bg-[#36393f] cursor-pointer flex items-center gap-2 rounded"
+                                >
+                                    <div class="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-sm font-medium text-white">Neuen Server hinzufügen</div>
+                                    </div>
+                                </Link>
                             </div>
                         </template>
                     </Dropdown>
@@ -291,29 +320,40 @@ function switchGuild(guildId) {
                             </button>
                         </template>
                         <template #content>
-                            <div class="max-h-96 overflow-y-auto">
+                            <div class="max-h-96 overflow-y-auto py-1">
                                 <div
                                     v-for="g in guilds"
                                     :key="g.id"
                                     @click="switchGuild(g.id)"
-                                    class="px-4 py-2 hover:bg-[#36393f] cursor-pointer flex items-center gap-3"
+                                    :class="[
+                                        'px-2 py-1.5 hover:bg-[#36393f] cursor-pointer flex items-center gap-2 rounded',
+                                        g.id === guild?.id ? 'border border-[#5865f2] bg-[#36393f]' : ''
+                                    ]"
                                 >
                                     <img
                                         v-if="g.icon_url"
                                         :src="g.icon_url"
                                         :alt="g.name"
-                                        class="w-8 h-8 rounded-full"
+                                        class="w-10 h-10 rounded-full"
                                     />
                                     <div
                                         v-else
-                                        class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs"
+                                        class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white text-sm font-bold"
                                     >
                                         {{ g.name.charAt(0).toUpperCase() }}
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-medium truncate">{{ g.name }}</div>
-                                        <div class="text-xs text-gray-400">{{ g.owner ? 'Eigentümer' : 'Bot Master' }}</div>
+                                        <div class="text-sm font-semibold text-white truncate">{{ g.name }}</div>
                                     </div>
+                                    <svg
+                                        v-if="g.id === guild?.id"
+                                        class="w-4 h-4 text-[#5865f2]"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                                    </svg>
                                 </div>
                                 
                                 <!-- Trennlinie -->
@@ -322,15 +362,15 @@ function switchGuild(guildId) {
                                 <!-- Neuen Server Hinzufügen -->
                                 <Link
                                     :href="route('dashboard')"
-                                    class="px-4 py-2 hover:bg-[#36393f] cursor-pointer flex items-center gap-3 text-[#5865f2]"
+                                    class="px-2 py-1.5 hover:bg-[#36393f] cursor-pointer flex items-center gap-2 rounded"
                                 >
-                                    <div class="w-8 h-8 rounded-full bg-[#5865f2] flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center">
                                         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                         </svg>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-medium">Neuen Server Hinzufügen</div>
+                                        <div class="text-sm font-medium text-white">Neuen Server hinzufügen</div>
                                     </div>
                                 </Link>
                             </div>
