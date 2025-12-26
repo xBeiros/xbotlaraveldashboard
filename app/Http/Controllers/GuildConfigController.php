@@ -1352,104 +1352,67 @@ class GuildConfigController extends Controller
         }
 
         try {
-            $globalPayload = []; // Für Avatar und Banner (global) - NICHT für username!
+            $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
             $guildPayload = []; // Für Nickname (server-spezifisch)
+            $updateData = []; // Für Avatar/Banner in DB (server-spezifisch)
 
             // Bot-Name ändern (nur für diesen Server - Nickname)
-            // WICHTIG: username wird NUR für Nickname verwendet, NIEMALS für globalen Namen!
             if ($request->has('username')) {
-                // Leerer String oder null = Nickname entfernen (zeigt dann globalen Namen)
                 $nickname = $request->input('username');
                 if (empty($nickname) || trim($nickname) === '') {
                     $guildPayload['nick'] = null; // Entfernt den Nickname
                 } else {
                     $guildPayload['nick'] = trim($nickname);
                 }
-                \Log::info('Bot-Nickname-Update vorbereitet:', [
-                    'guild' => $guild,
-                    'nickname' => $guildPayload['nick'],
-                    'bot_id' => $botClientId,
-                ]);
             }
 
-            // Avatar ändern (global)
+            // Avatar ändern (server-spezifisch in DB speichern)
             if ($request->hasFile('avatar')) {
                 $avatarFile = $request->file('avatar');
                 if ($avatarFile->isValid() && $avatarFile->getSize() <= 8 * 1024 * 1024) {
-                    // Konvertiere Bild zu Base64 Data URL
-                    $imageData = base64_encode(file_get_contents($avatarFile->getRealPath()));
-                    $mimeType = $avatarFile->getMimeType();
-                    $globalPayload['avatar'] = "data:{$mimeType};base64,{$imageData}";
+                    // Speichere Avatar server-spezifisch
+                    $avatarPath = $avatarFile->store("guilds/{$guildModel->id}/bot", 'public');
+                    $updateData['bot_avatar'] = $avatarPath;
                 } else {
                     return back()->with('error', 'Avatar-Datei ist zu groß (max. 8MB) oder ungültig.');
                 }
             }
 
-            // Banner ändern (global)
+            // Banner ändern (server-spezifisch in DB speichern)
             if ($request->hasFile('banner')) {
                 $bannerFile = $request->file('banner');
                 if ($bannerFile->isValid() && $bannerFile->getSize() <= 8 * 1024 * 1024) {
-                    // Konvertiere Bild zu Base64 Data URL
-                    $imageData = base64_encode(file_get_contents($bannerFile->getRealPath()));
-                    $mimeType = $bannerFile->getMimeType();
-                    $globalPayload['banner'] = "data:{$mimeType};base64,{$imageData}";
+                    // Speichere Banner server-spezifisch
+                    $bannerPath = $bannerFile->store("guilds/{$guildModel->id}/bot", 'public');
+                    $updateData['bot_banner'] = $bannerPath;
                 } else {
                     return back()->with('error', 'Banner-Datei ist zu groß (max. 8MB) oder ungültig.');
                 }
             }
 
-            if (empty($globalPayload) && empty($guildPayload)) {
+            // Avatar/Banner entfernen
+            if ($request->has('remove_avatar') && $request->input('remove_avatar')) {
+                if ($guildModel->bot_avatar) {
+                    \Storage::disk('public')->delete($guildModel->bot_avatar);
+                }
+                $updateData['bot_avatar'] = null;
+            }
+
+            if ($request->has('remove_banner') && $request->input('remove_banner')) {
+                if ($guildModel->bot_banner) {
+                    \Storage::disk('public')->delete($guildModel->bot_banner);
+                }
+                $updateData['bot_banner'] = null;
+            }
+
+            if (empty($guildPayload) && empty($updateData)) {
                 return back()->with('error', 'Keine Änderungen vorgenommen.');
             }
 
             $errors = [];
 
-            // 1. Ändere globales Profil (Avatar/Banner) - PATCH /users/@me
-            // WICHTIG: username wird hier NIEMALS gesetzt, nur Avatar und Banner!
-            // Hinweis: Dies funktioniert nur mit OAuth2 Token des Bot-Owners
-            // Für Bots benötigt man OAuth2 Token des Bot-Owners, nicht Bot Token
-            // Versuche es trotzdem mit Bot Token (kann fehlschlagen)
-            if (!empty($globalPayload)) {
-                \Log::info('Globales Bot-Profil wird aktualisiert:', [
-                    'payload_keys' => array_keys($globalPayload),
-                    'has_username' => isset($globalPayload['username']),
-                ]);
-                
-                // Stelle sicher, dass username NICHT im globalPayload ist
-                unset($globalPayload['username']);
-                
-                $globalResponse = Http::withHeaders([
-                    'Authorization' => 'Bot ' . $botToken,
-                    'Content-Type' => 'application/json',
-                ])->timeout(10)->patch('https://discord.com/api/v10/users/@me', $globalPayload);
-
-                if (!$globalResponse->successful()) {
-                    $errorData = $globalResponse->json();
-                    $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des globalen Bot-Profils.';
-                    $errors[] = 'Avatar/Banner: ' . $errorMessage;
-                    \Log::error('Discord API Error bei globaler Bot-Personalisierung:', [
-                        'status' => $globalResponse->status(),
-                        'response' => $errorData,
-                        'payload' => $globalPayload,
-                    ]);
-                } else {
-                    \Log::info('Globales Bot-Profil erfolgreich aktualisiert:', [
-                        'payload_keys' => array_keys($globalPayload),
-                    ]);
-                }
-            }
-
-            // 2. Ändere Server-spezifischen Nickname - PATCH /guilds/{guild.id}/members/{user.id}
-            // WICHTIG: Bots können ihren eigenen Nickname NICHT ändern!
-            // Dies erfordert einen Administrator mit MANAGE_NICKNAMES Berechtigung
-            // Wir versuchen es trotzdem, aber es wird wahrscheinlich fehlschlagen
+            // 1. Ändere Server-spezifischen Nickname - PATCH /guilds/{guild.id}/members/{user.id}
             if (!empty($guildPayload)) {
-                \Log::info('Bot-Nickname-Update wird versucht:', [
-                    'guild' => $guild,
-                    'bot_id' => $botClientId,
-                    'payload' => $guildPayload,
-                ]);
-                
                 $guildResponse = Http::withHeaders([
                     'Authorization' => 'Bot ' . $botToken,
                     'Content-Type' => 'application/json',
@@ -1462,8 +1425,6 @@ class GuildConfigController extends Controller
                     $errorData = $guildResponse->json();
                     $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des Bot-Nicknames.';
                     
-                    // Wenn der Fehler ist, dass der Bot seinen eigenen Nickname nicht ändern kann,
-                    // informiere den Benutzer darüber
                     if (str_contains(strtolower($errorMessage), 'permission') || 
                         str_contains(strtolower($errorMessage), 'manage_nicknames') ||
                         $guildResponse->status() === 403) {
@@ -1471,28 +1432,19 @@ class GuildConfigController extends Controller
                     } else {
                         $errors[] = 'Name: ' . $errorMessage;
                     }
-                    
-                    \Log::error('Discord API Error bei Bot-Nickname-Update:', [
-                        'status' => $guildResponse->status(),
-                        'response' => $errorData,
-                        'guild' => $guild,
-                        'bot_id' => $botClientId,
-                        'payload' => $guildPayload,
-                    ]);
-                } else {
-                    \Log::info('Bot-Nickname erfolgreich aktualisiert:', [
-                        'guild' => $guild,
-                        'bot_id' => $botClientId,
-                        'nickname' => $guildPayload['nick'] ?? null,
-                    ]);
                 }
+            }
+
+            // 2. Speichere Avatar/Banner server-spezifisch in DB
+            if (!empty($updateData)) {
+                $guildModel->update($updateData);
             }
 
             if (!empty($errors)) {
                 return back()->with('error', 'Fehler beim Aktualisieren: ' . implode(' | ', $errors));
             }
 
-            return back()->with('success', 'Bot-Profil erfolgreich aktualisiert!');
+            return back()->with('success', 'Server-Profil erfolgreich aktualisiert!');
         } catch (\Exception $e) {
             \Log::error('Fehler bei Bot-Personalisierung:', [
                 'error' => $e->getMessage(),

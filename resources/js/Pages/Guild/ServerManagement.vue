@@ -126,57 +126,13 @@
                                 />
                                 <p class="text-xs text-gray-400 mt-1">{{ $t('serverManagement.botPersonalization.botNameHelp') }}</p>
                             </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    {{ $t('serverManagement.botPersonalization.botStatus') }}
-                                </label>
-                                <select
-                                    v-model="personalizationForm.status"
-                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                >
-                                    <option value="online">{{ $t('serverManagement.botPersonalization.statusOnline') }}</option>
-                                    <option value="idle">{{ $t('serverManagement.botPersonalization.statusIdle') }}</option>
-                                    <option value="dnd">{{ $t('serverManagement.botPersonalization.statusDnd') }}</option>
-                                    <option value="offline">{{ $t('serverManagement.botPersonalization.statusOffline') }}</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    {{ $t('serverManagement.botPersonalization.activityType') }}
-                                </label>
-                                <select
-                                    v-model="personalizationForm.activityType"
-                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                >
-                                    <option value="playing">{{ $t('serverManagement.botPersonalization.activityPlaying') }}</option>
-                                    <option value="listening">{{ $t('serverManagement.botPersonalization.activityListening') }}</option>
-                                    <option value="watching">{{ $t('serverManagement.botPersonalization.activityWatching') }}</option>
-                                    <option value="streaming">{{ $t('serverManagement.botPersonalization.activityStreaming') }}</option>
-                                    <option value="competing">{{ $t('serverManagement.botPersonalization.activityCompeting') }}</option>
-                                </select>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    {{ $t('serverManagement.botPersonalization.activityText') }}
-                                </label>
-                                <input
-                                    type="text"
-                                    v-model="personalizationForm.activityText"
-                                    :placeholder="$t('serverManagement.botPersonalization.activityTextPlaceholder')"
-                                    maxlength="128"
-                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                />
-                            </div>
                         </div>
                         
                         <!-- Rechts: Vorschau -->
                         <div class="flex-shrink-0 w-80">
                             <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
                                 <h3 class="text-sm font-semibold text-white mb-4">{{ $t('serverManagement.botPersonalization.previewTitle') }}</h3>
-                                <div class="flex items-center gap-3 mb-3">
+                                <div class="flex items-center gap-3">
                                     <div class="w-12 h-12 rounded-full overflow-hidden bg-[#36393f] flex-shrink-0">
                                         <img 
                                             v-if="avatarPreview" 
@@ -191,7 +147,7 @@
                                         </div>
                                     </div>
                                     <div class="flex-1 min-w-0">
-                                        <div class="flex items-center gap-2 mb-1">
+                                        <div class="flex items-center gap-2">
                                             <span class="text-white font-medium truncate">{{ personalizationForm.username || props.botInfo?.username || 'Bot' }}</span>
                                             <span class="px-2 py-0.5 bg-[#5865f2] text-white text-xs font-medium rounded flex-shrink-0">
                                                 <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -200,24 +156,7 @@
                                                 BOT
                                             </span>
                                         </div>
-                                        <div class="flex items-center gap-2 text-xs text-gray-400">
-                                            <div class="flex items-center gap-1">
-                                                <div 
-                                                    class="w-2 h-2 rounded-full"
-                                                    :class="{
-                                                        'bg-green-500': personalizationForm.status === 'online',
-                                                        'bg-yellow-500': personalizationForm.status === 'idle',
-                                                        'bg-red-500': personalizationForm.status === 'dnd',
-                                                        'bg-gray-500': personalizationForm.status === 'offline'
-                                                    }"
-                                                ></div>
-                                                <span>{{ statusText }}</span>
-                                            </div>
-                                        </div>
                                     </div>
-                                </div>
-                                <div v-if="personalizationForm.activityText" class="text-xs text-gray-400">
-                                    {{ activityText }}
                                 </div>
                             </div>
                         </div>
@@ -394,9 +333,6 @@ const form = useForm({
 
 const personalizationForm = useForm({
     username: props.botInfo?.username || '',
-    status: props.botInfo?.status || 'online',
-    activityType: props.botInfo?.activityType || 'listening',
-    activityText: props.botInfo?.activityText || '/help',
     avatar: null,
     banner: null,
 });
@@ -462,33 +398,6 @@ const bannerEditorTransform = computed(() => {
     };
 });
 
-const statusText = computed(() => {
-    const status = personalizationForm.status || 'online';
-    const statusMap = {
-        'online': t('serverManagement.botPersonalization.statusOnline'),
-        'idle': t('serverManagement.botPersonalization.statusIdle'),
-        'dnd': t('serverManagement.botPersonalization.statusDnd'),
-        'offline': t('serverManagement.botPersonalization.statusOffline'),
-    };
-    return statusMap[status] || statusMap['online'];
-});
-
-const activityText = computed(() => {
-    const type = personalizationForm.activityType || 'listening';
-    const text = personalizationForm.activityText || '';
-    if (!text) return '';
-    
-    const typeMap = {
-        'playing': t('serverManagement.botPersonalization.activityPlaying'),
-        'listening': t('serverManagement.botPersonalization.activityListening'),
-        'watching': t('serverManagement.botPersonalization.activityWatching'),
-        'streaming': t('serverManagement.botPersonalization.activityStreaming'),
-        'competing': t('serverManagement.botPersonalization.activityCompeting'),
-    };
-    
-    const typeText = typeMap[type] || typeMap['listening'];
-    return `${typeText} ${text}`;
-});
 
 function handleAvatarChange(event) {
     const file = event.target.files[0];
