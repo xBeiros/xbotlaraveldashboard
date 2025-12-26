@@ -115,7 +115,7 @@ function refreshGuilds() {
         </nav>
 
         <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-6 py-12">
+        <main class="max-w-[60rem] mx-auto px-6 py-12">
             <h1 class="text-3xl font-bold mb-8 text-center">Server auswählen</h1>
             
             <div v-if="guilds.length === 0" class="text-center py-12">
