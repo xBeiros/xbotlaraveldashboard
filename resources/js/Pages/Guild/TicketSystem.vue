@@ -13,176 +13,206 @@
                 {{ $page.props.flash.error }}
             </div>
 
-            <div class="space-y-6">
-                <!-- Ticket-Post Konfiguration -->
-                <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
-                    <h2 class="text-lg font-semibold text-white mb-4">{{ t('ticketSystem.ticketPost.title') }}</h2>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">
-                                {{ t('ticketSystem.ticketPost.channelLabel') }}
-                            </label>
-                            <select
-                                v-model="ticketPostForm.channel_id"
-                                class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                            >
-                                <option value="">{{ t('common.pleaseSelect') }}</option>
-                                <template v-for="channel in channels" :key="channel.id">
-                                    <option
-                                        v-if="channel.type === 4 && channel.is_category"
-                                        disabled
-                                        class="bg-[#2f3136] font-semibold"
-                                    >
-                                        ── {{ channel.name }} ──
-                                    </option>
-                                    <option
-                                        v-else-if="channel.type === 0"
-                                        :value="channel.id"
-                                    >
-                                        # {{ channel.name }}
-                                    </option>
-                                </template>
-                            </select>
-                        </div>
-
-                        <!-- Embed Vorschau -->
-                        <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                            <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('ticketSystem.ticketPost.preview') }}</h4>
-                            <div class="flex justify-center">
-                                <div class="bg-[#2f3136] rounded-lg p-4" style="max-width: 520px; width: 100%;">
-                                    <!-- Banner -->
-                                    <div v-if="ticketPostForm.embed_banner" class="mb-2 rounded-t-lg overflow-hidden">
-                                        <img :src="ticketPostForm.embed_banner" alt="Banner" class="w-full h-32 object-cover" />
-                                    </div>
-                                    <!-- Discord-ähnliche Embed-Vorschau -->
-                                    <div
-                                        class="rounded border-l-4 p-3"
-                                        :style="{ borderLeftColor: ticketPostForm.embed_color || '#ff0000' }"
-                                    >
-                                        <div class="space-y-2">
-                                            <h5
-                                                v-if="ticketPostForm.embed_title"
-                                                class="text-base font-semibold text-white"
-                                                v-html="renderedTitle"
-                                            ></h5>
-                                            <p
-                                                v-if="ticketPostForm.embed_description"
-                                                class="text-sm text-gray-300 whitespace-pre-wrap"
-                                                v-html="renderedDescription"
-                                            ></p>
-                                            <div
-                                                v-if="ticketPostForm.embed_image"
-                                                class="mt-2"
-                                            >
-                                                <img :src="ticketPostForm.embed_image" alt="Image" class="max-w-full rounded" />
-                                            </div>
-                                            <div
-                                                v-if="ticketPostForm.embed_footer"
-                                                class="flex items-center gap-2 pt-2 border-t border-[#202225]"
-                                            >
-                                                <img :src="guild.icon_url" alt="Server Icon" class="w-4 h-4 rounded-full" />
-                                                <span class="text-xs text-gray-400">{{ guild.name }} • {{ new Date().toLocaleDateString() }} {{ new Date().toLocaleTimeString() }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!-- Dropdown Vorschau -->
-                                    <div class="mt-3 bg-[#2f3136] rounded border border-[#202225] p-3">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-sm text-gray-400">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
-                                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Embed Konfiguration -->
+            <div class="flex gap-6">
+                <!-- Left: Ticket-Post Konfiguration -->
+                <div class="flex-1 space-y-6">
+                    <!-- Ticket-Post Konfiguration -->
+                    <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
+                        <h2 class="text-lg font-semibold text-white mb-4">{{ t('ticketSystem.ticketPost.title') }}</h2>
+                        
                         <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedTitle') }}</label>
-                                <input
-                                    type="text"
-                                    v-model="ticketPostForm.embed_title"
-                                    :placeholder="t('ticketSystem.ticketPost.embedTitlePlaceholder')"
+                                <label class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ t('ticketSystem.ticketPost.channelLabel') }}
+                                </label>
+                                <select
+                                    v-model="ticketPostForm.channel_id"
                                     class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                />
+                                >
+                                    <option value="">{{ t('common.pleaseSelect') }}</option>
+                                    <template v-for="channel in channels" :key="channel.id">
+                                        <option
+                                            v-if="channel.type === 4 && channel.is_category"
+                                            disabled
+                                            class="bg-[#2f3136] font-semibold"
+                                        >
+                                            ── {{ channel.name }} ──
+                                        </option>
+                                        <option
+                                            v-else-if="channel.type === 0"
+                                            :value="channel.id"
+                                        >
+                                            # {{ channel.name }}
+                                        </option>
+                                    </template>
+                                </select>
                             </div>
+
+                            <!-- Embed Konfiguration -->
+                            <div class="space-y-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedDescription') }}</label>
-                                <textarea
-                                    v-model="ticketPostForm.embed_description"
-                                    rows="3"
-                                    :placeholder="t('ticketSystem.ticketPost.embedDescriptionPlaceholder')"
-                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                ></textarea>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedColor') }}</label>
-                                <div class="flex gap-2">
-                                    <input
-                                        type="color"
-                                        v-model="ticketPostForm.embed_color"
-                                        class="w-16 h-10 rounded border border-[#202225] cursor-pointer"
-                                    />
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedTitle') }}</label>
                                     <input
                                         type="text"
-                                        v-model="ticketPostForm.embed_color"
-                                        placeholder="#ff0000"
-                                        class="flex-1 rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                        v-model="ticketPostForm.embed_title"
+                                        :placeholder="t('ticketSystem.ticketPost.embedTitlePlaceholder')"
+                                        class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                     />
                                 </div>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedBanner') }}</label>
-                                <input
-                                    type="url"
-                                    v-model="ticketPostForm.embed_banner"
-                                    placeholder="https://example.com/banner.png"
-                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedImage') }}</label>
-                                <input
-                                    type="url"
-                                    v-model="ticketPostForm.embed_image"
-                                    placeholder="https://example.com/image.png"
-                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                />
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <input
-                                    type="checkbox"
-                                    v-model="ticketPostForm.embed_footer"
-                                    class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
-                                />
-                                <label class="text-sm text-gray-300">{{ t('ticketSystem.ticketPost.embedFooter') }}</label>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedDescription') }}</label>
+                                    <textarea
+                                        v-model="ticketPostForm.embed_description"
+                                        rows="3"
+                                        :placeholder="t('ticketSystem.ticketPost.embedDescriptionPlaceholder')"
+                                        class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                    ></textarea>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedColor') }}</label>
+                                    <div class="flex gap-2">
+                                        <input
+                                            type="color"
+                                            v-model="ticketPostForm.embed_color"
+                                            class="w-16 h-10 rounded border border-[#202225] cursor-pointer"
+                                        />
+                                        <input
+                                            type="text"
+                                            v-model="ticketPostForm.embed_color"
+                                            placeholder="#ff0000"
+                                            class="flex-1 rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedBanner') }}</label>
+                                    <input
+                                        type="url"
+                                        v-model="ticketPostForm.embed_banner"
+                                        placeholder="https://example.com/banner.png"
+                                        class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                    />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('ticketSystem.ticketPost.embedImage') }}</label>
+                                    <input
+                                        type="url"
+                                        v-model="ticketPostForm.embed_image"
+                                        placeholder="https://example.com/image.png"
+                                        class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                    />
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <input
+                                        type="checkbox"
+                                        v-model="ticketPostForm.embed_footer"
+                                        class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
+                                    />
+                                    <label class="text-sm text-gray-300">{{ t('ticketSystem.ticketPost.embedFooter') }}</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    
-                    <div class="mt-6 flex items-center justify-end gap-3">
-                        <button
-                            v-if="ticketPost"
-                            @click="resendTicketPost"
-                            :disabled="resendingPost"
-                            class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                        >
-                            {{ resendingPost ? t('ticketSystem.ticketPost.sending') : t('ticketSystem.ticketPost.resendPost') }}
-                        </button>
-                        <button
-                            @click="saveTicketPost"
-                            :disabled="ticketPostForm.processing"
-                            class="px-6 py-2.5 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium"
-                        >
-                            {{ ticketPostForm.processing ? t('common.saving') : t('ticketSystem.ticketPost.savePost') }}
-                        </button>
+                        
+                        <div class="mt-6 flex items-center justify-end gap-3">
+                            <button
+                                v-if="ticketPost"
+                                @click="resendTicketPost"
+                                :disabled="resendingPost"
+                                class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                {{ resendingPost ? t('ticketSystem.ticketPost.sending') : t('ticketSystem.ticketPost.resendPost') }}
+                            </button>
+                            <button
+                                @click="saveTicketPost"
+                                :disabled="ticketPostForm.processing"
+                                class="px-6 py-2.5 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium"
+                            >
+                                {{ ticketPostForm.processing ? t('common.saving') : t('ticketSystem.ticketPost.savePost') }}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
+                <!-- Right: Sticky Preview Bar -->
+                <div class="w-96 flex-shrink-0">
+                    <div class="sticky top-8">
+                        <div class="bg-[#2f3136] rounded-lg border border-[#202225] p-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <h4 class="text-sm font-semibold text-white">{{ t('ticketSystem.ticketPost.preview') }}</h4>
+                                <div class="flex items-center gap-2 text-xs text-gray-400">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <span>Live Preview</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
+                                <!-- Banner -->
+                                <div v-if="ticketPostForm.embed_banner" class="mb-3 rounded-lg overflow-hidden shadow-lg">
+                                    <img :src="ticketPostForm.embed_banner" alt="Banner" class="w-full h-40 object-cover" />
+                                </div>
+                                
+                                <!-- Discord-ähnliche Embed-Vorschau -->
+                                <div
+                                    class="rounded-lg border-l-4 bg-[#2f3136] p-4 shadow-sm"
+                                    :style="{ borderLeftColor: ticketPostForm.embed_color || '#5865f2' }"
+                                >
+                                    <div class="space-y-3">
+                                        <h5
+                                            v-if="ticketPostForm.embed_title"
+                                            class="text-base font-semibold text-white leading-tight"
+                                            v-html="renderedTitle"
+                                        ></h5>
+                                        <p
+                                            v-if="ticketPostForm.embed_description"
+                                            class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed"
+                                            v-html="renderedDescription"
+                                        ></p>
+                                        <div
+                                            v-if="ticketPostForm.embed_image"
+                                            class="mt-3 rounded-lg overflow-hidden"
+                                        >
+                                            <img :src="ticketPostForm.embed_image" alt="Image" class="w-full rounded-lg" />
+                                        </div>
+                                        <div
+                                            v-if="ticketPostForm.embed_footer"
+                                            class="flex items-center gap-2 pt-3 mt-3 border-t border-[#202225]"
+                                        >
+                                            <img 
+                                                v-if="guild.icon_url"
+                                                :src="guild.icon_url" 
+                                                alt="Server Icon" 
+                                                class="w-5 h-5 rounded-full"
+                                            />
+                                            <div
+                                                v-else
+                                                class="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-xs font-bold"
+                                            >
+                                                {{ guild.name?.charAt(0).toUpperCase() || 'X' }}
+                                            </div>
+                                            <span class="text-xs text-gray-400">{{ guild.name }} • {{ new Date().toLocaleDateString() }} {{ new Date().toLocaleTimeString() }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Dropdown Vorschau -->
+                                <div class="mt-3 bg-[#36393f] rounded-lg border border-[#202225] p-3 hover:bg-[#40444b] transition-colors cursor-pointer">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-300 font-medium">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6 mt-6">
                 <!-- Ticket-Kategorien -->
                 <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
                     <div class="flex items-center justify-between mb-4">
