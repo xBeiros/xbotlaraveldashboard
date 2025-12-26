@@ -447,7 +447,19 @@ function handleBannerChange(event) {
 }
 
 function openBannerEditor() {
-    if (bannerOriginal.value) {
+    // Wenn kein bannerOriginal vorhanden ist, aber eine Datei im Formular, lade sie
+    if (!bannerOriginal.value && personalizationForm.banner) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            bannerOriginal.value = e.target.result;
+            bannerEditorOpen.value = true;
+        };
+        reader.readAsDataURL(personalizationForm.banner);
+    } else if (bannerOriginal.value) {
+        bannerEditorOpen.value = true;
+    } else if (bannerPreview.value) {
+        // Falls nur eine Vorschau vorhanden ist, verwende diese
+        bannerOriginal.value = bannerPreview.value;
         bannerEditorOpen.value = true;
     }
 }
@@ -510,6 +522,10 @@ function removeBanner() {
 }
 
 async function savePersonalization() {
+    // Speichere das Original-Bild, damit wir es nach dem Speichern behalten können
+    const originalAvatarData = avatarOriginal.value;
+    const originalBannerData = bannerOriginal.value;
+    
     // Wenn Avatar vorhanden ist, rendere das transformierte Bild (auch wenn keine Transformation)
     if (avatarOriginal.value && personalizationForm.avatar) {
         const canvas = document.createElement('canvas');
@@ -649,6 +665,31 @@ async function savePersonalization() {
     personalizationForm.post(route('guild.bot-personalization.update', { guild: props.guild.id }), {
         preserveScroll: true,
         forceFormData: true,
+        onSuccess: () => {
+            // Nach erfolgreichem Speichern: Stelle das Original-Bild wieder her, damit man weiter bearbeiten kann
+            if (originalAvatarData) {
+                avatarOriginal.value = originalAvatarData;
+                // Aktualisiere die Vorschau mit dem transformierten Bild
+                if (personalizationForm.avatar) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        avatarPreview.value = e.target.result;
+                    };
+                    reader.readAsDataURL(personalizationForm.avatar);
+                }
+            }
+            if (originalBannerData) {
+                bannerOriginal.value = originalBannerData;
+                // Aktualisiere die Vorschau mit dem transformierten Bild
+                if (personalizationForm.banner) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        bannerPreview.value = e.target.result;
+                    };
+                    reader.readAsDataURL(personalizationForm.banner);
+                }
+            }
+        },
     });
 }
 
