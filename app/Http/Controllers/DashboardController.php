@@ -85,13 +85,19 @@ class DashboardController extends Controller
         
         // Bereite Daten für UI vor (keine API-Calls, nur DB)
         $userGuilds = $userGuilds->map(function ($guild) use ($guildModels) {
+            // Prüfe zuerst user_guilds.bot_joined
             $botJoined = $guild->bot_joined ?? false;
             
-            // Wenn bot_joined nicht gesetzt, prüfe guilds Tabelle
-            if ($botJoined === false) {
+            // Wenn bot_joined nicht gesetzt oder false, prüfe guilds.bot_active
+            // Dies ist wichtig, da bot_joined manchmal nicht aktualisiert wird
+            if ($botJoined === false || $botJoined === null) {
                 $guildModel = $guildModels->get($guild->guild_id);
-                if ($guildModel && $guildModel->bot_active) {
+                if ($guildModel && $guildModel->bot_active === true) {
                     $botJoined = true;
+                    // Aktualisiere auch user_guilds.bot_joined für zukünftige Abfragen
+                    if ($guild->bot_joined !== true) {
+                        $guild->update(['bot_joined' => true]);
+                    }
                 }
             }
             
@@ -104,7 +110,7 @@ class DashboardController extends Controller
                 'icon_url' => $guild->icon ? "https://cdn.discordapp.com/icons/{$guild->guild_id}/{$guild->icon}.png" : null,
                 'owner' => $guild->owner,
                 'permissions' => $guild->permissions,
-                'bot_joined' => $botJoined,
+                'bot_joined' => (bool) $botJoined, // Stelle sicher, dass es ein Boolean ist
                 'can_manage' => $canManage,
             ];
         })
