@@ -531,11 +531,16 @@ class DashboardController extends Controller
                 
                 if ($botResponse->successful()) {
                     $botData = $botResponse->json();
+                    // Lade server-spezifische Avatar/Banner aus DB, falls vorhanden
+                    $serverAvatar = $guildModel->bot_avatar ? \Storage::disk('public')->url($guildModel->bot_avatar) : null;
+                    $serverBanner = $guildModel->bot_banner ? \Storage::disk('public')->url($guildModel->bot_banner) : null;
+                    
                     $botInfo = [
                         'id' => $botData['id'] ?? null,
                         'username' => $botData['username'] ?? null,
-                        'avatar' => isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null,
-                        'banner' => isset($botData['banner']) ? "https://cdn.discordapp.com/banners/{$botData['id']}/{$botData['banner']}.png" : null,
+                        // Server-spezifischer Avatar/Banner hat Priorität, sonst globaler
+                        'avatar' => $serverAvatar ?? (isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null),
+                        'banner' => $serverBanner ?? (isset($botData['banner']) ? "https://cdn.discordapp.com/banners/{$botData['id']}/{$botData['banner']}.png" : null),
                     ];
                 }
             } catch (\Exception $e) {
