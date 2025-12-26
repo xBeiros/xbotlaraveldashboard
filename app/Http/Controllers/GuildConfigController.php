@@ -1009,9 +1009,12 @@ class GuildConfigController extends Controller
 
         $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
 
+        $validated = $request->validate([
+            'language' => 'required|in:de,en,tr',
+        ]);
+
         $guildModel->update([
-            'prefix' => $request->prefix ?? '!',
-            'bot_active' => $request->bot_active ?? true,
+            'language' => $validated['language'],
         ]);
 
         return back()->with('success', 'Server-Einstellungen erfolgreich gespeichert!');

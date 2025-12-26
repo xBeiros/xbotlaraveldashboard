@@ -1,0 +1,73 @@
+{
+  "common": {
+    "save": "Speichern",
+    "saving": "Speichere...",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "close": "Schließen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "previous": "Vorherige",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolg",
+    "confirm": "Bestätigen",
+    "yes": "Ja",
+    "no": "Nein",
+    "update": "Aktualisieren",
+    "updating": "Aktualisiere...",
+    "refresh": "Aktualisieren",
+    "refreshing": "Aktualisiere...",
+    "enabled": "Aktiviert",
+    "disabled": "Deaktiviert",
+    "active": "Aktiv",
+    "inactive": "Inaktiv"
+  },
+  "languages": {
+    "german": "Deutsch",
+    "english": "English",
+    "turkish": "Türkisch"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "settings": "Einstellungen",
+    "profile": "Profil",
+    "logout": "Abmelden",
+    "selectServer": "Server auswählen",
+    "addNewServer": "Neuen Server hinzufügen",
+    "basicInfo": "Grundlegende Informationen",
+    "welcome": "Begrüßung",
+    "reactionRoles": "Reaktionsrollen",
+    "autoModeration": "Auto-Moderation",
+    "leveling": "Aufleveln",
+    "socialNotifications": "Social Media Benachrichtigungen",
+    "notifications": "Benachrichtigungen",
+    "serverManagement": "Server-Verwaltung",
+    "ticketSystem": "Ticket-System"
+  },
+  "dashboard": {
+    "title": "Server auswählen",
+    "welcome": "Willkommen",
+    "selectServer": "Server auswählen",
+    "botInvite": "Bot einladen",
+    "continue": "Weiter",
+    "owner": "Eigentümer",
+    "botMaster": "Bot Master",
+    "noPermission": "Keine Berechtigung",
+    "noServers": "Du hast noch keine Server. Bitte logge dich mit Discord ein, um deine Server zu sehen.",
+    "error": {
+      "guildIdMissing": "Fehler: Server-ID fehlt. Bitte versuche es erneut.",
+      "botClientIdMissing": "Bot Client ID nicht konfiguriert. Bitte kontaktiere den Administrator."
+    }
+  },
+  "serverManagement": {
+    "title": "Einstellungen",
+    "serverLanguage": "Serversprache",
+    "selectLanguage": "Sprache auswählen",
+    "languageDescription": "Wähle die Sprache für diesen Server aus. Diese Einstellung beeinflusst die Sprache der Bot-Nachrichten und des Dashboards."
+  }
+}

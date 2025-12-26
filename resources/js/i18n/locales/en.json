@@ -1,0 +1,73 @@
+{
+  "common": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "update": "Update",
+    "updating": "Updating...",
+    "refresh": "Refresh",
+    "refreshing": "Refreshing...",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "languages": {
+    "german": "German",
+    "english": "English",
+    "turkish": "Turkish"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout",
+    "selectServer": "Select Server",
+    "addNewServer": "Add New Server",
+    "basicInfo": "Basic Information",
+    "welcome": "Welcome",
+    "reactionRoles": "Reaction Roles",
+    "autoModeration": "Auto Moderation",
+    "leveling": "Leveling",
+    "socialNotifications": "Social Media Notifications",
+    "notifications": "Notifications",
+    "serverManagement": "Server Management",
+    "ticketSystem": "Ticket System"
+  },
+  "dashboard": {
+    "title": "Select Server",
+    "welcome": "Welcome",
+    "selectServer": "Select Server",
+    "botInvite": "Invite Bot",
+    "continue": "Continue",
+    "owner": "Owner",
+    "botMaster": "Bot Master",
+    "noPermission": "No Permission",
+    "noServers": "You don't have any servers yet. Please log in with Discord to see your servers.",
+    "error": {
+      "guildIdMissing": "Error: Server ID missing. Please try again.",
+      "botClientIdMissing": "Bot Client ID not configured. Please contact the administrator."
+    }
+  },
+  "serverManagement": {
+    "title": "Settings",
+    "serverLanguage": "Server Language",
+    "selectLanguage": "Select Language",
+    "languageDescription": "Choose the language for this server. This setting affects the language of bot messages and the dashboard."
+  }
+}

@@ -16,6 +16,7 @@ class Guild extends Model
         'owner_id',
         'bot_active',
         'prefix',
+        'language',
     ];
 
     protected $casts = [

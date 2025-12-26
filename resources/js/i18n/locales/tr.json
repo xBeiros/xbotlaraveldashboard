@@ -1,0 +1,73 @@
+{
+  "common": {
+    "save": "Kaydet",
+    "saving": "Kaydediliyor...",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "edit": "Düzenle",
+    "add": "Ekle",
+    "close": "Kapat",
+    "back": "Geri",
+    "next": "İleri",
+    "previous": "Önceki",
+    "search": "Ara",
+    "filter": "Filtrele",
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "success": "Başarılı",
+    "confirm": "Onayla",
+    "yes": "Evet",
+    "no": "Hayır",
+    "update": "Güncelle",
+    "updating": "Güncelleniyor...",
+    "refresh": "Yenile",
+    "refreshing": "Yenileniyor...",
+    "enabled": "Etkin",
+    "disabled": "Devre Dışı",
+    "active": "Aktif",
+    "inactive": "Pasif"
+  },
+  "languages": {
+    "german": "Almanca",
+    "english": "İngilizce",
+    "turkish": "Türkçe"
+  },
+  "navigation": {
+    "dashboard": "Kontrol Paneli",
+    "settings": "Ayarlar",
+    "profile": "Profil",
+    "logout": "Çıkış Yap",
+    "selectServer": "Sunucu Seç",
+    "addNewServer": "Yeni Sunucu Ekle",
+    "basicInfo": "Temel Bilgiler",
+    "welcome": "Hoş Geldin",
+    "reactionRoles": "Tepki Rolleri",
+    "autoModeration": "Otomatik Moderasyon",
+    "leveling": "Seviye Atlama",
+    "socialNotifications": "Sosyal Medya Bildirimleri",
+    "notifications": "Bildirimler",
+    "serverManagement": "Sunucu Yönetimi",
+    "ticketSystem": "Bilet Sistemi"
+  },
+  "dashboard": {
+    "title": "Sunucu Seç",
+    "welcome": "Hoş Geldiniz",
+    "selectServer": "Sunucu Seç",
+    "botInvite": "Bot Davet Et",
+    "continue": "Devam Et",
+    "owner": "Sahip",
+    "botMaster": "Bot Ustası",
+    "noPermission": "İzin Yok",
+    "noServers": "Henüz hiç sunucunuz yok. Sunucularınızı görmek için lütfen Discord ile giriş yapın.",
+    "error": {
+      "guildIdMissing": "Hata: Sunucu ID eksik. Lütfen tekrar deneyin.",
+      "botClientIdMissing": "Bot Client ID yapılandırılmamış. Lütfen yöneticiye başvurun."
+    }
+  },
+  "serverManagement": {
+    "title": "Ayarlar",
+    "serverLanguage": "Sunucu Dili",
+    "selectLanguage": "Dil Seç",
+    "languageDescription": "Bu sunucu için dili seçin. Bu ayar bot mesajlarının ve kontrol panelinin dilini etkiler."
+  }
+}

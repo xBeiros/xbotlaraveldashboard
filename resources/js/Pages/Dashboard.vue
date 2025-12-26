@@ -1,8 +1,11 @@
 <script setup>
 import { Head, router, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { useI18n } from 'vue-i18n';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+
+const { t } = useI18n();
 
 const props = defineProps({
     guilds: Array,
@@ -16,14 +19,14 @@ function inviteBot(guildId) {
     // Öffne Bot-Einladung in neuem Popup-Fenster
     if (!guildId) {
         console.error('Guild ID fehlt');
-        alert('Fehler: Server-ID fehlt. Bitte versuche es erneut.');
+        alert(t('dashboard.error.guildIdMissing'));
         return;
     }
     
     const clientId = props.botClientId;
     if (!clientId) {
         console.error('Bot Client ID fehlt');
-        alert('Bot Client ID nicht konfiguriert. Bitte kontaktiere den Administrator.');
+        alert(t('dashboard.error.botClientIdMissing'));
         return;
     }
     
@@ -71,7 +74,7 @@ function refreshGuilds() {
 </script>
 
 <template>
-    <Head title="Server auswählen" />
+    <Head :title="t('dashboard.title')" />
 
     <div class="min-h-screen bg-[#1a1b1e] text-white">
         <!-- Top Navigation Bar -->
@@ -91,7 +94,7 @@ function refreshGuilds() {
                     :disabled="refreshing"
                     class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded transition-colors disabled:opacity-50 text-sm"
                 >
-                    {{ refreshing ? 'Aktualisiere...' : 'Aktualisieren' }}
+                    {{ refreshing ? t('common.refreshing') : t('common.refresh') }}
                 </button>
                 <Dropdown align="right" width="48">
                     <template #trigger>
@@ -116,7 +119,7 @@ function refreshGuilds() {
                     </template>
                     <template #content>
                         <DropdownLink :href="route('logout')" method="post" as="button">
-                            Abmelden
+                            {{ t('navigation.logout') }}
                         </DropdownLink>
                     </template>
                 </Dropdown>
@@ -125,10 +128,10 @@ function refreshGuilds() {
 
         <!-- Main Content -->
         <main class="max-w-[60rem] mx-auto px-6 py-12">
-            <h1 class="text-3xl font-bold mb-8 text-center">Server auswählen</h1>
+            <h1 class="text-3xl font-bold mb-8 text-center">{{ t('dashboard.title') }}</h1>
             
             <div v-if="guilds.length === 0" class="text-center py-12">
-                <p class="text-gray-400">Du hast noch keine Server. Bitte logge dich mit Discord ein, um deine Server zu sehen.</p>
+                <p class="text-gray-400">{{ t('dashboard.noServers') }}</p>
             </div>
 
             <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -178,7 +181,7 @@ function refreshGuilds() {
                                     {{ guild.name }}
                                 </h3>
                                 <p class="text-xs text-gray-400">
-                                    {{ guild.owner ? 'Eigentümer' : 'Bot Master' }}
+                                    {{ guild.owner ? t('dashboard.owner') : t('dashboard.botMaster') }}
                                 </p>
                             </div>
                         </div>
@@ -193,20 +196,20 @@ function refreshGuilds() {
                                 @click="inviteBot(guild.id)"
                                 class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-1 py-2 rounded transition-colors font-medium text-sm"
                             >
-                                Bot einladen
+                                {{ t('dashboard.botInvite') }}
                             </button>
                             <button
                                 v-else-if="guild.bot_joined && guild.can_manage"
                                 @click="selectGuild(guild)"
                                 class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-1 py-2 rounded transition-colors font-medium text-sm"
                             >
-                                Weiter
+                                {{ t('dashboard.continue') }}
                             </button>
                             <div
                                 v-else
                                 class="w-full bg-gray-600 text-gray-400 px-1 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
                             >
-                                Keine Berechtigung
+                                {{ t('dashboard.noPermission') }}
                             </div>
                         </div>
                     </div>

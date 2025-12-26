@@ -557,6 +557,7 @@ class DashboardController extends Controller
             'guildModel' => [
                 'prefix' => $guildModel->prefix,
                 'bot_active' => $guildModel->bot_active ?? true,
+                'language' => $guildModel->language ?? 'de',
             ],
             'channels' => $this->fetchGuildChannels($guild),
             'categories' => $this->fetchGuildCategories($guild),
