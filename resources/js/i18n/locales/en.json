@@ -27,7 +27,9 @@
     "active": "Active",
     "inactive": "Inactive",
     "select": "Select",
-    "pleaseSelect": "Please select..."
+    "pleaseSelect": "Please select...",
+    "noMoreItems": "All already selected",
+    "unknown": "Unknown"
   },
   "languages": {
     "german": "German",
@@ -244,7 +246,7 @@
       "embedTitle": "Embed title",
       "embedDescription": "Embed description",
       "embedColor": "Embed color",
-      "showFooter": "Show footer"
+      "showFooter": "Show footer (server name and timestamp)"
     },
     "discordInvites": {
       "title": "Block Discord Invites",
@@ -257,15 +259,17 @@
       "embedTitle": "Embed title",
       "embedDescription": "Embed description",
       "embedColor": "Embed color",
-      "showFooter": "Show footer"
+      "showFooter": "Show footer (server name and timestamp)"
     },
     "whitelistChannels": {
       "title": "Whitelist Channels",
-      "description": "Channels excluded from auto-moderation"
+      "description": "Channels excluded from auto-moderation",
+      "noChannelsSelected": "No channels selected yet"
     },
     "whitelistRoles": {
       "title": "Whitelist Roles",
-      "description": "Roles excluded from auto-moderation"
+      "description": "Roles that can still post (e.g. moderators)",
+      "noRolesSelected": "No roles selected yet"
     }
   },
   "leveling": {

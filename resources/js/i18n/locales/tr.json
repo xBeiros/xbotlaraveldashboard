@@ -27,7 +27,9 @@
     "active": "Aktif",
     "inactive": "Pasif",
     "select": "Seç",
-    "pleaseSelect": "Lütfen seçin..."
+    "pleaseSelect": "Lütfen seçin...",
+    "noMoreItems": "Tümü zaten seçildi",
+    "unknown": "Bilinmiyor"
   },
   "languages": {
     "german": "Almanca",
@@ -244,7 +246,7 @@
       "embedTitle": "Gömülü başlık",
       "embedDescription": "Gömülü açıklama",
       "embedColor": "Gömülü renk",
-      "showFooter": "Alt bilgiyi göster"
+      "showFooter": "Alt bilgiyi göster (sunucu adı ve zaman damgası)"
     },
     "discordInvites": {
       "title": "Discord Davetlerini Engelle",
@@ -257,15 +259,17 @@
       "embedTitle": "Gömülü başlık",
       "embedDescription": "Gömülü açıklama",
       "embedColor": "Gömülü renk",
-      "showFooter": "Alt bilgiyi göster"
+      "showFooter": "Alt bilgiyi göster (sunucu adı ve zaman damgası)"
     },
     "whitelistChannels": {
       "title": "Beyaz Liste Kanalları",
-      "description": "Otomatik moderasyondan muaf tutulan kanallar"
+      "description": "Otomatik moderasyondan muaf tutulan kanallar",
+      "noChannelsSelected": "Henüz kanal seçilmedi"
     },
     "whitelistRoles": {
       "title": "Beyaz Liste Rolleri",
-      "description": "Otomatik moderasyondan muaf tutulan roller"
+      "description": "Yine de gönderebilen roller (örn. moderatörler)",
+      "noRolesSelected": "Henüz rol seçilmedi"
     }
   },
   "leveling": {

@@ -111,12 +111,12 @@ function removeRole(roleId) {
 
 function getChannelName(channelId) {
     const channel = props.channels.find(c => c.id === channelId);
-    return channel ? channel.name : 'Unbekannt';
+    return channel ? channel.name : t('common.unknown');
 }
 
 function getRoleName(roleId) {
     const role = props.roles.find(r => r.id === roleId);
-    return role ? role.name : 'Unbekannt';
+    return role ? role.name : t('common.unknown');
 }
 
 function getRoleColor(roleId) {
@@ -206,14 +206,14 @@ function saveConfig() {
                         <!-- Bad Words Liste -->
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">
-                                Bad Words Liste
+                                {{ t('autoModeration.badWords.list') }}
                             </label>
                             <div class="flex gap-2 mb-2">
                                 <input
                                     type="text"
                                     v-model="newBadWord"
                                     @keyup.enter="addBadWord"
-                                    placeholder="Wort hinzufügen..."
+                                    :placeholder="t('autoModeration.badWords.addWord')"
                                     class="flex-1 rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                 />
                                 <button
@@ -221,7 +221,7 @@ function saveConfig() {
                                     @click="addBadWord"
                                     class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded transition-colors"
                                 >
-                                    Hinzufügen
+                                    {{ t('common.add') }}
                                 </button>
                             </div>
                             <div v-if="form.bad_words_list.length > 0" class="flex flex-wrap gap-2 mt-2">
@@ -240,7 +240,7 @@ function saveConfig() {
                                     </button>
                                 </span>
                             </div>
-                            <p v-else class="text-sm text-gray-400 mt-2">Noch keine Bad Words hinzugefügt</p>
+                            <p v-else class="text-sm text-gray-400 mt-2">{{ t('autoModeration.badWords.noWords') }}</p>
                         </div>
 
                         <!-- Nachricht löschen -->
@@ -251,14 +251,14 @@ function saveConfig() {
                                 class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                             />
                             <label class="text-sm text-gray-300">
-                                Nachricht automatisch löschen
+                                {{ t('autoModeration.badWords.deleteMessage') }}
                             </label>
                         </div>
 
                         <!-- Warnung Typ -->
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-3">
-                                Warnnachricht Typ
+                                {{ t('autoModeration.badWords.warningType') }}
                             </label>
                             <div class="grid grid-cols-2 gap-3 mb-4">
                                 <label class="relative cursor-pointer">
@@ -272,7 +272,7 @@ function saveConfig() {
                                         <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                                         </svg>
-                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Textnachricht</p>
+                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('autoModeration.badWords.textMessage') }}</p>
                                     </div>
                                 </label>
                                 <label class="relative cursor-pointer">
@@ -286,7 +286,7 @@ function saveConfig() {
                                         <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Embed-Nachricht</p>
+                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('autoModeration.badWords.embedMessage') }}</p>
                                     </div>
                                 </label>
                             </div>
@@ -294,7 +294,7 @@ function saveConfig() {
                             <!-- Textnachricht -->
                             <div v-if="!form.bad_words_use_embed">
                                 <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    Warnnachricht
+                                    {{ t('autoModeration.badWords.warningMessage') }}
                                 </label>
                                 <textarea
                                     v-model="form.bad_words_warning_message"
@@ -303,7 +303,7 @@ function saveConfig() {
                                     class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                 ></textarea>
                                 <p class="text-xs text-gray-400 mt-1">
-                                    Verfügbare Platzhalter: <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{username}</code>, <code class="bg-[#202225] px-1 rounded">{server}</code>
+                                    {{ t('welcome.welcomeSection.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{username}</code>, <code class="bg-[#202225] px-1 rounded">{server}</code>
                                 </p>
                             </div>
 
@@ -311,7 +311,7 @@ function saveConfig() {
                             <div v-if="form.bad_words_use_embed" class="space-y-4">
                                 <!-- Vorschau -->
                                 <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">Vorschau</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
                                     <div class="flex">
                                         <div
                                             class="w-1 h-auto rounded-l-md"
@@ -329,7 +329,7 @@ function saveConfig() {
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Titel</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('autoModeration.badWords.embedTitle') }}</label>
                                     <input
                                         type="text"
                                         v-model="form.bad_words_embed_title"
@@ -338,7 +338,7 @@ function saveConfig() {
                                     />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Beschreibung</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('autoModeration.badWords.embedDescription') }}</label>
                                     <textarea
                                         v-model="form.bad_words_embed_description"
                                         rows="3"
@@ -347,7 +347,7 @@ function saveConfig() {
                                     ></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Farbe</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('autoModeration.badWords.embedColor') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -369,7 +369,7 @@ function saveConfig() {
                                         class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                                     />
                                     <label class="text-sm text-gray-300">
-                                        Footer anzeigen (Server-Name und Zeitstempel)
+                                        {{ t('autoModeration.badWords.showFooter') }}
                                     </label>
                                 </div>
                             </div>
@@ -381,8 +381,8 @@ function saveConfig() {
                 <div class="bg-[#2f3136] rounded-lg border border-[#202225] overflow-hidden">
                     <div class="flex items-center justify-between p-6">
                         <div class="flex-1">
-                            <h3 class="text-lg font-semibold text-white mb-1">Discord Invite Links blockieren</h3>
-                            <p class="text-sm text-gray-400">Automatisch Discord-Einladungslinks löschen</p>
+                            <h3 class="text-lg font-semibold text-white mb-1">{{ t('autoModeration.discordInvites.title') }}</h3>
+                            <p class="text-sm text-gray-400">{{ t('autoModeration.discordInvites.description') }}</p>
                         </div>
                         <label class="relative inline-flex items-center cursor-pointer">
                             <input
@@ -403,14 +403,14 @@ function saveConfig() {
                                 class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                             />
                             <label class="text-sm text-gray-300">
-                                Nachricht automatisch löschen
+                                {{ t('autoModeration.discordInvites.deleteMessage') }}
                             </label>
                         </div>
 
                         <!-- Warnung Typ -->
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-3">
-                                Warnnachricht Typ
+                                {{ t('autoModeration.discordInvites.warningType') }}
                             </label>
                             <div class="grid grid-cols-2 gap-3 mb-4">
                                 <label class="relative cursor-pointer">
@@ -424,7 +424,7 @@ function saveConfig() {
                                         <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                                         </svg>
-                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Textnachricht</p>
+                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('autoModeration.discordInvites.textMessage') }}</p>
                                     </div>
                                 </label>
                                 <label class="relative cursor-pointer">
@@ -438,7 +438,7 @@ function saveConfig() {
                                         <svg class="w-8 h-8 mx-auto mb-2 text-gray-400 peer-checked:text-[#5865f2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">Embed-Nachricht</p>
+                                        <p class="text-sm font-medium text-gray-300 peer-checked:text-white transition-colors">{{ t('autoModeration.discordInvites.embedMessage') }}</p>
                                     </div>
                                 </label>
                             </div>
@@ -446,7 +446,7 @@ function saveConfig() {
                             <!-- Textnachricht -->
                             <div v-if="!form.block_discord_invites_use_embed">
                                 <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    Warnnachricht
+                                    {{ t('autoModeration.discordInvites.warningMessage') }}
                                 </label>
                                 <textarea
                                     v-model="form.block_discord_invites_warning_message"
@@ -455,7 +455,7 @@ function saveConfig() {
                                     class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                                 ></textarea>
                                 <p class="text-xs text-gray-400 mt-1">
-                                    Verfügbare Platzhalter: <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{username}</code>, <code class="bg-[#202225] px-1 rounded">{server}</code>
+                                    {{ t('welcome.welcomeSection.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{username}</code>, <code class="bg-[#202225] px-1 rounded">{server}</code>
                                 </p>
                             </div>
 
@@ -463,7 +463,7 @@ function saveConfig() {
                             <div v-if="form.block_discord_invites_use_embed" class="space-y-4">
                                 <!-- Vorschau -->
                                 <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">Vorschau</h4>
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
                                     <div class="flex">
                                         <div
                                             class="w-1 h-auto rounded-l-md"
@@ -481,7 +481,7 @@ function saveConfig() {
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Titel</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('autoModeration.discordInvites.embedTitle') }}</label>
                                     <input
                                         type="text"
                                         v-model="form.block_discord_invites_embed_title"
@@ -490,7 +490,7 @@ function saveConfig() {
                                     />
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Beschreibung</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('autoModeration.discordInvites.embedDescription') }}</label>
                                     <textarea
                                         v-model="form.block_discord_invites_embed_description"
                                         rows="3"
@@ -499,7 +499,7 @@ function saveConfig() {
                                     ></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">Farbe</label>
+                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('autoModeration.discordInvites.embedColor') }}</label>
                                     <div class="flex gap-2">
                                         <input
                                             type="color"
@@ -521,7 +521,7 @@ function saveConfig() {
                                         class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                                     />
                                     <label class="text-sm text-gray-300">
-                                        Footer anzeigen (Server-Name und Zeitstempel)
+                                        {{ t('autoModeration.discordInvites.showFooter') }}
                                     </label>
                                 </div>
                             </div>
@@ -532,8 +532,8 @@ function saveConfig() {
                 <!-- Whitelist Channels -->
                 <div class="bg-[#2f3136] rounded-lg border border-[#202225] overflow-visible">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-white mb-2">Whitelist Channels</h3>
-                        <p class="text-sm text-gray-400 mb-4">Kanäle, die von der Auto-Moderation ausgenommen werden</p>
+                        <h3 class="text-lg font-semibold text-white mb-2">{{ t('autoModeration.whitelistChannels.title') }}</h3>
+                        <p class="text-sm text-gray-400 mb-4">{{ t('autoModeration.whitelistChannels.description') }}</p>
                         
                         <!-- Selector -->
                         <div class="relative mb-4 z-50" data-channel-selector>
@@ -542,7 +542,7 @@ function saveConfig() {
                                 @click.stop="channelSelectorOpen = !channelSelectorOpen; nextTick(() => updateChannelDropdownPosition())"
                                 class="w-full flex items-center justify-between px-3 py-2 bg-[#36393f] border border-[#202225] rounded text-white hover:border-[#5865f2] transition-colors"
                             >
-                                <span class="text-sm text-gray-300">Channel auswählen...</span>
+                                <span class="text-sm text-gray-300">{{ t('common.pleaseSelect') }}</span>
                                 <svg class="w-4 h-4 text-gray-400 transition-transform" :class="{ 'rotate-180': channelSelectorOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
@@ -566,7 +566,7 @@ function saveConfig() {
                                         <span class="text-sm text-gray-300"># {{ channel.name }}</span>
                                     </div>
                                     <div v-if="channels.filter(c => c.type === 0 && !selectedChannels.includes(c.id)).length === 0" class="px-4 py-2 text-sm text-gray-400">
-                                        Alle Channels bereits ausgewählt
+                                        {{ t('common.noMoreItems') }}
                                     </div>
                                     </div>
                                 </transition>
@@ -595,15 +595,15 @@ function saveConfig() {
                                 </button>
                             </div>
                         </div>
-                        <p v-else class="text-sm text-gray-400">Noch keine Channels ausgewählt</p>
+                        <p v-else class="text-sm text-gray-400">{{ t('autoModeration.whitelistChannels.noChannelsSelected') }}</p>
                     </div>
                 </div>
 
                 <!-- Whitelist Rollen -->
                 <div class="bg-[#2f3136] rounded-lg border border-[#202225] overflow-visible">
                     <div class="p-6">
-                        <h3 class="text-lg font-semibold text-white mb-2">Whitelist Rollen</h3>
-                        <p class="text-sm text-gray-400 mb-4">Rollen, die trotzdem posten können (z.B. Moderatoren)</p>
+                        <h3 class="text-lg font-semibold text-white mb-2">{{ t('autoModeration.whitelistRoles.title') }}</h3>
+                        <p class="text-sm text-gray-400 mb-4">{{ t('autoModeration.whitelistRoles.description') }}</p>
                         
                         <!-- Selector -->
                         <div class="relative mb-4 z-50" data-role-selector>
@@ -612,7 +612,7 @@ function saveConfig() {
                                 @click.stop="roleSelectorOpen = !roleSelectorOpen; nextTick(() => updateRoleDropdownPosition())"
                                 class="w-full flex items-center justify-between px-3 py-2 bg-[#36393f] border border-[#202225] rounded text-white hover:border-[#5865f2] transition-colors"
                             >
-                                <span class="text-sm text-gray-300">Rolle auswählen...</span>
+                                <span class="text-sm text-gray-300">{{ t('common.pleaseSelect') }}</span>
                                 <svg class="w-4 h-4 text-gray-400 transition-transform" :class="{ 'rotate-180': roleSelectorOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                 </svg>
@@ -636,7 +636,7 @@ function saveConfig() {
                                         <span class="text-sm" :style="{ color: getRoleColor(role.id) }">@{{ role.name }}</span>
                                     </div>
                                     <div v-if="roles.filter(r => !selectedRoles.includes(r.id)).length === 0" class="px-4 py-2 text-sm text-gray-400">
-                                        Alle Rollen bereits ausgewählt
+                                        {{ t('common.noMoreItems') }}
                                     </div>
                                     </div>
                                 </transition>
@@ -671,7 +671,7 @@ function saveConfig() {
                                 </button>
                             </div>
                         </div>
-                        <p v-else class="text-sm text-gray-400">Noch keine Rollen ausgewählt</p>
+                        <p v-else class="text-sm text-gray-400">{{ t('autoModeration.whitelistRoles.noRolesSelected') }}</p>
                     </div>
                 </div>
 

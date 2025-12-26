@@ -27,7 +27,9 @@
     "active": "Aktiv",
     "inactive": "Inaktiv",
     "select": "Auswählen",
-    "pleaseSelect": "Bitte wählen..."
+    "pleaseSelect": "Bitte wählen...",
+    "noMoreItems": "Alle bereits ausgewählt",
+    "unknown": "Unbekannt"
   },
   "languages": {
     "german": "Deutsch",
@@ -239,12 +241,12 @@
       "deleteMessage": "Nachricht automatisch löschen",
       "warningType": "Warnnachricht Typ",
       "textMessage": "Textnachricht",
-      "embedMessage": "Nachricht einbetten",
+      "embedMessage": "Embed-Nachricht",
       "warningMessage": "Warnnachricht",
       "embedTitle": "Embed Titel",
       "embedDescription": "Embed Beschreibung",
       "embedColor": "Embed Farbe",
-      "showFooter": "Footer anzeigen"
+      "showFooter": "Footer anzeigen (Server-Name und Zeitstempel)"
     },
     "discordInvites": {
       "title": "Discord-Einladungslinks blockieren",
@@ -252,20 +254,22 @@
       "deleteMessage": "Nachricht automatisch löschen",
       "warningType": "Warnnachricht Typ",
       "textMessage": "Textnachricht",
-      "embedMessage": "Nachricht einbetten",
+      "embedMessage": "Embed-Nachricht",
       "warningMessage": "Warnnachricht",
       "embedTitle": "Embed Titel",
       "embedDescription": "Embed Beschreibung",
       "embedColor": "Embed Farbe",
-      "showFooter": "Footer anzeigen"
+      "showFooter": "Footer anzeigen (Server-Name und Zeitstempel)"
     },
     "whitelistChannels": {
       "title": "Whitelist Channels",
-      "description": "Kanäle, die von der Auto-Moderation ausgenommen werden"
+      "description": "Kanäle, die von der Auto-Moderation ausgenommen werden",
+      "noChannelsSelected": "Noch keine Channels ausgewählt"
     },
     "whitelistRoles": {
       "title": "Whitelist Rollen",
-      "description": "Rollen, die von der Auto-Moderation ausgenommen werden"
+      "description": "Rollen, die trotzdem posten können (z.B. Moderatoren)",
+      "noRolesSelected": "Noch keine Rollen ausgewählt"
     }
   },
   "leveling": {
