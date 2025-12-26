@@ -265,6 +265,79 @@ function switchGuild(guildId) {
             <!-- Top Navigation Bar -->
             <nav class="bg-[#1F2129] h-20 flex items-center justify-end px-6">
                 <div class="flex items-center gap-4">
+                    <!-- Server Dropdown -->
+                    <Dropdown align="right" width="64">
+                        <template #trigger>
+                            <button class="flex items-center gap-2 hover:bg-[#36393f] px-3 py-2 rounded">
+                                <img
+                                    v-if="guild?.icon_url"
+                                    :src="guild.icon_url"
+                                    :alt="guild.name"
+                                    class="w-8 h-8 rounded-full"
+                                />
+                                <div
+                                    v-else
+                                    class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold text-xs"
+                                >
+                                    {{ guild?.name?.charAt(0).toUpperCase() || 'X' }}
+                                </div>
+                                <div class="flex flex-col items-start">
+                                    <span class="text-sm font-semibold">{{ guild?.name || 'Server auswählen' }}</span>
+                                    <span class="text-xs text-gray-400">XBot</span>
+                                </div>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </template>
+                        <template #content>
+                            <div class="max-h-96 overflow-y-auto">
+                                <div
+                                    v-for="g in guilds"
+                                    :key="g.id"
+                                    @click="switchGuild(g.id)"
+                                    class="px-4 py-2 hover:bg-[#36393f] cursor-pointer flex items-center gap-3"
+                                >
+                                    <img
+                                        v-if="g.icon_url"
+                                        :src="g.icon_url"
+                                        :alt="g.name"
+                                        class="w-8 h-8 rounded-full"
+                                    />
+                                    <div
+                                        v-else
+                                        class="w-8 h-8 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs"
+                                    >
+                                        {{ g.name.charAt(0).toUpperCase() }}
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-sm font-medium truncate">{{ g.name }}</div>
+                                        <div class="text-xs text-gray-400">{{ g.owner ? 'Eigentümer' : 'Bot Master' }}</div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Trennlinie -->
+                                <div class="border-t border-[#36393f] my-1"></div>
+                                
+                                <!-- Neuen Server Hinzufügen -->
+                                <Link
+                                    :href="route('dashboard')"
+                                    class="px-4 py-2 hover:bg-[#36393f] cursor-pointer flex items-center gap-3 text-[#5865f2]"
+                                >
+                                    <div class="w-8 h-8 rounded-full bg-[#5865f2] flex items-center justify-center">
+                                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="text-sm font-medium">Neuen Server Hinzufügen</div>
+                                    </div>
+                                </Link>
+                            </div>
+                        </template>
+                    </Dropdown>
+                    
+                    <!-- User Dropdown -->
                     <Dropdown align="right" width="48">
                         <template #trigger>
                             <button class="flex items-center gap-2 hover:bg-[#36393f] px-3 py-2 rounded">

@@ -13,7 +13,7 @@ const selectedGuild = ref(null);
 const refreshing = ref(false);
 
 function inviteBot(guildId) {
-    // Direkter Redirect zu Discord Bot-Einladung
+    // Öffne Bot-Einladung in neuem Browser-Tab
     if (!guildId) {
         console.error('Guild ID fehlt');
         alert('Fehler: Server-ID fehlt. Bitte versuche es erneut.');
@@ -38,9 +38,9 @@ function inviteBot(guildId) {
         inviteUrl = `/bot/invite?guild_id=${guildId}`;
     }
     
-    // Öffne die Einladungs-URL
-    console.log('Öffne Bot-Einladung für Guild:', guildId);
-    window.location.href = inviteUrl;
+    // Öffne die Einladungs-URL in neuem Tab
+    console.log('Öffne Bot-Einladung für Guild:', guildId, 'in neuem Tab');
+    window.open(inviteUrl, '_blank', 'noopener,noreferrer');
 }
 
 function selectGuild(guild) {
@@ -126,50 +126,72 @@ function refreshGuilds() {
                 <div
                     v-for="guild in guilds"
                     :key="guild.id"
-                    class="bg-[#2f3136] rounded-lg p-6 hover:bg-[#36393f] transition-colors border border-[#202225]"
+                    class="bg-[#2f3136] rounded-lg overflow-hidden hover:bg-[#36393f] transition-colors border border-[#202225] relative"
                 >
-                    <div class="flex items-center gap-4 mb-4">
-                        <img
+                    <!-- Background mit verschwommenem Profilbild -->
+                    <div class="relative h-32 overflow-hidden">
+                        <div
                             v-if="guild.icon_url"
-                            :src="guild.icon_url"
-                            :alt="guild.name"
-                            class="w-16 h-16 rounded-full"
-                        />
+                            class="absolute inset-0 bg-cover bg-center"
+                            :style="{
+                                backgroundImage: `url(${guild.icon_url})`,
+                                filter: 'blur(20px) brightness(0.4)',
+                                transform: 'scale(1.1)'
+                            }"
+                        ></div>
                         <div
                             v-else
-                            class="w-16 h-16 rounded-full bg-gray-600 flex items-center justify-center text-white text-2xl font-bold"
-                        >
-                            {{ guild.name.charAt(0).toUpperCase() }}
+                            class="absolute inset-0 bg-gradient-to-r from-[#5865f2] to-[#4752c4] opacity-60"
+                        ></div>
+                        
+                        <!-- Server Icon zentriert -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <img
+                                v-if="guild.icon_url"
+                                :src="guild.icon_url"
+                                :alt="guild.name"
+                                class="w-20 h-20 rounded-full border-4 border-[#2f3136] shadow-lg"
+                            />
+                            <div
+                                v-else
+                                class="w-20 h-20 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-3xl font-bold border-4 border-[#2f3136] shadow-lg"
+                            >
+                                {{ guild.name.charAt(0).toUpperCase() }}
+                            </div>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <h3 class="text-lg font-semibold text-white truncate">
+                    </div>
+
+                    <!-- Server Informationen und Button -->
+                    <div class="p-4">
+                        <div class="mb-4">
+                            <h3 class="text-lg font-semibold text-white truncate mb-1">
                                 {{ guild.name }}
                             </h3>
                             <p class="text-sm text-gray-400">
                                 {{ guild.owner ? 'Eigentümer' : 'Bot Master' }}
                             </p>
                         </div>
-                    </div>
 
-                    <button
-                        v-if="!guild.bot_joined && guild.can_manage"
-                        @click="inviteBot(guild.id)"
-                        class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium"
-                    >
-                        Bot einladen
-                    </button>
-                    <button
-                        v-else-if="guild.bot_joined && guild.can_manage"
-                        @click="selectGuild(guild)"
-                        class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium"
-                    >
-                        Einrichtung
-                    </button>
-                    <div
-                        v-else
-                        class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium"
-                    >
-                        Keine Berechtigung
+                        <button
+                            v-if="!guild.bot_joined && guild.can_manage"
+                            @click="inviteBot(guild.id)"
+                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium"
+                        >
+                            Bot einladen
+                        </button>
+                        <button
+                            v-else-if="guild.bot_joined && guild.can_manage"
+                            @click="selectGuild(guild)"
+                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium"
+                        >
+                            Einrichtung
+                        </button>
+                        <div
+                            v-else
+                            class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium"
+                        >
+                            Keine Berechtigung
+                        </div>
                     </div>
                 </div>
             </div>
