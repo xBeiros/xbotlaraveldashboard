@@ -79,6 +79,7 @@
       "botName": "Bot-Name (nur für diesen Server)",
       "botNamePlaceholder": "Neuer Bot-Name",
       "botNameHelp": "Der Name, der für den Bot nur auf diesem Server angezeigt wird (Nickname, max. 32 Zeichen). Leer lassen, um den globalen Namen zu verwenden.",
+      "updateImage": "Bild aktualisieren",
       "avatar": "Profilbild",
       "selectAvatar": "Profilbild auswählen",
       "avatarHelp": "Lade ein Profilbild für den Bot hoch (max. 8MB, PNG/JPG/GIF). Wird global für alle Server geändert.",
@@ -88,10 +89,24 @@
       "bannerHelp": "Lade ein Banner für den Bot hoch (max. 8MB, PNG/JPG/GIF). Wird global für alle Server geändert.",
       "bannerSizeError": "Banner-Datei ist zu groß (max. 8MB).",
       "preview": "Vorschau",
+      "previewTitle": "DEIN CUSTOM BOT",
       "zoom": "Zoom",
       "reset": "Zurücksetzen",
       "editAvatar": "Profilbild bearbeiten",
-      "editBanner": "Banner bearbeiten"
+      "editBanner": "Banner bearbeiten",
+      "botStatus": "Bot-Status",
+      "statusOnline": "Online",
+      "statusIdle": "Abwesend",
+      "statusDnd": "Bitte nicht stören",
+      "statusOffline": "Offline",
+      "activityType": "Aktivitätstyp",
+      "activityPlaying": "Spielt",
+      "activityListening": "Hört ... zu",
+      "activityWatching": "Schaut ... zu",
+      "activityStreaming": "Streamt",
+      "activityCompeting": "Nimmt teil an",
+      "activityText": "Aktivitätstext",
+      "activityTextPlaceholder": "/help"
     }
   },
   "ticketSystem": {

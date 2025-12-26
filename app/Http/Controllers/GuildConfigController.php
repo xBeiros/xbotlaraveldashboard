@@ -1352,18 +1352,24 @@ class GuildConfigController extends Controller
         }
 
         try {
-            $globalPayload = []; // Für Avatar und Banner (global)
+            $globalPayload = []; // Für Avatar und Banner (global) - NICHT für username!
             $guildPayload = []; // Für Nickname (server-spezifisch)
 
             // Bot-Name ändern (nur für diesen Server - Nickname)
+            // WICHTIG: username wird NUR für Nickname verwendet, NIEMALS für globalen Namen!
             if ($request->has('username')) {
                 // Leerer String oder null = Nickname entfernen (zeigt dann globalen Namen)
-                $nickname = $request->username;
-                if (empty($nickname)) {
+                $nickname = $request->input('username');
+                if (empty($nickname) || trim($nickname) === '') {
                     $guildPayload['nick'] = null; // Entfernt den Nickname
                 } else {
-                    $guildPayload['nick'] = $nickname;
+                    $guildPayload['nick'] = trim($nickname);
                 }
+                \Log::info('Bot-Nickname-Update vorbereitet:', [
+                    'guild' => $guild,
+                    'nickname' => $guildPayload['nick'],
+                    'bot_id' => $botClientId,
+                ]);
             }
 
             // Avatar ändern (global)
@@ -1399,10 +1405,19 @@ class GuildConfigController extends Controller
             $errors = [];
 
             // 1. Ändere globales Profil (Avatar/Banner) - PATCH /users/@me
+            // WICHTIG: username wird hier NIEMALS gesetzt, nur Avatar und Banner!
             // Hinweis: Dies funktioniert nur mit OAuth2 Token des Bot-Owners
             // Für Bots benötigt man OAuth2 Token des Bot-Owners, nicht Bot Token
             // Versuche es trotzdem mit Bot Token (kann fehlschlagen)
             if (!empty($globalPayload)) {
+                \Log::info('Globales Bot-Profil wird aktualisiert:', [
+                    'payload_keys' => array_keys($globalPayload),
+                    'has_username' => isset($globalPayload['username']),
+                ]);
+                
+                // Stelle sicher, dass username NICHT im globalPayload ist
+                unset($globalPayload['username']);
+                
                 $globalResponse = Http::withHeaders([
                     'Authorization' => 'Bot ' . $botToken,
                     'Content-Type' => 'application/json',
@@ -1415,12 +1430,26 @@ class GuildConfigController extends Controller
                     \Log::error('Discord API Error bei globaler Bot-Personalisierung:', [
                         'status' => $globalResponse->status(),
                         'response' => $errorData,
+                        'payload' => $globalPayload,
+                    ]);
+                } else {
+                    \Log::info('Globales Bot-Profil erfolgreich aktualisiert:', [
+                        'payload_keys' => array_keys($globalPayload),
                     ]);
                 }
             }
 
             // 2. Ändere Server-spezifischen Nickname - PATCH /guilds/{guild.id}/members/{user.id}
+            // WICHTIG: Bots können ihren eigenen Nickname NICHT ändern!
+            // Dies erfordert einen Administrator mit MANAGE_NICKNAMES Berechtigung
+            // Wir versuchen es trotzdem, aber es wird wahrscheinlich fehlschlagen
             if (!empty($guildPayload)) {
+                \Log::info('Bot-Nickname-Update wird versucht:', [
+                    'guild' => $guild,
+                    'bot_id' => $botClientId,
+                    'payload' => $guildPayload,
+                ]);
+                
                 $guildResponse = Http::withHeaders([
                     'Authorization' => 'Bot ' . $botToken,
                     'Content-Type' => 'application/json',
@@ -1432,12 +1461,29 @@ class GuildConfigController extends Controller
                 if (!$guildResponse->successful()) {
                     $errorData = $guildResponse->json();
                     $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des Bot-Nicknames.';
-                    $errors[] = 'Name: ' . $errorMessage;
+                    
+                    // Wenn der Fehler ist, dass der Bot seinen eigenen Nickname nicht ändern kann,
+                    // informiere den Benutzer darüber
+                    if (str_contains(strtolower($errorMessage), 'permission') || 
+                        str_contains(strtolower($errorMessage), 'manage_nicknames') ||
+                        $guildResponse->status() === 403) {
+                        $errors[] = 'Name: Der Bot kann seinen eigenen Nickname nicht ändern. Ein Administrator mit "Nicknames verwalten" Berechtigung muss dies tun.';
+                    } else {
+                        $errors[] = 'Name: ' . $errorMessage;
+                    }
+                    
                     \Log::error('Discord API Error bei Bot-Nickname-Update:', [
                         'status' => $guildResponse->status(),
                         'response' => $errorData,
                         'guild' => $guild,
                         'bot_id' => $botClientId,
+                        'payload' => $guildPayload,
+                    ]);
+                } else {
+                    \Log::info('Bot-Nickname erfolgreich aktualisiert:', [
+                        'guild' => $guild,
+                        'bot_id' => $botClientId,
+                        'nickname' => $guildPayload['nick'] ?? null,
                     ]);
                 }
             }

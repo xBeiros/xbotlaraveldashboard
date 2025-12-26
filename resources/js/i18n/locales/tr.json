@@ -79,6 +79,7 @@
       "botName": "Bot Adı (sadece bu sunucu)",
       "botNamePlaceholder": "Yeni bot adı",
       "botNameHelp": "Bot için sadece bu sunucuda gösterilen isim (takma ad, maks. 32 karakter). Global adı kullanmak için boş bırakın.",
+      "updateImage": "Resmi Güncelle",
       "avatar": "Profil Resmi",
       "selectAvatar": "Profil Resmi Seç",
       "avatarHelp": "Bot için bir profil resmi yükleyin (maks. 8MB, PNG/JPG/GIF). Bu, tüm sunucular için global olarak değişecektir.",
@@ -88,10 +89,24 @@
       "bannerHelp": "Bot için bir banner yükleyin (maks. 8MB, PNG/JPG/GIF). Bu, tüm sunucular için global olarak değişecektir.",
       "bannerSizeError": "Banner dosyası çok büyük (maks. 8MB).",
       "preview": "Önizleme",
+      "previewTitle": "ÖZEL BOTUNUZ",
       "zoom": "Yakınlaştırma",
       "reset": "Sıfırla",
       "editAvatar": "Profil Resmini Düzenle",
-      "editBanner": "Banner'ı Düzenle"
+      "editBanner": "Banner'ı Düzenle",
+      "botStatus": "Bot Durumu",
+      "statusOnline": "Çevrimiçi",
+      "statusIdle": "Boşta",
+      "statusDnd": "Rahatsız Etmeyin",
+      "statusOffline": "Çevrimdışı",
+      "activityType": "Aktivite Türü",
+      "activityPlaying": "Oynuyor",
+      "activityListening": "Dinliyor",
+      "activityWatching": "İzliyor",
+      "activityStreaming": "Yayınlıyor",
+      "activityCompeting": "Yarışıyor",
+      "activityText": "Aktivite Metni",
+      "activityTextPlaceholder": "/help"
     }
   },
   "ticketSystem": {

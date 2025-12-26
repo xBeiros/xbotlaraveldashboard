@@ -19,218 +19,308 @@
                     <h2 class="text-lg font-semibold text-white mb-4">{{ $t('serverManagement.botPersonalization.title') }}</h2>
                     <p class="text-sm text-gray-400 mb-4">{{ $t('serverManagement.botPersonalization.description') }}</p>
                     
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">
-                                {{ $t('serverManagement.botPersonalization.botName') }}
-                            </label>
+                    <!-- Layout: Avatar links, Formular Mitte, Vorschau rechts -->
+                    <div class="flex gap-6">
+                        <!-- Links: Avatar -->
+                        <div class="flex-shrink-0">
+                            <div class="w-48 h-48 rounded-full overflow-hidden border-2 border-[#5865f2] bg-[#1a1b1e] relative mb-4">
+                                <img 
+                                    v-if="avatarPreview" 
+                                    :src="avatarPreview" 
+                                    alt="Avatar Preview" 
+                                    class="w-full h-full object-cover"
+                                    :style="avatarTransform"
+                                />
+                                <div v-else class="w-full h-full bg-[#36393f] flex items-center justify-center text-gray-500">
+                                    <svg class="w-24 h-24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                </div>
+                            </div>
                             <input
-                                type="text"
-                                v-model="personalizationForm.username"
-                                :placeholder="$t('serverManagement.botPersonalization.botNamePlaceholder')"
-                                maxlength="32"
-                                class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                type="file"
+                                @change="handleAvatarChange"
+                                accept="image/png,image/jpeg,image/jpg,image/gif"
+                                class="hidden"
+                                ref="avatarInput"
                             />
-                            <p class="text-xs text-gray-400 mt-1">{{ $t('serverManagement.botPersonalization.botNameHelp') }}</p>
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">
-                                {{ $t('serverManagement.botPersonalization.avatar') }}
-                            </label>
-                            <div class="flex items-start gap-4">
-                                <div v-if="avatarPreview" class="flex-shrink-0">
-                                    <div class="w-32 h-32 rounded-full overflow-hidden border-2 border-[#5865f2] bg-[#1a1b1e] relative">
+                            <button
+                                type="button"
+                                @click="$refs.avatarInput.click()"
+                                class="w-full px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium flex items-center justify-center gap-2"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                {{ $t('serverManagement.botPersonalization.updateImage') }}
+                            </button>
+                            
+                            <!-- Avatar Editor -->
+                            <div v-if="avatarEditorOpen" class="mt-4 space-y-3">
+                                <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
+                                    <div class="relative w-full h-64 bg-[#0a0b0c] rounded-lg overflow-hidden cursor-move"
+                                         @mousedown="startAvatarDrag"
+                                         @mousemove="dragAvatar"
+                                         @mouseup="stopAvatarDrag"
+                                         @mouseleave="stopAvatarDrag"
+                                         ref="avatarEditorContainer"
+                                    >
                                         <img 
+                                            :src="avatarOriginal" 
+                                            alt="Avatar Editor" 
+                                            class="absolute inset-0"
+                                            :style="avatarEditorTransform"
+                                            draggable="false"
+                                        />
+                                    </div>
+                                    <div class="mt-3 flex items-center gap-4">
+                                        <div class="flex-1">
+                                            <label class="text-xs text-gray-400 mb-1 block">{{ $t('serverManagement.botPersonalization.zoom') }}</label>
+                                            <input
+                                                type="range"
+                                                v-model="avatarZoom"
+                                                min="25"
+                                                max="300"
+                                                step="5"
+                                                class="w-full"
+                                                @input="updateAvatarTransform"
+                                            />
+                                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                                <span>25%</span>
+                                                <span>{{ avatarZoom }}%</span>
+                                                <span>300%</span>
+                                            </div>
+                                        </div>
+                                        <button
+                                            type="button"
+                                            @click="resetAvatarTransform"
+                                            class="px-3 py-1.5 bg-[#36393f] hover:bg-[#40444b] text-white rounded text-xs font-medium transition-colors"
+                                        >
+                                            {{ $t('serverManagement.botPersonalization.reset') }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                v-if="avatarPreview && !avatarEditorOpen"
+                                type="button"
+                                @click="openAvatarEditor"
+                                class="mt-2 w-full px-4 py-2 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors text-sm font-medium"
+                            >
+                                {{ $t('serverManagement.botPersonalization.editAvatar') }}
+                            </button>
+                        </div>
+                        
+                        <!-- Mitte: Formular -->
+                        <div class="flex-1 space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ $t('serverManagement.botPersonalization.botName') }}
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="personalizationForm.username"
+                                    :placeholder="$t('serverManagement.botPersonalization.botNamePlaceholder')"
+                                    maxlength="32"
+                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                />
+                                <p class="text-xs text-gray-400 mt-1">{{ $t('serverManagement.botPersonalization.botNameHelp') }}</p>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ $t('serverManagement.botPersonalization.botStatus') }}
+                                </label>
+                                <select
+                                    v-model="personalizationForm.status"
+                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                >
+                                    <option value="online">{{ $t('serverManagement.botPersonalization.statusOnline') }}</option>
+                                    <option value="idle">{{ $t('serverManagement.botPersonalization.statusIdle') }}</option>
+                                    <option value="dnd">{{ $t('serverManagement.botPersonalization.statusDnd') }}</option>
+                                    <option value="offline">{{ $t('serverManagement.botPersonalization.statusOffline') }}</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ $t('serverManagement.botPersonalization.activityType') }}
+                                </label>
+                                <select
+                                    v-model="personalizationForm.activityType"
+                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                >
+                                    <option value="playing">{{ $t('serverManagement.botPersonalization.activityPlaying') }}</option>
+                                    <option value="listening">{{ $t('serverManagement.botPersonalization.activityListening') }}</option>
+                                    <option value="watching">{{ $t('serverManagement.botPersonalization.activityWatching') }}</option>
+                                    <option value="streaming">{{ $t('serverManagement.botPersonalization.activityStreaming') }}</option>
+                                    <option value="competing">{{ $t('serverManagement.botPersonalization.activityCompeting') }}</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ $t('serverManagement.botPersonalization.activityText') }}
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="personalizationForm.activityText"
+                                    :placeholder="$t('serverManagement.botPersonalization.activityTextPlaceholder')"
+                                    maxlength="128"
+                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                />
+                            </div>
+                        </div>
+                        
+                        <!-- Rechts: Vorschau -->
+                        <div class="flex-shrink-0 w-80">
+                            <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
+                                <h3 class="text-sm font-semibold text-white mb-4">{{ $t('serverManagement.botPersonalization.previewTitle') }}</h3>
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-12 h-12 rounded-full overflow-hidden bg-[#36393f] flex-shrink-0">
+                                        <img 
+                                            v-if="avatarPreview" 
                                             :src="avatarPreview" 
-                                            alt="Avatar Preview" 
+                                            alt="Avatar" 
                                             class="w-full h-full object-cover"
-                                            :style="avatarTransform"
                                         />
+                                        <div v-else class="w-full h-full bg-[#36393f] flex items-center justify-center text-gray-500">
+                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                            </svg>
+                                        </div>
                                     </div>
-                                    <p class="text-xs text-gray-400 mt-2 text-center">{{ $t('serverManagement.botPersonalization.preview') }}</p>
-                                </div>
-                                <div class="flex-1">
-                                    <input
-                                        type="file"
-                                        @change="handleAvatarChange"
-                                        accept="image/png,image/jpeg,image/jpg,image/gif"
-                                        class="hidden"
-                                        ref="avatarInput"
-                                    />
-                                    <button
-                                        type="button"
-                                        @click="$refs.avatarInput.click()"
-                                        class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium mb-2"
-                                    >
-                                        {{ $t('serverManagement.botPersonalization.selectAvatar') }}
-                                    </button>
-                                    <button
-                                        v-if="avatarPreview"
-                                        type="button"
-                                        @click="removeAvatar"
-                                        class="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium mb-2"
-                                    >
-                                        {{ $t('common.delete') }}
-                                    </button>
-                                    
-                                    <!-- Avatar Editor -->
-                                    <div v-if="avatarEditorOpen" class="mt-4 space-y-3">
-                                        <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
-                                            <div class="relative w-full h-64 bg-[#0a0b0c] rounded-lg overflow-hidden cursor-move"
-                                                 @mousedown="startAvatarDrag"
-                                                 @mousemove="dragAvatar"
-                                                 @mouseup="stopAvatarDrag"
-                                                 @mouseleave="stopAvatarDrag"
-                                                 ref="avatarEditorContainer"
-                                            >
-                                                <img 
-                                                    :src="avatarOriginal" 
-                                                    alt="Avatar Editor" 
-                                                    class="absolute inset-0"
-                                                    :style="avatarEditorTransform"
-                                                    draggable="false"
-                                                />
-                                            </div>
-                                            <div class="mt-3 flex items-center gap-4">
-                                                <div class="flex-1">
-                                                    <label class="text-xs text-gray-400 mb-1 block">{{ $t('serverManagement.botPersonalization.zoom') }}</label>
-                                                    <input
-                                                        type="range"
-                                                        v-model="avatarZoom"
-                                                        min="25"
-                                                        max="300"
-                                                        step="5"
-                                                        class="w-full"
-                                                        @input="updateAvatarTransform"
-                                                    />
-                                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                                        <span>25%</span>
-                                                        <span>{{ avatarZoom }}%</span>
-                                                        <span>300%</span>
-                                                    </div>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    @click="resetAvatarTransform"
-                                                    class="px-3 py-1.5 bg-[#36393f] hover:bg-[#40444b] text-white rounded text-xs font-medium transition-colors"
-                                                >
-                                                    {{ $t('serverManagement.botPersonalization.reset') }}
-                                                </button>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 mb-1">
+                                            <span class="text-white font-medium truncate">{{ personalizationForm.username || props.botInfo?.username || 'Bot' }}</span>
+                                            <span class="px-2 py-0.5 bg-[#5865f2] text-white text-xs font-medium rounded flex-shrink-0">
+                                                <svg class="w-3 h-3 inline mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                                </svg>
+                                                BOT
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center gap-2 text-xs text-gray-400">
+                                            <div class="flex items-center gap-1">
+                                                <div 
+                                                    class="w-2 h-2 rounded-full"
+                                                    :class="{
+                                                        'bg-green-500': personalizationForm.status === 'online',
+                                                        'bg-yellow-500': personalizationForm.status === 'idle',
+                                                        'bg-red-500': personalizationForm.status === 'dnd',
+                                                        'bg-gray-500': personalizationForm.status === 'offline'
+                                                    }"
+                                                ></div>
+                                                <span>{{ statusText }}</span>
                                             </div>
                                         </div>
                                     </div>
-                                    <button
-                                        v-if="avatarPreview && !avatarEditorOpen"
-                                        type="button"
-                                        @click="openAvatarEditor"
-                                        class="mt-2 px-4 py-2 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors text-sm font-medium"
-                                    >
-                                        {{ $t('serverManagement.botPersonalization.editAvatar') }}
-                                    </button>
+                                </div>
+                                <div v-if="personalizationForm.activityText" class="text-xs text-gray-400">
+                                    {{ activityText }}
                                 </div>
                             </div>
-                            <p class="text-xs text-gray-400 mt-1">{{ $t('serverManagement.botPersonalization.avatarHelp') }}</p>
                         </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-300 mb-2">
-                                {{ $t('serverManagement.botPersonalization.banner') }}
-                            </label>
-                            <div class="flex items-start gap-4">
-                                <div v-if="bannerPreview" class="flex-shrink-0">
-                                    <div class="w-48 h-24 rounded-lg overflow-hidden border-2 border-[#5865f2] bg-[#1a1b1e] relative">
-                                        <img 
-                                            :src="bannerPreview" 
-                                            alt="Banner Preview" 
-                                            class="w-full h-full object-cover"
-                                            :style="bannerTransform"
-                                        />
-                                    </div>
-                                    <p class="text-xs text-gray-400 mt-2 text-center">{{ $t('serverManagement.botPersonalization.preview') }}</p>
-                                </div>
-                                <div class="flex-1">
-                                    <input
-                                        type="file"
-                                        @change="handleBannerChange"
-                                        accept="image/png,image/jpeg,image/jpg,image/gif"
-                                        class="hidden"
-                                        ref="bannerInput"
+                    </div>
+                    
+                    <!-- Banner (optional, unter dem Layout) -->
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-300 mb-2">
+                            {{ $t('serverManagement.botPersonalization.banner') }}
+                        </label>
+                        <div class="flex items-start gap-4">
+                            <div v-if="bannerPreview" class="flex-shrink-0">
+                                <div class="w-48 h-24 rounded-lg overflow-hidden border-2 border-[#5865f2] bg-[#1a1b1e] relative">
+                                    <img 
+                                        :src="bannerPreview" 
+                                        alt="Banner Preview" 
+                                        class="w-full h-full object-cover"
+                                        :style="bannerTransform"
                                     />
-                                    <button
-                                        type="button"
-                                        @click="$refs.bannerInput.click()"
-                                        class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium mb-2"
-                                    >
-                                        {{ $t('serverManagement.botPersonalization.selectBanner') }}
-                                    </button>
-                                    <button
-                                        v-if="bannerPreview"
-                                        type="button"
-                                        @click="removeBanner"
-                                        class="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium mb-2"
-                                    >
-                                        {{ $t('common.delete') }}
-                                    </button>
-                                    
-                                    <!-- Banner Editor -->
-                                    <div v-if="bannerEditorOpen" class="mt-4 space-y-3">
-                                        <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
-                                            <div class="relative w-full h-48 bg-[#0a0b0c] rounded-lg overflow-hidden cursor-move"
-                                                 @mousedown="startBannerDrag"
-                                                 @mousemove="dragBanner"
-                                                 @mouseup="stopBannerDrag"
-                                                 @mouseleave="stopBannerDrag"
-                                                 ref="bannerEditorContainer"
-                                            >
-                                                <img 
-                                                    :src="bannerOriginal" 
-                                                    alt="Banner Editor" 
-                                                    class="absolute inset-0"
-                                                    :style="bannerEditorTransform"
-                                                    draggable="false"
+                                </div>
+                                <p class="text-xs text-gray-400 mt-2 text-center">{{ $t('serverManagement.botPersonalization.preview') }}</p>
+                            </div>
+                            <div class="flex-1">
+                                <input
+                                    type="file"
+                                    @change="handleBannerChange"
+                                    accept="image/png,image/jpeg,image/jpg,image/gif"
+                                    class="hidden"
+                                    ref="bannerInput"
+                                />
+                                <button
+                                    type="button"
+                                    @click="$refs.bannerInput.click()"
+                                    class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium mb-2"
+                                >
+                                    {{ $t('serverManagement.botPersonalization.selectBanner') }}
+                                </button>
+                                <button
+                                    v-if="bannerPreview"
+                                    type="button"
+                                    @click="removeBanner"
+                                    class="ml-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium mb-2"
+                                >
+                                    {{ $t('common.delete') }}
+                                </button>
+                                
+                                <!-- Banner Editor -->
+                                <div v-if="bannerEditorOpen" class="mt-4 space-y-3">
+                                    <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
+                                        <div class="relative w-full h-48 bg-[#0a0b0c] rounded-lg overflow-hidden cursor-move"
+                                             @mousedown="startBannerDrag"
+                                             @mousemove="dragBanner"
+                                             @mouseup="stopBannerDrag"
+                                             @mouseleave="stopBannerDrag"
+                                             ref="bannerEditorContainer"
+                                        >
+                                            <img 
+                                                :src="bannerOriginal" 
+                                                alt="Banner Editor" 
+                                                class="absolute inset-0"
+                                                :style="bannerEditorTransform"
+                                                draggable="false"
+                                            />
+                                        </div>
+                                        <div class="mt-3 flex items-center gap-4">
+                                            <div class="flex-1">
+                                                <label class="text-xs text-gray-400 mb-1 block">{{ $t('serverManagement.botPersonalization.zoom') }}</label>
+                                                <input
+                                                    type="range"
+                                                    v-model="bannerZoom"
+                                                    min="25"
+                                                    max="300"
+                                                    step="5"
+                                                    class="w-full"
+                                                    @input="updateBannerTransform"
                                                 />
-                                            </div>
-                                            <div class="mt-3 flex items-center gap-4">
-                                                <div class="flex-1">
-                                                    <label class="text-xs text-gray-400 mb-1 block">{{ $t('serverManagement.botPersonalization.zoom') }}</label>
-                                                    <input
-                                                        type="range"
-                                                        v-model="bannerZoom"
-                                                        min="25"
-                                                        max="300"
-                                                        step="5"
-                                                        class="w-full"
-                                                        @input="updateBannerTransform"
-                                                    />
-                                                    <div class="flex justify-between text-xs text-gray-500 mt-1">
-                                                        <span>25%</span>
-                                                        <span>{{ bannerZoom }}%</span>
-                                                        <span>300%</span>
-                                                    </div>
+                                                <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                                    <span>25%</span>
+                                                    <span>{{ bannerZoom }}%</span>
+                                                    <span>300%</span>
                                                 </div>
-                                                <button
-                                                    type="button"
-                                                    @click="resetBannerTransform"
-                                                    class="px-3 py-1.5 bg-[#36393f] hover:bg-[#40444b] text-white rounded text-xs font-medium transition-colors"
-                                                >
-                                                    {{ $t('serverManagement.botPersonalization.reset') }}
-                                                </button>
                                             </div>
+                                            <button
+                                                type="button"
+                                                @click="resetBannerTransform"
+                                                class="px-3 py-1.5 bg-[#36393f] hover:bg-[#40444b] text-white rounded text-xs font-medium transition-colors"
+                                            >
+                                                {{ $t('serverManagement.botPersonalization.reset') }}
+                                            </button>
                                         </div>
                                     </div>
-                                    <button
-                                        v-if="bannerPreview && !bannerEditorOpen"
-                                        type="button"
-                                        @click="openBannerEditor"
-                                        class="mt-2 px-4 py-2 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors text-sm font-medium"
-                                    >
-                                        {{ $t('serverManagement.botPersonalization.editBanner') }}
-                                    </button>
                                 </div>
+                                <button
+                                    v-if="bannerPreview && !bannerEditorOpen"
+                                    type="button"
+                                    @click="openBannerEditor"
+                                    class="mt-2 px-4 py-2 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors text-sm font-medium"
+                                >
+                                    {{ $t('serverManagement.botPersonalization.editBanner') }}
+                                </button>
                             </div>
-                            <p class="text-xs text-gray-400 mt-1">{{ $t('serverManagement.botPersonalization.bannerHelp') }}</p>
                         </div>
+                        <p class="text-xs text-gray-400 mt-1">{{ $t('serverManagement.botPersonalization.bannerHelp') }}</p>
                     </div>
                     
                     <div class="mt-6 flex items-center justify-end gap-3">
@@ -304,6 +394,9 @@ const form = useForm({
 
 const personalizationForm = useForm({
     username: props.botInfo?.username || '',
+    status: props.botInfo?.status || 'online',
+    activityType: props.botInfo?.activityType || 'listening',
+    activityText: props.botInfo?.activityText || '/help',
     avatar: null,
     banner: null,
 });
@@ -367,6 +460,34 @@ const bannerEditorTransform = computed(() => {
         height: '100%',
         objectFit: 'cover',
     };
+});
+
+const statusText = computed(() => {
+    const status = personalizationForm.status || 'online';
+    const statusMap = {
+        'online': t('serverManagement.botPersonalization.statusOnline'),
+        'idle': t('serverManagement.botPersonalization.statusIdle'),
+        'dnd': t('serverManagement.botPersonalization.statusDnd'),
+        'offline': t('serverManagement.botPersonalization.statusOffline'),
+    };
+    return statusMap[status] || statusMap['online'];
+});
+
+const activityText = computed(() => {
+    const type = personalizationForm.activityType || 'listening';
+    const text = personalizationForm.activityText || '';
+    if (!text) return '';
+    
+    const typeMap = {
+        'playing': t('serverManagement.botPersonalization.activityPlaying'),
+        'listening': t('serverManagement.botPersonalization.activityListening'),
+        'watching': t('serverManagement.botPersonalization.activityWatching'),
+        'streaming': t('serverManagement.botPersonalization.activityStreaming'),
+        'competing': t('serverManagement.botPersonalization.activityCompeting'),
+    };
+    
+    const typeText = typeMap[type] || typeMap['listening'];
+    return `${typeText} ${text}`;
 });
 
 function handleAvatarChange(event) {
