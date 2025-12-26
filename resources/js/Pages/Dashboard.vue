@@ -147,9 +147,9 @@ function refreshGuilds() {
                     </div>
 
                     <!-- Content Container -->
-                    <div class="relative z-10 flex flex-col items-center justify-center flex-1 px-4 pt-6 pb-4">
-                        <!-- Server Icon zentriert -->
-                        <div class="mb-3">
+                    <div class="relative z-10 flex flex-col h-full">
+                        <!-- Icon Bereich oben -->
+                        <div class="flex-1 flex items-center justify-center pt-6 pb-2">
                             <img
                                 v-if="guild.icon_url"
                                 :src="guild.icon_url"
@@ -164,9 +164,9 @@ function refreshGuilds() {
                             </div>
                         </div>
 
-                        <!-- Server Informationen -->
-                        <div class="text-center mb-3 flex-1 flex flex-col justify-center">
-                            <h3 class="text-base font-semibold text-white truncate mb-1 w-full">
+                        <!-- Server Informationen unter Icon -->
+                        <div class="text-center px-4 pb-2">
+                            <h3 class="text-base font-semibold text-white truncate mb-1">
                                 {{ guild.name }}
                             </h3>
                             <p class="text-xs text-gray-400">
@@ -174,26 +174,28 @@ function refreshGuilds() {
                             </p>
                         </div>
 
-                        <!-- Button -->
-                        <button
-                            v-if="!guild.bot_joined && guild.can_manage"
-                            @click="inviteBot(guild.id)"
-                            class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
-                        >
-                            Bot einladen
-                        </button>
-                        <button
-                            v-else-if="guild.bot_joined && guild.can_manage"
-                            @click="selectGuild(guild)"
-                            class="w-full bg-[#4e545c] hover:bg-[#5d6269] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
-                        >
-                            Einrichtung
-                        </button>
-                        <div
-                            v-else
-                            class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
-                        >
-                            Keine Berechtigung
+                        <!-- Button direkt unter den Informationen -->
+                        <div class="px-4 pb-4">
+                            <button
+                                v-if="!guild.bot_joined && guild.can_manage"
+                                @click="inviteBot(guild.id)"
+                                class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
+                            >
+                                Bot einladen
+                            </button>
+                            <button
+                                v-else-if="guild.bot_joined && guild.can_manage"
+                                @click="selectGuild(guild)"
+                                class="w-full bg-[#5865f2] hover:bg-[#4752c4] text-white px-4 py-2 rounded transition-colors font-medium text-sm"
+                            >
+                                Weiter
+                            </button>
+                            <div
+                                v-else
+                                class="w-full bg-gray-600 text-gray-400 px-4 py-2 rounded text-center cursor-not-allowed font-medium text-sm"
+                            >
+                                Keine Berechtigung
+                            </div>
                         </div>
                     </div>
                 </div>
