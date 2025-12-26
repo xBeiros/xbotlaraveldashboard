@@ -271,17 +271,15 @@
                             >
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3">
-                                        <span class="text-lg">{{ formatEmoji(category.emoji) }}</span>
                                         <div>
                                             <div class="text-sm font-medium text-white">{{ category.name }}</div>
                                             <div class="text-xs text-gray-400">
-                                                {{ categories.find(c => c.id === category.category_id)?.name || t('ticketSystem.categories.noCategory') }} • 
-                                                {{ t('ticketSystem.categories.format') }}: {{ category.channel_name_format }}
+                                                {{ categories.find(c => c.id === category.category_id)?.name || t('ticketSystem.categories.noCategory') }}
                                             </div>
                                         </div>
                                         <span
                                             :class="[
-                                                'px-2 py-0.5 rounded text-xs font-medium ml-2',
+                                                'px-2 py-0.5 rounded text-xs font-medium',
                                                 category.enabled ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
                                             ]"
                                         >
