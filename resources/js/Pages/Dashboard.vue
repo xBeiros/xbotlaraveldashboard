@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
+import LanguageSelector from '@/Components/LanguageSelector.vue';
 
 const { t } = useI18n();
 
@@ -96,6 +97,7 @@ function refreshGuilds() {
                 >
                     {{ refreshing ? t('common.refreshing') : t('common.refresh') }}
                 </button>
+                <LanguageSelector />
                 <Dropdown align="right" width="48">
                     <template #trigger>
                         <button class="flex items-center gap-2 hover:bg-[#36393f] px-3 py-2 rounded">
