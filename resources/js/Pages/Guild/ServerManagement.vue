@@ -616,19 +616,24 @@ async function savePersonalization() {
                     displayHeight = displayWidth / imgAspect;
                 }
                 
-                // Skaliere mit Zoom
+                // Berechne das Verhältnis zwischen Display-Größe und Original-Bildgröße
+                const displayToImageScale = displayWidth / img.width;
+                
+                // Skaliere mit Zoom - das ist die tatsächliche Größe im Editor
                 const scaledDisplayWidth = displayWidth * zoomScale;
                 const scaledDisplayHeight = displayHeight * zoomScale;
                 
-                // Berechne die tatsächliche Bildgröße im Canvas (basierend auf skaliertem Display)
-                const scaledWidth = img.width * (scaledDisplayWidth / displayWidth);
-                const scaledHeight = img.height * (scaledDisplayHeight / displayHeight);
+                // Berechne das Verhältnis zwischen Editor-Größe und Canvas-Größe
+                const editorToCanvasScale = targetSize / editorSize;
+                
+                // Berechne die tatsächliche Bildgröße im Canvas
+                // Zuerst: Original-Bildgröße * (Display-Skalierung / Original) * Zoom * Canvas-Skalierung
+                const scaledWidth = img.width * (scaledDisplayWidth / displayWidth) * editorToCanvasScale;
+                const scaledHeight = img.height * (scaledDisplayHeight / displayHeight) * editorToCanvasScale;
                 
                 // Skaliere die Position vom Editor auf Canvas
-                // Die Position ist relativ zum Editor-Container
-                const positionScale = targetSize / editorSize;
-                const offsetX = avatarPosition.value.x * positionScale;
-                const offsetY = avatarPosition.value.y * positionScale;
+                const offsetX = avatarPosition.value.x * editorToCanvasScale;
+                const offsetY = avatarPosition.value.y * editorToCanvasScale;
                 
                 // Berechne die Position im Canvas (zentriert + Offset)
                 const x = (targetSize / 2) - (scaledWidth / 2) + offsetX;
