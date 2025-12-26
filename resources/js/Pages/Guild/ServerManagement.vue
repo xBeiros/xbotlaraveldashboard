@@ -480,17 +480,20 @@ function calculateOptimalAvatarZoom() {
         }
         
         // Berechne den Zoom, damit das gesamte Bild sichtbar ist
-        // Wir wollen, dass das Bild den Container vollständig ausfüllt (100% Zoom = perfekt gefüllt)
-        // Wenn das Bild größer ist als der Container, müssen wir rauszoomen
-        // Wenn das Bild kleiner ist als der Container, müssen wir reinzoomen
-        const scaleToFit = Math.min(containerWidth / displayWidth, containerHeight / displayHeight);
+        // displayWidth/Height ist die Größe, die das Bild im Editor hat (bei 100% Zoom)
+        // Wenn displayWidth > containerWidth oder displayHeight > containerHeight, wird das Bild abgeschnitten
+        // Wir müssen rauszoomen, damit das gesamte Bild sichtbar ist
+        // Der Zoom-Faktor sollte sein: min(containerWidth/displayWidth, containerHeight/displayHeight)
+        const zoomFactor = Math.min(containerWidth / displayWidth, containerHeight / displayHeight);
         
-        // Setze Zoom auf 100% wenn das Bild perfekt passt, sonst anpassen
-        // scaleToFit > 1 bedeutet, das Bild ist kleiner als der Container (reinzoomen)
-        // scaleToFit < 1 bedeutet, das Bild ist größer als der Container (rauszoomen)
-        const optimalZoom = scaleToFit * 100;
+        // Setze Zoom so, dass das gesamte Bild sichtbar ist
+        // zoomFactor < 1 bedeutet, das Bild ist größer als der Container (rauszoomen)
+        // zoomFactor > 1 bedeutet, das Bild ist kleiner als der Container (kann reinzoomen, aber nicht nötig)
+        const optimalZoom = zoomFactor * 100;
         
         // Setze einen minimalen Zoom von 50% und maximalen von 200%
+        // Wenn optimalZoom < 50%, setze auf 50% (maximales Rauszoomen)
+        // Wenn optimalZoom > 200%, setze auf 200% (maximales Reinzoomen)
         avatarZoom.value = Math.max(50, Math.min(200, Math.round(optimalZoom)));
         avatarPosition.value = { x: 0, y: 0 };
     };
