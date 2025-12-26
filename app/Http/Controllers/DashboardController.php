@@ -522,48 +522,6 @@ class DashboardController extends Controller
         // Hole Bot-Info
         $botInfo = null;
         $botToken = config('services.discord.bot_token');
-        $botClientId = config('services.discord.bot_client_id');
-        if ($botToken && $botClientId) {
-            try {
-                $botResponse = Http::withHeaders([
-                    'Authorization' => 'Bot ' . $botToken,
-                ])->timeout(5)->get('https://discord.com/api/v10/users/@me');
-                
-                if ($botResponse->successful()) {
-                    $botData = $botResponse->json();
-                    // Lade server-spezifische Avatar/Banner aus DB, falls vorhanden
-                    $serverAvatar = $guildModel->bot_avatar ? \Storage::disk('public')->url($guildModel->bot_avatar) : null;
-                    $serverBanner = $guildModel->bot_banner ? \Storage::disk('public')->url($guildModel->bot_banner) : null;
-                    
-                    // Lade server-spezifischen Nickname aus DB, falls vorhanden
-                    $serverNickname = $guildModel->bot_nickname;
-                    
-                    \Log::info('[Server Management] Bot-Info geladen', [
-                        'guild' => $guild,
-                        'guild_model_id' => $guildModel->id,
-                        'bot_id' => $botData['id'] ?? null,
-                        'db_bot_avatar' => $guildModel->bot_avatar,
-                        'db_bot_banner' => $guildModel->bot_banner,
-                        'db_bot_nickname' => $guildModel->bot_nickname,
-                        'server_avatar_url' => $serverAvatar,
-                        'server_banner_url' => $serverBanner,
-                        'server_nickname' => $serverNickname,
-                        'global_avatar' => isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null,
-                    ]);
-                    
-                    $botInfo = [
-                        'id' => $botData['id'] ?? null,
-                        'username' => $serverNickname ?? $botData['username'] ?? null, // Server-Nickname hat Priorität
-                        // Server-spezifischer Avatar/Banner hat Priorität, sonst globaler
-                        'avatar' => $serverAvatar ?? (isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null),
-                        'banner' => $serverBanner ?? (isset($botData['banner']) ? "https://cdn.discordapp.com/banners/{$botData['id']}/{$botData['banner']}.png" : null),
-                    ];
-                }
-            } catch (\Exception $e) {
-                \Log::warning("Fehler beim Abrufen der Bot-Info: " . $e->getMessage());
-            }
-        }
-
         return Inertia::render('Guild/ServerManagement', [
             'guild' => [
                 'id' => $userGuild->guild_id,
@@ -577,7 +535,6 @@ class DashboardController extends Controller
                 'bot_active' => $guildModel->bot_active ?? true,
                 'language' => $guildModel->language ?? 'de',
             ],
-            'botInfo' => $botInfo,
             'channels' => $this->fetchGuildChannels($guild),
             'categories' => $this->fetchGuildCategories($guild),
             'roles' => $this->fetchGuildRoles($guild),
