@@ -1421,37 +1421,39 @@ class GuildConfigController extends Controller
                 $guildModel->update($updateData);
             }
 
-            // 2. Versuche Server-spezifischen Nickname in Discord zu ändern - PATCH /guilds/{guild.id}/members/{user.id}
-            // WICHTIG: Der Nickname ist bereits in der DB gespeichert, auch wenn Discord API fehlschlägt
-            if (!empty($guildPayload)) {
-                $guildResponse = Http::withHeaders([
-                    'Authorization' => 'Bot ' . $botToken,
-                    'Content-Type' => 'application/json',
-                ])->timeout(10)->patch(
-                    "https://discord.com/api/v10/guilds/{$guild}/members/{$botClientId}",
-                    $guildPayload
-                );
-
-                if (!$guildResponse->successful()) {
-                    $errorData = $guildResponse->json();
-                    $errorMessage = $errorData['message'] ?? 'Unbekannter Fehler beim Aktualisieren des Bot-Nicknames.';
-                    
-                    // Logge den Fehler, aber der Nickname ist bereits in der DB gespeichert
-                    \Log::warning('Discord API Fehler beim Nickname-Update (Nickname ist in DB gespeichert):', [
-                        'status' => $guildResponse->status(),
-                        'response' => $errorData,
-                        'guild' => $guild,
+            // 2. Rufe Bot-API auf, um Server-Nickname sofort zu aktualisieren
+            // Der Bot kann seinen eigenen Nickname über Discord.js ändern (benötigt MANAGE_NICKNAMES)
+            if (!empty($guildPayload) && !empty($updateData['bot_nickname'])) {
+                $botApiUrl = config('services.discord.bot_api_url', 'http://localhost:3001');
+                $botApiToken = config('services.discord.bot_api_token', 'change-me-in-production');
+                
+                try {
+                    $botApiResponse = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . $botApiToken,
+                        'Content-Type' => 'application/json',
+                    ])->timeout(5)->post("{$botApiUrl}/api/update-nickname", [
+                        'guildId' => $guild,
+                        'nickname' => $updateData['bot_nickname'],
                     ]);
                     
-                    // Warnung anzeigen, aber nicht als Fehler behandeln, da Nickname in DB gespeichert ist
-                    if (str_contains(strtolower($errorMessage), 'permission') || 
-                        str_contains(strtolower($errorMessage), 'manage_nicknames') ||
-                        $guildResponse->status() === 403) {
-                        // Kein Fehler, nur Info - Nickname ist in DB gespeichert
-                        // Der Bot kann seinen eigenen Nickname nicht ändern, aber wir speichern es trotzdem
+                    if ($botApiResponse->successful()) {
+                        \Log::info('Bot-API: Server-Nickname erfolgreich aktualisiert', [
+                            'guild' => $guild,
+                            'nickname' => $updateData['bot_nickname'],
+                        ]);
                     } else {
-                        // Andere Fehler - auch hier speichern wir trotzdem in DB
+                        \Log::warning('Bot-API: Fehler beim Aktualisieren des Server-Nicknames', [
+                            'guild' => $guild,
+                            'status' => $botApiResponse->status(),
+                            'response' => $botApiResponse->json(),
+                        ]);
                     }
+                } catch (\Exception $e) {
+                    // Ignoriere Fehler, da der Bot den Nickname automatisch alle 30 Sekunden aktualisiert
+                    \Log::warning('Bot-API: Konnte nicht erreicht werden (Bot aktualisiert automatisch alle 30 Sekunden)', [
+                        'guild' => $guild,
+                        'error' => $e->getMessage(),
+                    ]);
                 }
             }
 
