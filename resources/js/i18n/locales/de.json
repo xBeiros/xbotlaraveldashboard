@@ -76,9 +76,9 @@
     "botPersonalization": {
       "title": "Bot-Personalisierung",
       "description": "Personalisiere das Aussehen deines Discord-Bots. Ändere Name, Profilbild und Banner.",
-      "botName": "Bot-Name (nur für diesen Server)",
-      "botNamePlaceholder": "Neuer Bot-Name",
-      "botNameHelp": "Der Name, der für den Bot nur auf diesem Server angezeigt wird (Nickname, max. 32 Zeichen). Leer lassen, um den globalen Namen zu verwenden.",
+      "botName": "Server-Nickname",
+      "botNamePlaceholder": "Server-Nickname (optional)",
+      "botNameHelp": "Der Nickname, der für den Bot nur auf diesem Server angezeigt wird (max. 32 Zeichen). Leer lassen, um den globalen Bot-Namen zu verwenden.",
       "updateImage": "Bild aktualisieren",
       "avatar": "Profilbild",
       "selectAvatar": "Profilbild auswählen",

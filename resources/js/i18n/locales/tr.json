@@ -76,9 +76,9 @@
     "botPersonalization": {
       "title": "Bot Kişiselleştirme",
       "description": "Discord botunuzun görünümünü kişiselleştirin. İsim, profil resmi ve banner'ı değiştirin.",
-      "botName": "Bot Adı (sadece bu sunucu)",
-      "botNamePlaceholder": "Yeni bot adı",
-      "botNameHelp": "Bot için sadece bu sunucuda gösterilen isim (takma ad, maks. 32 karakter). Global adı kullanmak için boş bırakın.",
+      "botName": "Sunucu Takma Adı",
+      "botNamePlaceholder": "Sunucu takma adı (isteğe bağlı)",
+      "botNameHelp": "Bot için sadece bu sunucuda gösterilen takma ad (maks. 32 karakter). Global bot adını kullanmak için boş bırakın.",
       "updateImage": "Resmi Güncelle",
       "avatar": "Profil Resmi",
       "selectAvatar": "Profil Resmi Seç",
