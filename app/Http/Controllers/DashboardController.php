@@ -538,6 +538,19 @@ class DashboardController extends Controller
                     // Lade server-spezifischen Nickname aus DB, falls vorhanden
                     $serverNickname = $guildModel->bot_nickname;
                     
+                    \Log::info('[Server Management] Bot-Info geladen', [
+                        'guild' => $guild,
+                        'guild_model_id' => $guildModel->id,
+                        'bot_id' => $botData['id'] ?? null,
+                        'db_bot_avatar' => $guildModel->bot_avatar,
+                        'db_bot_banner' => $guildModel->bot_banner,
+                        'db_bot_nickname' => $guildModel->bot_nickname,
+                        'server_avatar_url' => $serverAvatar,
+                        'server_banner_url' => $serverBanner,
+                        'server_nickname' => $serverNickname,
+                        'global_avatar' => isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null,
+                    ]);
+                    
                     $botInfo = [
                         'id' => $botData['id'] ?? null,
                         'username' => $serverNickname ?? $botData['username'] ?? null, // Server-Nickname hat Priorität

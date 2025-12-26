@@ -1374,11 +1374,30 @@ class GuildConfigController extends Controller
             // Avatar ändern (server-spezifisch in DB speichern)
             if ($request->hasFile('avatar')) {
                 $avatarFile = $request->file('avatar');
+                \Log::info('[Bot Personalization] Avatar-Datei empfangen', [
+                    'guild' => $guild,
+                    'file_size' => $avatarFile->getSize(),
+                    'file_mime' => $avatarFile->getMimeType(),
+                    'file_name' => $avatarFile->getClientOriginalName(),
+                ]);
+                
                 if ($avatarFile->isValid() && $avatarFile->getSize() <= 8 * 1024 * 1024) {
                     // Speichere Avatar server-spezifisch
                     $avatarPath = $avatarFile->store("guilds/{$guildModel->id}/bot", 'public');
                     $updateData['bot_avatar'] = $avatarPath;
+                    
+                    \Log::info('[Bot Personalization] Avatar gespeichert', [
+                        'guild' => $guild,
+                        'guild_model_id' => $guildModel->id,
+                        'avatar_path' => $avatarPath,
+                        'storage_url' => \Storage::disk('public')->url($avatarPath),
+                    ]);
                 } else {
+                    \Log::warning('[Bot Personalization] Avatar-Datei ungültig oder zu groß', [
+                        'guild' => $guild,
+                        'file_size' => $avatarFile->getSize(),
+                        'is_valid' => $avatarFile->isValid(),
+                    ]);
                     return back()->with('error', 'Avatar-Datei ist zu groß (max. 8MB) oder ungültig.');
                 }
             }
@@ -1386,11 +1405,30 @@ class GuildConfigController extends Controller
             // Banner ändern (server-spezifisch in DB speichern)
             if ($request->hasFile('banner')) {
                 $bannerFile = $request->file('banner');
+                \Log::info('[Bot Personalization] Banner-Datei empfangen', [
+                    'guild' => $guild,
+                    'file_size' => $bannerFile->getSize(),
+                    'file_mime' => $bannerFile->getMimeType(),
+                    'file_name' => $bannerFile->getClientOriginalName(),
+                ]);
+                
                 if ($bannerFile->isValid() && $bannerFile->getSize() <= 8 * 1024 * 1024) {
                     // Speichere Banner server-spezifisch
                     $bannerPath = $bannerFile->store("guilds/{$guildModel->id}/bot", 'public');
                     $updateData['bot_banner'] = $bannerPath;
+                    
+                    \Log::info('[Bot Personalization] Banner gespeichert', [
+                        'guild' => $guild,
+                        'guild_model_id' => $guildModel->id,
+                        'banner_path' => $bannerPath,
+                        'storage_url' => \Storage::disk('public')->url($bannerPath),
+                    ]);
                 } else {
+                    \Log::warning('[Bot Personalization] Banner-Datei ungültig oder zu groß', [
+                        'guild' => $guild,
+                        'file_size' => $bannerFile->getSize(),
+                        'is_valid' => $bannerFile->isValid(),
+                    ]);
                     return back()->with('error', 'Banner-Datei ist zu groß (max. 8MB) oder ungültig.');
                 }
             }
@@ -1418,7 +1456,19 @@ class GuildConfigController extends Controller
 
             // 1. Speichere Nickname, Avatar/Banner server-spezifisch in DB (immer, auch wenn Discord API fehlschlägt)
             if (!empty($updateData)) {
+                \Log::info('[Bot Personalization] Aktualisiere Datenbank', [
+                    'guild' => $guild,
+                    'update_data' => $updateData,
+                ]);
+                
                 $guildModel->update($updateData);
+                
+                \Log::info('[Bot Personalization] Datenbank aktualisiert', [
+                    'guild' => $guild,
+                    'bot_avatar' => $guildModel->fresh()->bot_avatar,
+                    'bot_banner' => $guildModel->fresh()->bot_banner,
+                    'bot_nickname' => $guildModel->fresh()->bot_nickname,
+                ]);
             }
 
             // 2. Rufe Bot-API auf, um Server-Nickname sofort zu aktualisieren
@@ -1474,12 +1524,27 @@ class GuildConfigController extends Controller
                         $serverBanner = $guildModel->bot_banner ? \Storage::disk('public')->url($guildModel->bot_banner) : null;
                         $serverNickname = $guildModel->bot_nickname;
                         
+                        \Log::info('[Bot Personalization] Bot-Info geladen', [
+                            'guild' => $guild,
+                            'bot_id' => $botData['id'] ?? null,
+                            'server_avatar' => $serverAvatar,
+                            'server_banner' => $serverBanner,
+                            'server_nickname' => $serverNickname,
+                            'global_avatar' => isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null,
+                        ]);
+                        
                         $botInfo = [
                             'id' => $botData['id'] ?? null,
                             'username' => $serverNickname ?? $botData['username'] ?? null,
                             'avatar' => $serverAvatar ?? (isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null),
                             'banner' => $serverBanner ?? (isset($botData['banner']) ? "https://cdn.discordapp.com/banners/{$botData['id']}/{$botData['banner']}.png" : null),
                         ];
+                    } else {
+                        \Log::warning('[Bot Personalization] Fehler beim Abrufen der Bot-Info', [
+                            'guild' => $guild,
+                            'status' => $botResponse->status(),
+                            'response' => $botResponse->json(),
+                        ]);
                     }
                 } catch (\Exception $e) {
                     \Log::warning("Fehler beim Abrufen der Bot-Info nach Update: " . $e->getMessage());
