@@ -1455,11 +1455,40 @@ class GuildConfigController extends Controller
                 }
             }
 
-            if (!empty($errors)) {
-                return back()->with('error', 'Fehler beim Aktualisieren: ' . implode(' | ', $errors));
+            // Lade die aktualisierten Daten neu, damit sie im Frontend angezeigt werden
+            $guildModel->refresh();
+            
+            // Lade Bot-Info neu mit aktualisiertem Nickname
+            $botInfo = null;
+            if ($botToken && $botClientId) {
+                try {
+                    $botResponse = Http::withHeaders([
+                        'Authorization' => 'Bot ' . $botToken,
+                    ])->timeout(5)->get('https://discord.com/api/v10/users/@me');
+                    
+                    if ($botResponse->successful()) {
+                        $botData = $botResponse->json();
+                        $serverAvatar = $guildModel->bot_avatar ? \Storage::disk('public')->url($guildModel->bot_avatar) : null;
+                        $serverBanner = $guildModel->bot_banner ? \Storage::disk('public')->url($guildModel->bot_banner) : null;
+                        $serverNickname = $guildModel->bot_nickname;
+                        
+                        $botInfo = [
+                            'id' => $botData['id'] ?? null,
+                            'username' => $serverNickname ?? $botData['username'] ?? null,
+                            'avatar' => $serverAvatar ?? (isset($botData['avatar']) ? "https://cdn.discordapp.com/avatars/{$botData['id']}/{$botData['avatar']}.png" : null),
+                            'banner' => $serverBanner ?? (isset($botData['banner']) ? "https://cdn.discordapp.com/banners/{$botData['id']}/{$botData['banner']}.png" : null),
+                        ];
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning("Fehler beim Abrufen der Bot-Info nach Update: " . $e->getMessage());
+                }
             }
 
-            return back()->with('success', 'Server-Profil erfolgreich aktualisiert!');
+            if (!empty($errors)) {
+                return back()->with('error', 'Fehler beim Aktualisieren: ' . implode(' | ', $errors))->with('botInfo', $botInfo);
+            }
+
+            return back()->with('success', 'Server-Profil erfolgreich aktualisiert!')->with('botInfo', $botInfo);
         } catch (\Exception $e) {
             \Log::error('Fehler bei Bot-Personalisierung:', [
                 'error' => $e->getMessage(),

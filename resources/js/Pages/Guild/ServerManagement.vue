@@ -732,8 +732,14 @@ async function savePersonalization() {
     
     personalizationForm.post(route('guild.bot-personalization.update', { guild: props.guild.id }), {
         preserveScroll: true,
+        preserveState: false, // Wichtig: Lade Daten neu, damit botInfo aktualisiert wird
         forceFormData: true,
-        onSuccess: () => {
+        onSuccess: (page) => {
+            // Aktualisiere den username im Formular mit dem gespeicherten Wert
+            if (page.props.botInfo?.username) {
+                personalizationForm.username = page.props.botInfo.username;
+            }
+            
             // Nach erfolgreichem Speichern: Stelle das Original-Bild wieder her, damit man weiter bearbeiten kann
             if (originalAvatarData) {
                 avatarOriginal.value = originalAvatarData;
