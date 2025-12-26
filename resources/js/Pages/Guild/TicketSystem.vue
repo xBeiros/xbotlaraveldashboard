@@ -198,12 +198,47 @@
                                 </div>
                                 
                                 <!-- Dropdown Vorschau -->
-                                <div class="mt-3 bg-[#36393f] rounded-lg border border-[#202225] p-3 hover:bg-[#40444b] transition-colors cursor-pointer">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-sm text-gray-300 font-medium">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
-                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                        </svg>
+                                <div class="mt-3 relative" data-preview-dropdown>
+                                    <div 
+                                        @click="previewDropdownOpen = !previewDropdownOpen"
+                                        class="bg-[#36393f] rounded-lg border border-[#202225] p-3 hover:bg-[#40444b] transition-colors cursor-pointer"
+                                    >
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-300 font-medium">{{ t('ticketSystem.ticketPost.selectCategory') }}</span>
+                                            <svg 
+                                                class="w-4 h-4 text-gray-400 transition-transform"
+                                                :class="{ 'rotate-180': previewDropdownOpen }"
+                                                fill="none" 
+                                                stroke="currentColor" 
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Dropdown Menu -->
+                                    <div 
+                                        v-if="previewDropdownOpen"
+                                        class="absolute top-full left-0 right-0 mt-2 bg-[#2f3136] border border-[#202225] rounded-lg shadow-xl overflow-hidden z-10"
+                                    >
+                                        <div 
+                                            v-if="ticketCategories.filter(c => c.enabled).length === 0"
+                                            class="px-4 py-3 text-sm text-gray-400 text-center"
+                                        >
+                                            {{ t('ticketSystem.categories.noCategories') }}
+                                        </div>
+                                        <div
+                                            v-for="category in ticketCategories.filter(c => c.enabled)"
+                                            :key="category.id"
+                                            class="px-4 py-3 hover:bg-[#36393f] cursor-pointer transition-colors flex items-center gap-3"
+                                        >
+                                            <span class="text-lg">{{ category.emoji || '🎫' }}</span>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-sm font-medium text-white">{{ category.name }}</div>
+                                                <div v-if="category.description" class="text-xs text-gray-400 mt-0.5">{{ category.description }}</div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -497,7 +532,7 @@
 <script setup>
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -536,6 +571,9 @@ const resendingPost = ref(false);
 
 // Transcript Setting
 const transcriptEnabled = ref(props.ticketTranscriptEnabled ?? true);
+
+// Preview Dropdown
+const previewDropdownOpen = ref(false);
 
 // Ticket Categories
 const showCategoryModal = ref(false);
@@ -672,4 +710,19 @@ function updateTranscriptSetting() {
         preserveScroll: true,
     });
 }
+
+// Close preview dropdown when clicking outside
+function handleClickOutside(event) {
+    if (!event.target.closest('[data-preview-dropdown]')) {
+        previewDropdownOpen.value = false;
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+    document.removeEventListener('click', handleClickOutside);
+});
 </script>
