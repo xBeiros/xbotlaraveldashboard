@@ -138,6 +138,7 @@
       "delete": "Delete",
       "confirmDelete": "Do you really want to delete this category?",
       "name": "Name",
+      "namePlaceholder": "Support",
       "emoji": "Emoji",
       "emojiPlaceholder": "🎫 or :ticket:",
       "description": "Description",

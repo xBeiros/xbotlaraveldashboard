@@ -138,6 +138,7 @@
       "delete": "Sil",
       "confirmDelete": "Bu kategoriyi gerçekten silmek istiyor musunuz?",
       "name": "İsim",
+      "namePlaceholder": "Destek",
       "emoji": "Emoji",
       "emojiPlaceholder": "🎫 veya :ticket:",
       "description": "Açıklama",

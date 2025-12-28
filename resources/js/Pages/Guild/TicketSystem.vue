@@ -393,7 +393,7 @@
                                 type="text"
                                 v-model="categoryForm.name"
                                 required
-                                placeholder="Support"
+                                :placeholder="t('ticketSystem.categories.namePlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             />
                         </div>
