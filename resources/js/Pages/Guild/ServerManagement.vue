@@ -60,7 +60,7 @@
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             >
                                 <option v-for="tz in timezones" :key="tz.value" :value="tz.value">
-                                    {{ tz.label }}
+                                    {{ tz.flag }} {{ tz.label }} [{{ tz.country }}]
                                 </option>
                             </select>
                             <p class="text-xs text-gray-400 mt-2">{{ $t('serverManagement.timezoneDescription') }}</p>
@@ -86,6 +86,18 @@
     </GuildLayout>
 </template>
 
+<style scoped>
+/* Verbesserte Flaggen-Emoji Unterstützung für Windows Chrome */
+select {
+    font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Fallback: Wenn Flaggen-Emojis nicht funktionieren, wird der Text in eckigen Klammern angezeigt */
+select option {
+    font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+</style>
+
 <script setup>
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -105,41 +117,41 @@ const form = useForm({
     timezone: props.guildModel?.timezone || 'Europe/Berlin',
 });
 
-// Zeitzonen-Liste (ohne Flaggen-Emojis für bessere Kompatibilität)
+// Zeitzonen-Liste mit Flaggen-Emojis und Text-Fallback
 const timezones = [
-    { value: 'Europe/Berlin', label: 'Europe/Berlin (CET/CEST) - Deutschland' },
-    { value: 'Europe/London', label: 'Europe/London (GMT/BST) - Großbritannien' },
-    { value: 'America/New_York', label: 'America/New_York (EST/EDT) - USA (Ostküste)' },
-    { value: 'America/Los_Angeles', label: 'America/Los_Angeles (PST/PDT) - USA (Westküste)' },
-    { value: 'America/Chicago', label: 'America/Chicago (CST/CDT) - USA (Mitte)' },
-    { value: 'America/Denver', label: 'America/Denver (MST/MDT) - USA (Rocky Mountains)' },
-    { value: 'Europe/Paris', label: 'Europe/Paris (CET/CEST) - Frankreich' },
-    { value: 'Europe/Rome', label: 'Europe/Rome (CET/CEST) - Italien' },
-    { value: 'Europe/Madrid', label: 'Europe/Madrid (CET/CEST) - Spanien' },
-    { value: 'Europe/Amsterdam', label: 'Europe/Amsterdam (CET/CEST) - Niederlande' },
-    { value: 'Europe/Vienna', label: 'Europe/Vienna (CET/CEST) - Österreich' },
-    { value: 'Europe/Zurich', label: 'Europe/Zurich (CET/CEST) - Schweiz' },
-    { value: 'Europe/Stockholm', label: 'Europe/Stockholm (CET/CEST) - Schweden' },
-    { value: 'Europe/Oslo', label: 'Europe/Oslo (CET/CEST) - Norwegen' },
-    { value: 'Europe/Copenhagen', label: 'Europe/Copenhagen (CET/CEST) - Dänemark' },
-    { value: 'Europe/Helsinki', label: 'Europe/Helsinki (EET/EEST) - Finnland' },
-    { value: 'Europe/Warsaw', label: 'Europe/Warsaw (CET/CEST) - Polen' },
-    { value: 'Europe/Prague', label: 'Europe/Prague (CET/CEST) - Tschechien' },
-    { value: 'Europe/Budapest', label: 'Europe/Budapest (CET/CEST) - Ungarn' },
-    { value: 'Europe/Athens', label: 'Europe/Athens (EET/EEST) - Griechenland' },
-    { value: 'Europe/Istanbul', label: 'Europe/Istanbul (TRT) - Türkei' },
-    { value: 'Asia/Tokyo', label: 'Asia/Tokyo (JST) - Japan' },
-    { value: 'Asia/Shanghai', label: 'Asia/Shanghai (CST) - China' },
-    { value: 'Asia/Hong_Kong', label: 'Asia/Hong_Kong (HKT) - Hong Kong' },
-    { value: 'Asia/Singapore', label: 'Asia/Singapore (SGT) - Singapur' },
-    { value: 'Asia/Dubai', label: 'Asia/Dubai (GST) - Vereinigte Arabische Emirate' },
-    { value: 'Australia/Sydney', label: 'Australia/Sydney (AEDT/AEST) - Australien (Ost)' },
-    { value: 'Australia/Melbourne', label: 'Australia/Melbourne (AEDT/AEST) - Australien (Südost)' },
-    { value: 'Pacific/Auckland', label: 'Pacific/Auckland (NZDT/NZST) - Neuseeland' },
-    { value: 'America/Sao_Paulo', label: 'America/Sao_Paulo (BRT/BRST) - Brasilien' },
-    { value: 'America/Mexico_City', label: 'America/Mexico_City (CST/CDT) - Mexiko' },
-    { value: 'America/Toronto', label: 'America/Toronto (EST/EDT) - Kanada (Ost)' },
-    { value: 'America/Vancouver', label: 'America/Vancouver (PST/PDT) - Kanada (West)' },
+    { value: 'Europe/Berlin', flag: '🇩🇪', country: 'Deutschland', label: 'Europe/Berlin (CET/CEST)' },
+    { value: 'Europe/London', flag: '🇬🇧', country: 'Großbritannien', label: 'Europe/London (GMT/BST)' },
+    { value: 'America/New_York', flag: '🇺🇸', country: 'USA (Ostküste)', label: 'America/New_York (EST/EDT)' },
+    { value: 'America/Los_Angeles', flag: '🇺🇸', country: 'USA (Westküste)', label: 'America/Los_Angeles (PST/PDT)' },
+    { value: 'America/Chicago', flag: '🇺🇸', country: 'USA (Mitte)', label: 'America/Chicago (CST/CDT)' },
+    { value: 'America/Denver', flag: '🇺🇸', country: 'USA (Rocky Mountains)', label: 'America/Denver (MST/MDT)' },
+    { value: 'Europe/Paris', flag: '🇫🇷', country: 'Frankreich', label: 'Europe/Paris (CET/CEST)' },
+    { value: 'Europe/Rome', flag: '🇮🇹', country: 'Italien', label: 'Europe/Rome (CET/CEST)' },
+    { value: 'Europe/Madrid', flag: '🇪🇸', country: 'Spanien', label: 'Europe/Madrid (CET/CEST)' },
+    { value: 'Europe/Amsterdam', flag: '🇳🇱', country: 'Niederlande', label: 'Europe/Amsterdam (CET/CEST)' },
+    { value: 'Europe/Vienna', flag: '🇦🇹', country: 'Österreich', label: 'Europe/Vienna (CET/CEST)' },
+    { value: 'Europe/Zurich', flag: '🇨🇭', country: 'Schweiz', label: 'Europe/Zurich (CET/CEST)' },
+    { value: 'Europe/Stockholm', flag: '🇸🇪', country: 'Schweden', label: 'Europe/Stockholm (CET/CEST)' },
+    { value: 'Europe/Oslo', flag: '🇳🇴', country: 'Norwegen', label: 'Europe/Oslo (CET/CEST)' },
+    { value: 'Europe/Copenhagen', flag: '🇩🇰', country: 'Dänemark', label: 'Europe/Copenhagen (CET/CEST)' },
+    { value: 'Europe/Helsinki', flag: '🇫🇮', country: 'Finnland', label: 'Europe/Helsinki (EET/EEST)' },
+    { value: 'Europe/Warsaw', flag: '🇵🇱', country: 'Polen', label: 'Europe/Warsaw (CET/CEST)' },
+    { value: 'Europe/Prague', flag: '🇨🇿', country: 'Tschechien', label: 'Europe/Prague (CET/CEST)' },
+    { value: 'Europe/Budapest', flag: '🇭🇺', country: 'Ungarn', label: 'Europe/Budapest (CET/CEST)' },
+    { value: 'Europe/Athens', flag: '🇬🇷', country: 'Griechenland', label: 'Europe/Athens (EET/EEST)' },
+    { value: 'Europe/Istanbul', flag: '🇹🇷', country: 'Türkei', label: 'Europe/Istanbul (TRT)' },
+    { value: 'Asia/Tokyo', flag: '🇯🇵', country: 'Japan', label: 'Asia/Tokyo (JST)' },
+    { value: 'Asia/Shanghai', flag: '🇨🇳', country: 'China', label: 'Asia/Shanghai (CST)' },
+    { value: 'Asia/Hong_Kong', flag: '🇭🇰', country: 'Hong Kong', label: 'Asia/Hong_Kong (HKT)' },
+    { value: 'Asia/Singapore', flag: '🇸🇬', country: 'Singapur', label: 'Asia/Singapore (SGT)' },
+    { value: 'Asia/Dubai', flag: '🇦🇪', country: 'VAE', label: 'Asia/Dubai (GST)' },
+    { value: 'Australia/Sydney', flag: '🇦🇺', country: 'Australien (Ost)', label: 'Australia/Sydney (AEDT/AEST)' },
+    { value: 'Australia/Melbourne', flag: '🇦🇺', country: 'Australien (Südost)', label: 'Australia/Melbourne (AEDT/AEST)' },
+    { value: 'Pacific/Auckland', flag: '🇳🇿', country: 'Neuseeland', label: 'Pacific/Auckland (NZDT/NZST)' },
+    { value: 'America/Sao_Paulo', flag: '🇧🇷', country: 'Brasilien', label: 'America/Sao_Paulo (BRT/BRST)' },
+    { value: 'America/Mexico_City', flag: '🇲🇽', country: 'Mexiko', label: 'America/Mexico_City (CST/CDT)' },
+    { value: 'America/Toronto', flag: '🇨🇦', country: 'Kanada (Ost)', label: 'America/Toronto (EST/EDT)' },
+    { value: 'America/Vancouver', flag: '🇨🇦', country: 'Kanada (West)', label: 'America/Vancouver (PST/PDT)' },
 ];
 
 // Aktuelle Zeit in ausgewählter Zeitzone
