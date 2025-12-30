@@ -60,7 +60,7 @@
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             >
                                 <option v-for="tz in timezones" :key="tz.value" :value="tz.value">
-                                    {{ tz.flag }} {{ tz.label }} [{{ tz.country }}]
+                                    {{ tz.label }}
                                 </option>
                             </select>
                             <p class="text-xs text-gray-400 mt-2">{{ $t('serverManagement.timezoneDescription') }}</p>
