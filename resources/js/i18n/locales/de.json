@@ -151,6 +151,8 @@
       "interval": "Intervall",
       "intervalHelp": "Wie oft sollen Nachrichten gelöscht werden? (Mindestens 5 Minuten)",
       "deleteAllInfo": "⚠️ Alle Nachrichten im Channel werden gelöscht. Nachrichten älter als 14 Tage werden einzeln gelöscht.",
+      "warningTitle": "Wichtiger Hinweis",
+      "warningDescription": "Bei der automatischen Löschung werden ALLE Nachrichten im ausgewählten Channel gelöscht. Diese Aktion kann nicht rückgängig gemacht werden. Bitte stelle sicher, dass du wirklich alle Nachrichten in diesem Channel löschen möchtest.",
       "lastRun": "Letzte Ausführung",
       "noAutoDeletes": "Noch keine automatischen Löschungen konfiguriert",
       "confirmDelete": "Möchtest du diese automatische Löschung wirklich löschen?"
