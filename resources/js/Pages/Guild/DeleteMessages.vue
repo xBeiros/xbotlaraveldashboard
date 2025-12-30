@@ -229,9 +229,6 @@
                                 <div class="text-xs text-gray-400">
                                     {{ $t('deleteMessages.autoDelete.interval') }}: 
                                     <span class="text-gray-300">{{ formatInterval(autoDelete.interval_minutes) }}</span>
-                                    <span class="mx-2">•</span>
-                                    {{ $t('deleteMessages.autoDelete.deleteCount') }}: 
-                                    <span class="text-gray-300">{{ autoDelete.delete_count }}</span>
                                 </div>
                                 <div v-if="autoDelete.last_run_at" class="text-xs text-gray-500 mt-1">
                                     {{ $t('deleteMessages.autoDelete.lastRun') }}: {{ formatDate(autoDelete.last_run_at) }}
@@ -328,19 +325,10 @@
                         <p class="text-xs text-gray-400 mt-2">{{ $t('deleteMessages.autoDelete.intervalHelp') }}</p>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-300 mb-2">
-                            {{ $t('deleteMessages.autoDelete.deleteCount') }} *
-                        </label>
-                        <input
-                            type="number"
-                            v-model.number="autoDeleteForm.delete_count"
-                            required
-                            min="1"
-                            max="100"
-                            class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                        />
-                        <p class="text-xs text-gray-400 mt-2">{{ $t('deleteMessages.autoDelete.deleteCountHelp') }}</p>
+                    <div class="p-3 bg-blue-500/20 border border-blue-500 rounded-lg">
+                        <p class="text-sm text-blue-400">
+                            {{ $t('deleteMessages.autoDelete.deleteAllInfo') }}
+                        </p>
                     </div>
 
                     <div class="flex items-center gap-2">
@@ -459,7 +447,6 @@ const editingAutoDelete = ref(null);
 const autoDeleteForm = useForm({
     channel_id: '',
     interval_minutes: 5,
-    delete_count: 100,
     enabled: true,
 });
 
@@ -468,12 +455,10 @@ function openAutoDeleteModal(autoDelete = null) {
     if (autoDelete) {
         autoDeleteForm.channel_id = autoDelete.channel_id;
         autoDeleteForm.interval_minutes = autoDelete.interval_minutes;
-        autoDeleteForm.delete_count = autoDelete.delete_count;
         autoDeleteForm.enabled = autoDelete.enabled;
     } else {
         autoDeleteForm.reset();
         autoDeleteForm.interval_minutes = 5;
-        autoDeleteForm.delete_count = 100;
         autoDeleteForm.enabled = true;
     }
     showAutoDeleteModal.value = true;

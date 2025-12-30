@@ -150,8 +150,7 @@
       "editAutoDelete": "Automatische Löschung bearbeiten",
       "interval": "Intervall",
       "intervalHelp": "Wie oft sollen Nachrichten gelöscht werden? (Mindestens 5 Minuten)",
-      "deleteCount": "Anzahl zu löschender Nachrichten",
-      "deleteCountHelp": "Anzahl der Nachrichten, die bei jeder Löschung entfernt werden (max. 100)",
+      "deleteAllInfo": "⚠️ Alle Nachrichten im Channel werden gelöscht. Nachrichten älter als 14 Tage werden einzeln gelöscht.",
       "lastRun": "Letzte Ausführung",
       "noAutoDeletes": "Noch keine automatischen Löschungen konfiguriert",
       "confirmDelete": "Möchtest du diese automatische Löschung wirklich löschen?"

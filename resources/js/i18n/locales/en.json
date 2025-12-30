@@ -150,8 +150,7 @@
       "editAutoDelete": "Edit automatic deletion",
       "interval": "Interval",
       "intervalHelp": "How often should messages be deleted? (Minimum 5 minutes)",
-      "deleteCount": "Number of messages to delete",
-      "deleteCountHelp": "Number of messages to remove on each deletion (max. 100)",
+      "deleteAllInfo": "⚠️ All messages in the channel will be deleted. Messages older than 14 days will be deleted individually.",
       "lastRun": "Last run",
       "noAutoDeletes": "No automatic deletions configured yet",
       "confirmDelete": "Do you really want to delete this automatic deletion?"

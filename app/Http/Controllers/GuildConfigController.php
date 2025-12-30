@@ -1597,9 +1597,11 @@ class GuildConfigController extends Controller
         $validated = $request->validate([
             'channel_id' => 'required|string',
             'interval_minutes' => 'required|in:5,10,30,60',
-            'delete_count' => 'required|integer|min:1|max:100',
             'enabled' => 'boolean',
         ]);
+        
+        // Setze delete_count auf 100 (wird nicht mehr verwendet, aber für Kompatibilität)
+        $validated['delete_count'] = 100;
         
         // Prüfe ob bereits eine Auto-Delete für diesen Channel existiert
         $existing = $guildModel->autoDeleteMessages()
@@ -1632,9 +1634,11 @@ class GuildConfigController extends Controller
         $validated = $request->validate([
             'channel_id' => 'required|string',
             'interval_minutes' => 'required|in:5,10,30,60',
-            'delete_count' => 'required|integer|min:1|max:100',
             'enabled' => 'boolean',
         ]);
+        
+        // Setze delete_count auf 100 (wird nicht mehr verwendet, aber für Kompatibilität)
+        $validated['delete_count'] = 100;
         
         // Prüfe ob bereits eine Auto-Delete für diesen Channel existiert (außer der aktuellen)
         $existing = $guildModel->autoDeleteMessages()

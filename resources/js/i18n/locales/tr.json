@@ -150,8 +150,7 @@
       "editAutoDelete": "Otomatik silmeyi düzenle",
       "interval": "Aralık",
       "intervalHelp": "Mesajlar ne sıklıkla silinsin? (En az 5 dakika)",
-      "deleteCount": "Silinecek mesaj sayısı",
-      "deleteCountHelp": "Her silmede kaldırılacak mesaj sayısı (maks. 100)",
+      "deleteAllInfo": "⚠️ Kanaldaki tüm mesajlar silinecek. 14 günden eski mesajlar tek tek silinecek.",
       "lastRun": "Son çalıştırma",
       "noAutoDeletes": "Henüz otomatik silme yapılandırılmadı",
       "confirmDelete": "Bu otomatik silmeyi gerçekten silmek istiyor musunuz?"
