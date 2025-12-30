@@ -1713,6 +1713,9 @@ class GuildConfigController extends Controller
         }
 
         $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        
+        // Get server language
+        $language = $guildModel->language ?? 'de';
 
         $validated = $request->validate([
             'title' => 'required|string|max:256',
