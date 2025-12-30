@@ -20,6 +20,7 @@ use App\Models\Ticket;
 use App\Models\AutoDeleteMessage;
 use App\Models\Giveaway;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class GuildConfigController extends Controller
 {
@@ -1718,9 +1719,9 @@ class GuildConfigController extends Controller
             'description' => 'nullable|string|max:2000',
             'channel_id' => 'required|string',
             'prize_type' => 'required|in:code,role,custom',
-            'prize_code' => 'nullable|string|max:255',
-            'prize_role_id' => 'nullable|string',
-            'prize_custom' => 'nullable|string|max:500',
+            'prize_code' => 'nullable|string|max:255|required_if:prize_type,code',
+            'prize_role_id' => 'nullable|string|required_if:prize_type,role',
+            'prize_custom' => 'nullable|string|max:500|required_if:prize_type,custom',
             'winner_count' => 'required|integer|min:1|max:100',
             'duration_weeks' => 'nullable|integer|min:0',
             'duration_days' => 'nullable|integer|min:0|max:6',
@@ -1730,18 +1731,28 @@ class GuildConfigController extends Controller
             'ticket_message' => 'nullable|string|max:2000',
         ]);
 
+        // Validate that at least one duration field is set
+        $hasDuration = ($validated['duration_weeks'] ?? 0) > 0 
+                    || ($validated['duration_days'] ?? 0) > 0 
+                    || ($validated['duration_hours'] ?? 0) > 0 
+                    || ($validated['duration_minutes'] ?? 0) > 0;
+        
+        if (!$hasDuration) {
+            return back()->withErrors(['duration' => 'Mindestens eine Dauer muss angegeben werden.'])->withInput();
+        }
+
         // Calculate ends_at
         $endsAt = now();
-        if ($validated['duration_weeks']) {
+        if ($validated['duration_weeks'] ?? 0) {
             $endsAt->addWeeks($validated['duration_weeks']);
         }
-        if ($validated['duration_days']) {
+        if ($validated['duration_days'] ?? 0) {
             $endsAt->addDays($validated['duration_days']);
         }
-        if ($validated['duration_hours']) {
+        if ($validated['duration_hours'] ?? 0) {
             $endsAt->addHours($validated['duration_hours']);
         }
-        if ($validated['duration_minutes']) {
+        if ($validated['duration_minutes'] ?? 0) {
             $endsAt->addMinutes($validated['duration_minutes']);
         }
 
@@ -1855,7 +1866,13 @@ class GuildConfigController extends Controller
 
             return back()->with('success', 'Giveaway erfolgreich erstellt!');
         } catch (\Exception $e) {
-            return back()->with('error', 'Fehler beim Erstellen des Giveaways: ' . $e->getMessage());
+            \Log::error('Giveaway Erstellung Fehler', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'guild' => $guild,
+                'request' => $request->all(),
+            ]);
+            return back()->with('error', 'Fehler beim Erstellen des Giveaways: ' . $e->getMessage())->withInput();
         }
     }
 
