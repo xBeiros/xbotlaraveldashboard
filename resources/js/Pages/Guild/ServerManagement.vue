@@ -117,41 +117,56 @@ const form = useForm({
     timezone: props.guildModel?.timezone || 'Europe/Berlin',
 });
 
-// Zeitzonen-Liste mit Flaggen-Emojis und Text-Fallback
+// Zeitzonen-Liste gruppiert nach UTC-Offset und gemeinsamen Zeitzonen
 const timezones = [
-    { value: 'Europe/Berlin', flag: '🇩🇪', country: 'Deutschland', label: 'Europe/Berlin (CET/CEST)' },
-    { value: 'Europe/London', flag: '🇬🇧', country: 'Großbritannien', label: 'Europe/London (GMT/BST)' },
-    { value: 'America/New_York', flag: '🇺🇸', country: 'USA (Ostküste)', label: 'America/New_York (EST/EDT)' },
-    { value: 'America/Los_Angeles', flag: '🇺🇸', country: 'USA (Westküste)', label: 'America/Los_Angeles (PST/PDT)' },
-    { value: 'America/Chicago', flag: '🇺🇸', country: 'USA (Mitte)', label: 'America/Chicago (CST/CDT)' },
-    { value: 'America/Denver', flag: '🇺🇸', country: 'USA (Rocky Mountains)', label: 'America/Denver (MST/MDT)' },
-    { value: 'Europe/Paris', flag: '🇫🇷', country: 'Frankreich', label: 'Europe/Paris (CET/CEST)' },
-    { value: 'Europe/Rome', flag: '🇮🇹', country: 'Italien', label: 'Europe/Rome (CET/CEST)' },
-    { value: 'Europe/Madrid', flag: '🇪🇸', country: 'Spanien', label: 'Europe/Madrid (CET/CEST)' },
-    { value: 'Europe/Amsterdam', flag: '🇳🇱', country: 'Niederlande', label: 'Europe/Amsterdam (CET/CEST)' },
-    { value: 'Europe/Vienna', flag: '🇦🇹', country: 'Österreich', label: 'Europe/Vienna (CET/CEST)' },
-    { value: 'Europe/Zurich', flag: '🇨🇭', country: 'Schweiz', label: 'Europe/Zurich (CET/CEST)' },
-    { value: 'Europe/Stockholm', flag: '🇸🇪', country: 'Schweden', label: 'Europe/Stockholm (CET/CEST)' },
-    { value: 'Europe/Oslo', flag: '🇳🇴', country: 'Norwegen', label: 'Europe/Oslo (CET/CEST)' },
-    { value: 'Europe/Copenhagen', flag: '🇩🇰', country: 'Dänemark', label: 'Europe/Copenhagen (CET/CEST)' },
-    { value: 'Europe/Helsinki', flag: '🇫🇮', country: 'Finnland', label: 'Europe/Helsinki (EET/EEST)' },
-    { value: 'Europe/Warsaw', flag: '🇵🇱', country: 'Polen', label: 'Europe/Warsaw (CET/CEST)' },
-    { value: 'Europe/Prague', flag: '🇨🇿', country: 'Tschechien', label: 'Europe/Prague (CET/CEST)' },
-    { value: 'Europe/Budapest', flag: '🇭🇺', country: 'Ungarn', label: 'Europe/Budapest (CET/CEST)' },
-    { value: 'Europe/Athens', flag: '🇬🇷', country: 'Griechenland', label: 'Europe/Athens (EET/EEST)' },
-    { value: 'Europe/Istanbul', flag: '🇹🇷', country: 'Türkei', label: 'Europe/Istanbul (TRT)' },
-    { value: 'Asia/Tokyo', flag: '🇯🇵', country: 'Japan', label: 'Asia/Tokyo (JST)' },
-    { value: 'Asia/Shanghai', flag: '🇨🇳', country: 'China', label: 'Asia/Shanghai (CST)' },
-    { value: 'Asia/Hong_Kong', flag: '🇭🇰', country: 'Hong Kong', label: 'Asia/Hong_Kong (HKT)' },
-    { value: 'Asia/Singapore', flag: '🇸🇬', country: 'Singapur', label: 'Asia/Singapore (SGT)' },
-    { value: 'Asia/Dubai', flag: '🇦🇪', country: 'VAE', label: 'Asia/Dubai (GST)' },
-    { value: 'Australia/Sydney', flag: '🇦🇺', country: 'Australien (Ost)', label: 'Australia/Sydney (AEDT/AEST)' },
-    { value: 'Australia/Melbourne', flag: '🇦🇺', country: 'Australien (Südost)', label: 'Australia/Melbourne (AEDT/AEST)' },
-    { value: 'Pacific/Auckland', flag: '🇳🇿', country: 'Neuseeland', label: 'Pacific/Auckland (NZDT/NZST)' },
-    { value: 'America/Sao_Paulo', flag: '🇧🇷', country: 'Brasilien', label: 'America/Sao_Paulo (BRT/BRST)' },
-    { value: 'America/Mexico_City', flag: '🇲🇽', country: 'Mexiko', label: 'America/Mexico_City (CST/CDT)' },
-    { value: 'America/Toronto', flag: '🇨🇦', country: 'Kanada (Ost)', label: 'America/Toronto (EST/EDT)' },
-    { value: 'America/Vancouver', flag: '🇨🇦', country: 'Kanada (West)', label: 'America/Vancouver (PST/PDT)' },
+    // UTC (GMT)
+    { value: 'Europe/London', flag: '🇬🇧', label: 'UTC+0 (GMT/BST) - London, Dublin, Lissabon' },
+    
+    // UTC+1 (CET - Central European Time)
+    { value: 'Europe/Berlin', flag: '🇪🇺', label: 'UTC+1 (CET/CEST) - Mitteleuropa (Deutschland, Österreich, Schweiz, Frankreich, Italien, Spanien, etc.)' },
+    
+    // UTC+2 (EET - Eastern European Time)
+    { value: 'Europe/Athens', flag: '🇪🇺', label: 'UTC+2 (EET/EEST) - Osteuropa (Griechenland, Finnland, Rumänien, etc.)' },
+    { value: 'Europe/Istanbul', flag: '🇹🇷', label: 'UTC+3 (TRT) - Türkei' },
+    
+    // UTC+4
+    { value: 'Asia/Dubai', flag: '🇦🇪', label: 'UTC+4 (GST) - VAE, Georgien' },
+    
+    // UTC+5:30
+    { value: 'Asia/Kolkata', flag: '🇮🇳', label: 'UTC+5:30 (IST) - Indien' },
+    
+    // UTC+8
+    { value: 'Asia/Shanghai', flag: '🇨🇳', label: 'UTC+8 (CST) - China, Singapur, Malaysia' },
+    { value: 'Asia/Hong_Kong', flag: '🇭🇰', label: 'UTC+8 (HKT) - Hong Kong' },
+    { value: 'Asia/Singapore', flag: '🇸🇬', label: 'UTC+8 (SGT) - Singapur' },
+    
+    // UTC+9
+    { value: 'Asia/Tokyo', flag: '🇯🇵', label: 'UTC+9 (JST) - Japan, Südkorea' },
+    
+    // UTC+10
+    { value: 'Australia/Sydney', flag: '🇦🇺', label: 'UTC+10 (AEDT/AEST) - Australien (Ost), Papua-Neuguinea' },
+    { value: 'Australia/Melbourne', flag: '🇦🇺', label: 'UTC+10 (AEDT/AEST) - Australien (Südost)' },
+    
+    // UTC+12
+    { value: 'Pacific/Auckland', flag: '🇳🇿', label: 'UTC+12 (NZDT/NZST) - Neuseeland, Fidschi' },
+    
+    // UTC-3
+    { value: 'America/Sao_Paulo', flag: '🇧🇷', label: 'UTC-3 (BRT/BRST) - Brasilien, Argentinien, Uruguay' },
+    
+    // UTC-5 (EST - Eastern Standard Time)
+    { value: 'America/New_York', flag: '🇺🇸', label: 'UTC-5 (EST/EDT) - USA/Kanada (Ostküste)' },
+    { value: 'America/Toronto', flag: '🇨🇦', label: 'UTC-5 (EST/EDT) - Kanada (Ost)' },
+    
+    // UTC-6 (CST - Central Standard Time)
+    { value: 'America/Chicago', flag: '🇺🇸', label: 'UTC-6 (CST/CDT) - USA/Kanada (Mitte)' },
+    { value: 'America/Mexico_City', flag: '🇲🇽', label: 'UTC-6 (CST/CDT) - Mexiko, Zentralamerika' },
+    
+    // UTC-7 (MST - Mountain Standard Time)
+    { value: 'America/Denver', flag: '🇺🇸', label: 'UTC-7 (MST/MDT) - USA/Kanada (Rocky Mountains)' },
+    
+    // UTC-8 (PST - Pacific Standard Time)
+    { value: 'America/Los_Angeles', flag: '🇺🇸', label: 'UTC-8 (PST/PDT) - USA/Kanada (Westküste)' },
+    { value: 'America/Vancouver', flag: '🇨🇦', label: 'UTC-8 (PST/PDT) - Kanada (West)' },
 ];
 
 // Aktuelle Zeit in ausgewählter Zeitzone
