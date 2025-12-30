@@ -501,8 +501,10 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Lade alle Guilds für Sidebar
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
@@ -593,8 +595,10 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Lade alle Guilds für Sidebar
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
@@ -665,8 +669,10 @@ class DashboardController extends Controller
         // Aktualisiere bot_active Status
         $guildModel->update(['bot_active' => true]);
         
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Lade alle Guilds für Sidebar
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
@@ -1014,8 +1020,10 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Lade alle Guilds für Sidebar
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
@@ -1290,8 +1298,10 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        // Lade alle Guilds für Sidebar
+        // Zeige nur Server, auf denen der Bot auch ist
         $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
             ->get()
             ->filter(function ($g) {
                 return $this->canManageGuild($g->permissions);
