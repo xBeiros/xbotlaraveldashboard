@@ -519,7 +519,7 @@
     "availablePlaceholders": "Available placeholders:",
     "noNotifications": "No notifications configured",
     "noNotificationsDescription": "Create a new notification to receive live updates from social media platforms.",
-    "noPlatformNotifications": "No {{platform}} notifications configured",
+    "noPlatformNotifications": "No {platform} notifications configured",
     "channel": "Channel:",
     "liveNotifications": "🔴 Live notifications",
     "confirmDelete": "Do you really want to delete this notification?",

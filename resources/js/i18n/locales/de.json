@@ -511,7 +511,7 @@
     "availablePlaceholders": "Verfügbare Platzhalter:",
     "noNotifications": "Keine Benachrichtigungen konfiguriert",
     "noNotificationsDescription": "Erstelle eine neue Benachrichtigung, um Live-Updates von Social Media Plattformen zu erhalten.",
-    "noPlatformNotifications": "Keine {{platform}} Benachrichtigungen konfiguriert",
+    "noPlatformNotifications": "Keine {platform} Benachrichtigungen konfiguriert",
     "channel": "Kanal:",
     "liveNotifications": "🔴 Live-Benachrichtigungen",
     "confirmDelete": "Möchtest du diese Benachrichtigung wirklich löschen?",

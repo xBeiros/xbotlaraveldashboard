@@ -13,18 +13,25 @@ const props = defineProps({
     socialNotifications: Array,
 });
 
-const platforms = computed(() => [
-    { value: 'twitch', name: t('social.platforms.twitch'), icon: '🎮' },
-    { value: 'tiktok', name: t('social.platforms.tiktok'), icon: '🎵' },
-    { value: 'x', name: t('social.platforms.x'), icon: '🐦' },
-    { value: 'bluesky', name: t('social.platforms.bluesky'), icon: '☁️' },
-    { value: 'youtube', name: t('social.platforms.youtube'), icon: '📺' },
-    { value: 'reddit', name: t('social.platforms.reddit'), icon: '🤖' },
-    { value: 'instagram', name: t('social.platforms.instagram'), icon: '📷' },
-    { value: 'rss', name: t('social.platforms.rss'), icon: '📡' },
-    { value: 'kick', name: t('social.platforms.kick'), icon: '👊' },
-    { value: 'podcast', name: t('social.platforms.podcast'), icon: '🎙️' },
-]);
+const platformList = [
+    { value: 'twitch', icon: '🎮' },
+    { value: 'tiktok', icon: '🎵' },
+    { value: 'x', icon: '🐦' },
+    { value: 'bluesky', icon: '☁️' },
+    { value: 'youtube', icon: '📺' },
+    { value: 'reddit', icon: '🤖' },
+    { value: 'instagram', icon: '📷' },
+    { value: 'rss', icon: '📡' },
+    { value: 'kick', icon: '👊' },
+    { value: 'podcast', icon: '🎙️' },
+];
+
+const platforms = computed(() => {
+    return platformList.map(p => ({
+        ...p,
+        name: t(`social.platforms.${p.value}`)
+    }));
+});
 
 const showAddForm = ref(false);
 const editingId = ref(null);
@@ -95,7 +102,8 @@ function getPlatformIcon(platform) {
 }
 
 function getPlatformName(platform) {
-    return platforms.value.find(p => p.value === platform)?.name || platform;
+    const found = platforms.value.find(p => p.value === platform);
+    return found ? found.name : platform;
 }
 </script>
 

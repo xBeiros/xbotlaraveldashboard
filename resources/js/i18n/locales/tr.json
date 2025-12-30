@@ -519,7 +519,7 @@
     "availablePlaceholders": "Mevcut yer tutucular:",
     "noNotifications": "Bildirim yapılandırılmadı",
     "noNotificationsDescription": "Sosyal medya platformlarından canlı güncellemeler almak için yeni bir bildirim oluşturun.",
-    "noPlatformNotifications": "{{platform}} bildirimi yapılandırılmadı",
+    "noPlatformNotifications": "{platform} bildirimi yapılandırılmadı",
     "channel": "Kanal:",
     "liveNotifications": "🔴 Canlı bildirimler",
     "confirmDelete": "Bu bildirimi gerçekten silmek istiyor musunuz?",
