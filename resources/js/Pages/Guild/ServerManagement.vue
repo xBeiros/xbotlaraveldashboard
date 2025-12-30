@@ -107,56 +107,59 @@ const form = useForm({
 });
 
 // Zeitzonen-Liste gruppiert nach UTC-Offset und gemeinsamen Zeitzonen
-const timezones = [
+const timezones = computed(() => [
     // UTC (GMT)
-    { value: 'Europe/London', label: 'UTC+0 (GMT/BST) - London, Dublin, Lissabon' },
+    { value: 'Europe/London', translationKey: 'UTC+0_London' },
     
     // UTC+1 (CET - Central European Time)
-    { value: 'Europe/Berlin', label: 'UTC+1 (CET/CEST) - Mitteleuropa (Deutschland, Österreich, Schweiz, Frankreich, Italien, Spanien, etc.)' },
+    { value: 'Europe/Berlin', translationKey: 'UTC+1_Berlin' },
     
     // UTC+2 (EET - Eastern European Time)
-    { value: 'Europe/Athens', label: 'UTC+2 (EET/EEST) - Osteuropa (Griechenland, Finnland, Rumänien, etc.)' },
-    { value: 'Europe/Istanbul', label: 'UTC+3 (TRT) - Türkei' },
+    { value: 'Europe/Athens', translationKey: 'UTC+2_Athens' },
+    { value: 'Europe/Istanbul', translationKey: 'UTC+3_Istanbul' },
     
     // UTC+4
-    { value: 'Asia/Dubai', label: 'UTC+4 (GST) - VAE, Georgien' },
+    { value: 'Asia/Dubai', translationKey: 'UTC+4_Dubai' },
     
     // UTC+5:30
-    { value: 'Asia/Kolkata', label: 'UTC+5:30 (IST) - Indien' },
+    { value: 'Asia/Kolkata', translationKey: 'UTC+5:30_Kolkata' },
     
     // UTC+8
-    { value: 'Asia/Shanghai', label: 'UTC+8 (CST) - China, Singapur, Malaysia' },
-    { value: 'Asia/Hong_Kong', label: 'UTC+8 (HKT) - Hong Kong' },
-    { value: 'Asia/Singapore', label: 'UTC+8 (SGT) - Singapur' },
+    { value: 'Asia/Shanghai', translationKey: 'UTC+8_Shanghai' },
+    { value: 'Asia/Hong_Kong', translationKey: 'UTC+8_HongKong' },
+    { value: 'Asia/Singapore', translationKey: 'UTC+8_Singapore' },
     
     // UTC+9
-    { value: 'Asia/Tokyo', label: 'UTC+9 (JST) - Japan, Südkorea' },
+    { value: 'Asia/Tokyo', translationKey: 'UTC+9_Tokyo' },
     
     // UTC+10
-    { value: 'Australia/Sydney', label: 'UTC+10 (AEDT/AEST) - Australien (Ost), Papua-Neuguinea' },
-    { value: 'Australia/Melbourne', label: 'UTC+10 (AEDT/AEST) - Australien (Südost)' },
+    { value: 'Australia/Sydney', translationKey: 'UTC+10_Sydney' },
+    { value: 'Australia/Melbourne', translationKey: 'UTC+10_Melbourne' },
     
     // UTC+12
-    { value: 'Pacific/Auckland', label: 'UTC+12 (NZDT/NZST) - Neuseeland, Fidschi' },
+    { value: 'Pacific/Auckland', translationKey: 'UTC+12_Auckland' },
     
     // UTC-3
-    { value: 'America/Sao_Paulo', label: 'UTC-3 (BRT/BRST) - Brasilien, Argentinien, Uruguay' },
+    { value: 'America/Sao_Paulo', translationKey: 'UTC-3_SaoPaulo' },
     
     // UTC-5 (EST - Eastern Standard Time)
-    { value: 'America/New_York', label: 'UTC-5 (EST/EDT) - USA/Kanada (Ostküste)' },
-    { value: 'America/Toronto', label: 'UTC-5 (EST/EDT) - Kanada (Ost)' },
+    { value: 'America/New_York', translationKey: 'UTC-5_NewYork' },
+    { value: 'America/Toronto', translationKey: 'UTC-5_Toronto' },
     
     // UTC-6 (CST - Central Standard Time)
-    { value: 'America/Chicago', label: 'UTC-6 (CST/CDT) - USA/Kanada (Mitte)' },
-    { value: 'America/Mexico_City', label: 'UTC-6 (CST/CDT) - Mexiko, Zentralamerika' },
+    { value: 'America/Chicago', translationKey: 'UTC-6_Chicago' },
+    { value: 'America/Mexico_City', translationKey: 'UTC-6_MexicoCity' },
     
     // UTC-7 (MST - Mountain Standard Time)
-    { value: 'America/Denver', label: 'UTC-7 (MST/MDT) - USA/Kanada (Rocky Mountains)' },
+    { value: 'America/Denver', translationKey: 'UTC-7_Denver' },
     
     // UTC-8 (PST - Pacific Standard Time)
-    { value: 'America/Los_Angeles', label: 'UTC-8 (PST/PDT) - USA/Kanada (Westküste)' },
-    { value: 'America/Vancouver', label: 'UTC-8 (PST/PDT) - Kanada (West)' },
-];
+    { value: 'America/Los_Angeles', translationKey: 'UTC-8_LosAngeles' },
+    { value: 'America/Vancouver', translationKey: 'UTC-8_Vancouver' },
+].map(tz => ({
+    ...tz,
+    label: t(`serverManagement.timezones.${tz.translationKey}`)
+})));
 
 // Aktuelle Zeit in ausgewählter Zeitzone
 const currentTime = ref('');
