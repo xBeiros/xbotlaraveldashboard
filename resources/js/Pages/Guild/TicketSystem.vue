@@ -1,5 +1,5 @@
 <template>
-    <Head :title="`${guild.name} - ${t('ticketSystem.title')}`" />
+    <Head :title="`${guild?.name || 'Ticket System'} - ${t('ticketSystem.title')}`" />
 
     <GuildLayout :guild="guild" :guilds="guilds">
         <div class="p-8">
@@ -184,7 +184,7 @@
                                             class="flex items-center gap-2 pt-3 mt-3 border-t border-[#202225]"
                                         >
                                             <img 
-                                                v-if="guild.icon_url"
+                                                v-if="guild?.icon_url"
                                                 :src="guild.icon_url" 
                                                 alt="Server Icon" 
                                                 class="w-5 h-5 rounded-full"
@@ -193,9 +193,9 @@
                                                 v-else
                                                 class="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-xs font-bold"
                                             >
-                                                {{ guild.name?.charAt(0).toUpperCase() || 'X' }}
+                                                {{ guild?.name?.charAt(0)?.toUpperCase() || 'X' }}
                                             </div>
-                                            <span class="text-xs text-gray-400">{{ guild.name }} • {{ new Date().toLocaleDateString() }} {{ new Date().toLocaleTimeString() }}</span>
+                                            <span class="text-xs text-gray-400">{{ guild?.name || 'Server' }} • {{ new Date().toLocaleDateString() }} {{ new Date().toLocaleTimeString() }}</span>
                                         </div>
                                     </div>
                                 </div>
@@ -397,8 +397,8 @@
                                             </p>
                                             <div class="flex items-center gap-2 pt-3 mt-3 border-t border-[#202225]">
                                                 <img 
-                                                    v-if="props.guild?.icon_url"
-                                                    :src="props.guild.icon_url" 
+                                                    v-if="guild?.icon_url"
+                                                    :src="guild.icon_url" 
                                                     alt="Server Icon" 
                                                     class="w-5 h-5 rounded-full"
                                                 />
@@ -406,7 +406,7 @@
                                                     v-else
                                                     class="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-xs font-bold"
                                                 >
-                                                    {{ props.guild?.name?.charAt(0).toUpperCase() || 'X' }}
+                                                    {{ guild?.name?.charAt(0)?.toUpperCase() || 'X' }}
                                                 </div>
                                                 <span class="text-xs text-gray-400">{{ new Date().toLocaleDateString() }} {{ new Date().toLocaleTimeString() }}</span>
                                             </div>
@@ -480,7 +480,7 @@
                                     </div>
                                 </div>
                                 <a
-                                    :href="route('guild.ticket.transcript', { guild: guild.id, ticketId: transcript.id })"
+                                    :href="route('guild.ticket.transcript', { guild: guild?.id, ticketId: transcript.id })"
                                     target="_blank"
                                     class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium"
                                 >
@@ -698,6 +698,9 @@ const props = defineProps({
     },
 });
 
+// Destructure props for easier access
+const { guild, guilds } = props;
+
 // Ticket Post
 const ticketPostForm = useForm({
     channel_id: props.ticketPost?.channel_id || '',
@@ -763,7 +766,7 @@ const renderedCloseMessage = computed(() => {
     // Ersetze Platzhalter mit Beispielwerten
     message = message.replace(/{user}/g, '<span class="text-[#5865f2]">@Username</span>');
     message = message.replace(/{username}/g, '<span class="text-[#5865f2]">Username</span>');
-    message = message.replace(/{server}/g, '<span class="text-[#5865f2]">' + (props.guild?.name || 'Server Name') + '</span>');
+    message = message.replace(/{server}/g, '<span class="text-[#5865f2]">' + (guild?.name || 'Server Name') + '</span>');
     return parseDiscordMarkdown(message);
 });
 
@@ -820,7 +823,7 @@ function saveCategory() {
     
     if (editingCategory.value) {
         categoryForm.put(route('guild.ticket-categories.update', {
-            guild: props.guild.id,
+            guild: guild.id,
             id: editingCategory.value.id
         }), {
             preserveScroll: true,
@@ -829,7 +832,7 @@ function saveCategory() {
             },
         });
     } else {
-        categoryForm.post(route('guild.ticket-categories.store', { guild: props.guild.id }), {
+        categoryForm.post(route('guild.ticket-categories.store', { guild: guild.id }), {
             preserveScroll: true,
             onSuccess: () => {
                 closeCategoryModal();
@@ -840,14 +843,14 @@ function saveCategory() {
 
 function deleteCategory(id) {
     if (confirm(t('ticketSystem.categories.confirmDelete'))) {
-        router.delete(route('guild.ticket-categories.delete', { guild: props.guild.id, id }), {
+        router.delete(route('guild.ticket-categories.delete', { guild: guild.id, id }), {
             preserveScroll: true,
         });
     }
 }
 
 function saveTicketPost() {
-    ticketPostForm.post(route('guild.ticket-post.store', { guild: props.guild.id }), {
+    ticketPostForm.post(route('guild.ticket-post.store', { guild: guild.id }), {
         preserveScroll: true,
     });
 }
@@ -855,7 +858,7 @@ function saveTicketPost() {
 function resendTicketPost() {
     if (confirm(t('ticketSystem.ticketPost.confirmResend'))) {
         resendingPost.value = true;
-        router.post(route('guild.ticket-post.resend', { guild: props.guild.id }), {}, {
+        router.post(route('guild.ticket-post.resend', { guild: guild.id }), {}, {
             preserveScroll: true,
             onFinish: () => {
                 resendingPost.value = false;
@@ -866,7 +869,7 @@ function resendTicketPost() {
 
 function updateTranscriptSetting() {
     transcriptEnabled.value = !transcriptEnabled.value;
-    router.put(route('guild.ticket-transcript-setting.update', { guild: props.guild.id }), {
+    router.put(route('guild.ticket-transcript-setting.update', { guild: guild.id }), {
         transcript_enabled: transcriptEnabled.value,
     }, {
         preserveScroll: true,
@@ -880,7 +883,7 @@ function saveCloseConfig() {
         confirmation_button_text: closeConfigForm.require_confirmation ? closeConfigForm.confirmation_button_text : null,
     };
     
-    closeConfigForm.transform(() => data).put(route('guild.ticket-close-config.update', { guild: props.guild.id }), {
+    closeConfigForm.transform(() => data).put(route('guild.ticket-close-config.update', { guild: guild.id }), {
         preserveScroll: true,
     });
 }

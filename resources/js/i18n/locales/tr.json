@@ -29,7 +29,9 @@
     "select": "Seç",
     "pleaseSelect": "Lütfen seçin...",
     "noMoreItems": "Tümü zaten seçildi",
-    "unknown": "Bilinmiyor"
+    "unknown": "Bilinmiyor",
+    "optional": "isteğe bağlı",
+    "enable": "Etkinleştir"
   },
   "languages": {
     "german": "Almanca",
@@ -74,6 +76,10 @@
     "serverLanguage": "Sunucu Dili",
     "selectLanguage": "Dil Seç",
     "languageDescription": "Bu sunucu için dili seçin. Bu ayar bot mesajlarının ve kontrol panelinin dilini etkiler.",
+    "timezone": "Saat Dilimi",
+    "selectTimezone": "Saat Dilimi Seç",
+    "timezoneDescription": "Bu sunucu için saat dilimini seçin. Bu ayar tüm zaman damgaları ve tarihler için kullanılacaktır.",
+    "currentTime": "Şu Anki Zaman",
     "botPersonalization": {
       "title": "Bot Kişiselleştirme",
       "description": "Discord botunuzun görünümünü kişiselleştirin. İsim, profil resmi ve banner'ı değiştirin.",
@@ -506,14 +512,28 @@
     "username": "Kullanıcı adı/Kanal adı *",
     "usernamePlaceholder": "örn. kullanici123",
     "webhookUrl": "Webhook URL",
+    "webhookUrlPlaceholder": "https://...",
     "notifyLive": "Canlıyken bildir",
     "customMessage": "Özel mesaj",
     "customMessagePlaceholder": "örn. {user} şimdi {platform}'da canlı!",
+    "availablePlaceholders": "Mevcut yer tutucular:",
     "noNotifications": "Bildirim yapılandırılmadı",
     "noNotificationsDescription": "Sosyal medya platformlarından canlı güncellemeler almak için yeni bir bildirim oluşturun.",
     "noPlatformNotifications": "{{platform}} bildirimi yapılandırılmadı",
     "channel": "Kanal:",
     "liveNotifications": "🔴 Canlı bildirimler",
-    "confirmDelete": "Bu bildirimi gerçekten silmek istiyor musunuz?"
+    "confirmDelete": "Bu bildirimi gerçekten silmek istiyor musunuz?",
+    "platforms": {
+      "twitch": "Twitch",
+      "tiktok": "TikTok",
+      "x": "X (Twitter)",
+      "bluesky": "BlueSky",
+      "youtube": "YouTube",
+      "reddit": "Reddit",
+      "instagram": "Instagram",
+      "rss": "RSS",
+      "kick": "Kick",
+      "podcast": "Podcast"
+    }
   }
 }

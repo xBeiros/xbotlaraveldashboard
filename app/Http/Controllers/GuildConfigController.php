@@ -1012,10 +1012,12 @@ class GuildConfigController extends Controller
 
         $validated = $request->validate([
             'language' => 'required|in:de,en,tr',
+            'timezone' => 'required|string|max:50',
         ]);
 
         $guildModel->update([
             'language' => $validated['language'],
+            'timezone' => $validated['timezone'],
         ]);
 
         return back()->with('success', 'Server-Einstellungen erfolgreich gespeichert!');

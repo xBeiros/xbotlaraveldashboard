@@ -21,6 +21,7 @@ class Guild extends Model
         'ticket_close_require_confirmation',
         'ticket_close_message',
         'ticket_close_confirmation_button_text',
+        'timezone',
         'bot_avatar',
         'bot_banner',
         'bot_nickname',

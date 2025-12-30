@@ -29,7 +29,9 @@
     "select": "Select",
     "pleaseSelect": "Please select...",
     "noMoreItems": "All already selected",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "optional": "optional",
+    "enable": "Enable"
   },
   "languages": {
     "german": "German",
@@ -74,6 +76,10 @@
     "serverLanguage": "Server Language",
     "selectLanguage": "Select Language",
     "languageDescription": "Choose the language for this server. This setting affects the language of bot messages and the dashboard.",
+    "timezone": "Timezone",
+    "selectTimezone": "Select Timezone",
+    "timezoneDescription": "Choose the timezone for this server. This setting will be used for all timestamps and dates.",
+    "currentTime": "Current Time",
     "botPersonalization": {
       "title": "Bot Personalization",
       "description": "Personalize your Discord bot's appearance. Change name, avatar, and banner.",
@@ -506,14 +512,28 @@
     "username": "Username/Channel Name *",
     "usernamePlaceholder": "e.g. username123",
     "webhookUrl": "Webhook URL",
+    "webhookUrlPlaceholder": "https://...",
     "notifyLive": "Notify when live",
     "customMessage": "Custom message",
     "customMessagePlaceholder": "e.g. {user} is now live on {platform}!",
+    "availablePlaceholders": "Available placeholders:",
     "noNotifications": "No notifications configured",
     "noNotificationsDescription": "Create a new notification to receive live updates from social media platforms.",
     "noPlatformNotifications": "No {{platform}} notifications configured",
     "channel": "Channel:",
     "liveNotifications": "🔴 Live notifications",
-    "confirmDelete": "Do you really want to delete this notification?"
+    "confirmDelete": "Do you really want to delete this notification?",
+    "platforms": {
+      "twitch": "Twitch",
+      "tiktok": "TikTok",
+      "x": "X (Twitter)",
+      "bluesky": "BlueSky",
+      "youtube": "YouTube",
+      "reddit": "Reddit",
+      "instagram": "Instagram",
+      "rss": "RSS",
+      "kick": "Kick",
+      "podcast": "Podcast"
+    }
   }
 }

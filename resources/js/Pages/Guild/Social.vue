@@ -1,7 +1,7 @@
 <script setup>
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -13,18 +13,18 @@ const props = defineProps({
     socialNotifications: Array,
 });
 
-const platforms = [
-    { value: 'twitch', name: 'Twitch', icon: '🎮' },
-    { value: 'tiktok', name: 'TikTok', icon: '🎵' },
-    { value: 'x', name: 'X (Twitter)', icon: '🐦' },
-    { value: 'bluesky', name: 'BlueSky', icon: '☁️' },
-    { value: 'youtube', name: 'YouTube', icon: '📺' },
-    { value: 'reddit', name: 'Reddit', icon: '🤖' },
-    { value: 'instagram', name: 'Instagram', icon: '📷' },
-    { value: 'rss', name: 'RSS', icon: '📡' },
-    { value: 'kick', name: 'Kick', icon: '👊' },
-    { value: 'podcast', name: 'Podcast', icon: '🎙️' },
-];
+const platforms = computed(() => [
+    { value: 'twitch', name: t('social.platforms.twitch'), icon: '🎮' },
+    { value: 'tiktok', name: t('social.platforms.tiktok'), icon: '🎵' },
+    { value: 'x', name: t('social.platforms.x'), icon: '🐦' },
+    { value: 'bluesky', name: t('social.platforms.bluesky'), icon: '☁️' },
+    { value: 'youtube', name: t('social.platforms.youtube'), icon: '📺' },
+    { value: 'reddit', name: t('social.platforms.reddit'), icon: '🤖' },
+    { value: 'instagram', name: t('social.platforms.instagram'), icon: '📷' },
+    { value: 'rss', name: t('social.platforms.rss'), icon: '📡' },
+    { value: 'kick', name: t('social.platforms.kick'), icon: '👊' },
+    { value: 'podcast', name: t('social.platforms.podcast'), icon: '🎙️' },
+]);
 
 const showAddForm = ref(false);
 const editingId = ref(null);
@@ -91,11 +91,11 @@ function deleteNotification(id) {
 }
 
 function getPlatformIcon(platform) {
-    return platforms.find(p => p.value === platform)?.icon || '📱';
+    return platforms.value.find(p => p.value === platform)?.icon || '📱';
 }
 
 function getPlatformName(platform) {
-    return platforms.find(p => p.value === platform)?.name || platform;
+    return platforms.value.find(p => p.value === platform)?.name || platform;
 }
 </script>
 
@@ -142,7 +142,7 @@ function getPlatformName(platform) {
                                 :disabled="!!editingId"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             >
-                                <option value="">Bitte wählen...</option>
+                                <option value="">{{ t('common.pleaseSelect') }}</option>
                                 <option v-for="platform in platforms" :key="platform.value" :value="platform.value">
                                     {{ platform.icon }} {{ platform.name }}
                                 </option>
@@ -158,7 +158,7 @@ function getPlatformName(platform) {
                                 required
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             >
-                                <option value="">Bitte wählen...</option>
+                                <option value="">{{ t('common.pleaseSelect') }}</option>
                                 <template v-for="channel in channels" :key="channel.id">
                                     <option
                                         v-if="channel.type === 4 && channel.is_category"
@@ -179,41 +179,41 @@ function getPlatformName(platform) {
 
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">
-                                Username/Channel Name *
+                                {{ t('social.username') }}
                             </label>
                             <input
                                 type="text"
                                 v-model="form.username"
                                 required
-                                placeholder="z.B. username123"
+                                :placeholder="t('social.usernamePlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             />
                         </div>
 
                         <div v-if="form.platform === 'rss' || form.platform === 'podcast'">
                             <label class="block text-sm font-medium text-gray-300 mb-2">
-                                Webhook URL
+                                {{ t('social.webhookUrl') }}
                             </label>
                             <input
                                 type="url"
                                 v-model="form.webhook_url"
-                                placeholder="https://..."
+                                :placeholder="t('social.webhookUrlPlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             />
                         </div>
 
                         <div>
                             <label class="block text-sm font-medium text-gray-300 mb-2">
-                                Custom Nachricht (optional)
+                                {{ t('social.customMessage') }} ({{ t('common.optional') }})
                             </label>
                             <textarea
                                 v-model="form.custom_message"
                                 rows="3"
-                                placeholder="z.B. {user} ist jetzt live auf {platform}!"
+                                :placeholder="t('social.customMessagePlaceholder')"
                                 class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
                             ></textarea>
                             <p class="text-xs text-gray-400 mt-1">
-                                Verfügbare Platzhalter: <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{platform}</code>, <code class="bg-[#202225] px-1 rounded">{url}</code>
+                                {{ t('social.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{platform}</code>, <code class="bg-[#202225] px-1 rounded">{url}</code>
                             </p>
                         </div>
 
@@ -223,7 +223,7 @@ function getPlatformName(platform) {
                                 v-model="form.notify_live"
                                 class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                             />
-                            <label class="text-sm text-gray-300">Benachrichtigung wenn Live</label>
+                            <label class="text-sm text-gray-300">{{ t('social.notifyLive') }}</label>
                         </div>
 
                         <div class="flex items-center gap-2">
@@ -232,7 +232,7 @@ function getPlatformName(platform) {
                                 v-model="form.enabled"
                                 class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
                             />
-                            <label class="text-sm text-gray-300">Aktivieren</label>
+                            <label class="text-sm text-gray-300">{{ t('common.enable') }}</label>
                         </div>
 
                         <div class="flex gap-3 pt-4">
@@ -260,13 +260,13 @@ function getPlatformName(platform) {
                         <svg class="w-16 h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                         </svg>
-                        <h2 class="text-xl font-semibold text-white mb-2">Keine Benachrichtigungen konfiguriert</h2>
-                        <p class="text-gray-400 mb-6">Erstelle eine neue Benachrichtigung, um Live-Updates von Social Media Plattformen zu erhalten.</p>
+                        <h2 class="text-xl font-semibold text-white mb-2">{{ t('social.noNotifications') }}</h2>
+                        <p class="text-gray-400 mb-6">{{ t('social.noNotificationsDescription') }}</p>
                         <button
                             @click="openAddForm()"
                             class="px-4 py-2 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all font-medium"
                         >
-                            + Neue Benachrichtigung
+                            {{ t('social.addNotification') }}
                         </button>
                     </div>
                 </div>
@@ -290,12 +290,12 @@ function getPlatformName(platform) {
                                 @click="openAddForm(platform.value)"
                                 class="px-3 py-1.5 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded text-sm font-medium transition-colors"
                             >
-                                + Hinzufügen
+                                {{ t('common.add') }}
                             </button>
                         </div>
 
                         <div v-if="socialNotifications.filter(n => n.platform === platform.value).length === 0" class="p-6 text-center text-gray-400">
-                            Keine {{ platform.name }} Benachrichtigungen konfiguriert
+                            {{ t('social.noPlatformNotifications', { platform: platform.name }) }}
                         </div>
 
                         <div v-else class="divide-y divide-[#202225]">
@@ -311,19 +311,19 @@ function getPlatformName(platform) {
                                             <div>
                                                 <h4 class="text-white font-medium">{{ notification.username }}</h4>
                                                 <p class="text-sm text-gray-400">
-                                                    Kanal: 
+                                                    {{ t('social.channel') }} 
                                                     <span class="text-white">
-                                                        {{ channels.find(c => c.id === notification.channel_id)?.name || 'Unbekannt' }}
+                                                        {{ channels.find(c => c.id === notification.channel_id)?.name || t('common.unknown') }}
                                                     </span>
                                                 </p>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-4 text-xs text-gray-400">
                                             <span :class="{ 'text-green-400': notification.enabled, 'text-gray-500': !notification.enabled }">
-                                                {{ notification.enabled ? '✓ Aktiv' : '✗ Inaktiv' }}
+                                                {{ notification.enabled ? t('common.active') : t('common.inactive') }}
                                             </span>
                                             <span v-if="notification.notify_live" class="text-blue-400">
-                                                🔴 Live-Benachrichtigungen
+                                                {{ t('social.liveNotifications') }}
                                             </span>
                                         </div>
                                     </div>
@@ -341,13 +341,13 @@ function getPlatformName(platform) {
                                             @click="editNotification(notification)"
                                             class="px-3 py-1.5 bg-[#36393f] hover:bg-[#2f3136] text-white rounded text-sm transition-colors"
                                         >
-                                            Bearbeiten
+                                            {{ t('common.edit') }}
                                         </button>
                                         <button
                                             @click="deleteNotification(notification.id)"
                                             class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-sm transition-colors"
                                         >
-                                            Löschen
+                                            {{ t('common.delete') }}
                                         </button>
                                     </div>
                                 </div>

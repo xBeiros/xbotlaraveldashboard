@@ -29,7 +29,9 @@
     "select": "Auswählen",
     "pleaseSelect": "Bitte wählen...",
     "noMoreItems": "Alle bereits ausgewählt",
-    "unknown": "Unbekannt"
+    "unknown": "Unbekannt",
+    "optional": "optional",
+    "enable": "Aktivieren"
   },
   "languages": {
     "german": "Deutsch",
@@ -74,6 +76,10 @@
     "serverLanguage": "Serversprache",
     "selectLanguage": "Sprache auswählen",
     "languageDescription": "Wähle die Sprache für diesen Server aus. Diese Einstellung beeinflusst die Sprache der Bot-Nachrichten und des Dashboards.",
+    "timezone": "Zeitzone",
+    "selectTimezone": "Zeitzone auswählen",
+    "timezoneDescription": "Wähle die Zeitzone für diesen Server aus. Diese Einstellung wird für alle Zeitstempel und Datumsangaben verwendet.",
+    "currentTime": "Aktuelle Zeit",
     "botPersonalization": {
       "title": "Bot-Personalisierung",
       "description": "Personalisiere das Aussehen deines Discord-Bots. Ändere Name, Profilbild und Banner.",
@@ -498,14 +504,28 @@
     "username": "Username/Channel Name *",
     "usernamePlaceholder": "z.B. username123",
     "webhookUrl": "Webhook URL",
+    "webhookUrlPlaceholder": "https://...",
     "notifyLive": "Benachrichtigung wenn Live",
     "customMessage": "Benutzerdefinierte Nachricht",
     "customMessagePlaceholder": "z.B. {user} ist jetzt live auf {platform}!",
+    "availablePlaceholders": "Verfügbare Platzhalter:",
     "noNotifications": "Keine Benachrichtigungen konfiguriert",
     "noNotificationsDescription": "Erstelle eine neue Benachrichtigung, um Live-Updates von Social Media Plattformen zu erhalten.",
     "noPlatformNotifications": "Keine {{platform}} Benachrichtigungen konfiguriert",
     "channel": "Kanal:",
     "liveNotifications": "🔴 Live-Benachrichtigungen",
-    "confirmDelete": "Möchtest du diese Benachrichtigung wirklich löschen?"
+    "confirmDelete": "Möchtest du diese Benachrichtigung wirklich löschen?",
+    "platforms": {
+      "twitch": "Twitch",
+      "tiktok": "TikTok",
+      "x": "X (Twitter)",
+      "bluesky": "BlueSky",
+      "youtube": "YouTube",
+      "reddit": "Reddit",
+      "instagram": "Instagram",
+      "rss": "RSS",
+      "kick": "Kick",
+      "podcast": "Podcast"
+    }
   }
 }
