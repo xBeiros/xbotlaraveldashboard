@@ -1909,4 +1909,13 @@ class GuildConfigController extends Controller
         return back()->with('success', 'Giveaway erfolgreich gelöscht!');
     }
 
+    /**
+     * Prüft ob der Benutzer die Berechtigung hat, den Server zu verwalten
+     */
+    private function canManageGuild($permissions)
+    {
+        // Berechtigung: MANAGE_GUILD (0x20) oder Administrator (0x8)
+        return ($permissions & 0x20) !== 0 || ($permissions & 0x8) !== 0;
+    }
+
 }
