@@ -54,7 +54,9 @@
     "notifications": "Benachrichtigungen",
     "serverManagement": "Server-Verwaltung",
     "ticketSystem": "Ticket-System",
-    "deleteMessages": "Nachrichten Löschen"
+    "deleteMessages": "Nachrichten Löschen",
+    "gamesAndFun": "Spiele & Spaß",
+    "giveaway": "Gewinnspiel / Giveaway"
   },
   "dashboard": {
     "title": "Server auswählen",
@@ -549,6 +551,52 @@
       "rss": "RSS",
       "kick": "Kick",
       "podcast": "Podcast"
+    }
+  },
+  "giveaway": {
+    "title": "Gewinnspiel / Giveaway",
+    "createGiveaway": "Neues Gewinnspiel erstellen",
+    "editGiveaway": "Gewinnspiel bearbeiten",
+    "noGiveaways": "Keine Gewinnspiele erstellt",
+    "noGiveawaysDescription": "Erstelle ein neues Gewinnspiel, um deine Community zu belohnen!",
+    "form": {
+      "title": "Titel *",
+      "titlePlaceholder": "z.B. Discord Nitro Giveaway",
+      "description": "Beschreibung",
+      "descriptionPlaceholder": "Beschreibe das Gewinnspiel...",
+      "channel": "Kanal *",
+      "prizeType": "Preis-Typ *",
+      "prizeCode": "Code",
+      "prizeCodePlaceholder": "z.B. NITRO-ABC123",
+      "prizeRole": "Discord Rolle",
+      "prizeCustom": "Custom Preis",
+      "prizeCustomPlaceholder": "z.B. 10€ Amazon Gutschein",
+      "winnerCount": "Anzahl Gewinner *",
+      "duration": "Dauer",
+      "weeks": "Wochen",
+      "days": "Tage",
+      "hours": "Stunden",
+      "minutes": "Minuten",
+      "winnerMessage": "Gewinner-Nachricht (optional)",
+      "winnerMessagePlaceholder": "Herzlichen Glückwunsch! Du hast gewonnen!",
+      "ticketMessage": "Ticket-Nachricht (optional)",
+      "ticketMessagePlaceholder": "Herzlichen Glückwunsch! Du hast das Gewinnspiel gewonnen!"
+    },
+    "list": {
+      "title": "Titel",
+      "prize": "Preis",
+      "winners": "Gewinner",
+      "participants": "Teilnehmer",
+      "endsAt": "Endet",
+      "ended": "Beendet",
+      "active": "Aktiv",
+      "delete": "Löschen",
+      "deleteConfirm": "Möchtest du dieses Gewinnspiel wirklich löschen?"
+    },
+    "prizeTypes": {
+      "code": "Code",
+      "role": "Discord Rolle",
+      "custom": "Custom Preis"
     }
   }
 }

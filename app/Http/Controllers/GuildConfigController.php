@@ -18,6 +18,7 @@ use App\Models\TicketCategory;
 use App\Models\TicketPost;
 use App\Models\Ticket;
 use App\Models\AutoDeleteMessage;
+use App\Models\Giveaway;
 use Illuminate\Support\Facades\Http;
 
 class GuildConfigController extends Controller
@@ -1697,6 +1698,198 @@ class GuildConfigController extends Controller
         $autoDelete->delete();
 
         return back()->with('success', 'Automatische Löschung erfolgreich gelöscht!');
+    }
+
+    public function storeGiveaway(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'title' => 'required|string|max:256',
+            'description' => 'nullable|string|max:2000',
+            'channel_id' => 'required|string',
+            'prize_type' => 'required|in:code,role,custom',
+            'prize_code' => 'nullable|string|max:255',
+            'prize_role_id' => 'nullable|string',
+            'prize_custom' => 'nullable|string|max:500',
+            'winner_count' => 'required|integer|min:1|max:100',
+            'duration_weeks' => 'nullable|integer|min:0',
+            'duration_days' => 'nullable|integer|min:0|max:6',
+            'duration_hours' => 'nullable|integer|min:0|max:23',
+            'duration_minutes' => 'nullable|integer|min:0|max:59',
+            'winner_message' => 'nullable|string|max:2000',
+            'ticket_message' => 'nullable|string|max:2000',
+        ]);
+
+        // Calculate ends_at
+        $endsAt = now();
+        if ($validated['duration_weeks']) {
+            $endsAt->addWeeks($validated['duration_weeks']);
+        }
+        if ($validated['duration_days']) {
+            $endsAt->addDays($validated['duration_days']);
+        }
+        if ($validated['duration_hours']) {
+            $endsAt->addHours($validated['duration_hours']);
+        }
+        if ($validated['duration_minutes']) {
+            $endsAt->addMinutes($validated['duration_minutes']);
+        }
+
+        // Send giveaway to Discord
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return back()->with('error', 'Bot Token nicht konfiguriert.');
+        }
+
+        try {
+            // Create embed and button via Discord API
+            $embed = [
+                'title' => '🎉 ' . $validated['title'],
+                'description' => $validated['description'] ?? 'Klicke auf den Button unten, um am Gewinnspiel teilzunehmen!',
+                'color' => 0x5865f2,
+                'timestamp' => $endsAt->toIso8601String(),
+                'fields' => [
+                    [
+                        'name' => 'Endet',
+                        'value' => '<t:' . $endsAt->timestamp . ':R>',
+                        'inline' => true,
+                    ],
+                    [
+                        'name' => 'Teilnehmer',
+                        'value' => '0',
+                        'inline' => true,
+                    ],
+                    [
+                        'name' => 'Gewinner',
+                        'value' => (string)$validated['winner_count'],
+                        'inline' => true,
+                    ],
+                ],
+            ];
+
+            if ($validated['prize_type'] === 'code' && $validated['prize_code']) {
+                $embed['fields'][] = [
+                    'name' => 'Preis',
+                    'value' => '🎁 Code',
+                    'inline' => false,
+                ];
+            } elseif ($validated['prize_type'] === 'role' && $validated['prize_role_id']) {
+                $embed['fields'][] = [
+                    'name' => 'Preis',
+                    'value' => '🎭 Discord Rolle',
+                    'inline' => false,
+                ];
+            } elseif ($validated['prize_custom']) {
+                $embed['fields'][] = [
+                    'name' => 'Preis',
+                    'value' => $validated['prize_custom'],
+                    'inline' => false,
+                ];
+            }
+
+            $components = [
+                [
+                    'type' => 1, // Action Row
+                    'components' => [
+                        [
+                            'type' => 2, // Button
+                            'style' => 1, // Primary
+                            'label' => 'Teilnehmen',
+                            'custom_id' => 'giveaway_join_temp', // Will be updated after creation
+                        ],
+                    ],
+                ],
+            ];
+
+            $response = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+                'Content-Type' => 'application/json',
+            ])->post("https://discord.com/api/v10/channels/{$validated['channel_id']}/messages", [
+                'embeds' => [$embed],
+                'components' => $components,
+            ]);
+
+            if (!$response->successful()) {
+                return back()->with('error', 'Fehler beim Senden des Giveaways: ' . $response->body());
+            }
+
+            $messageData = $response->json();
+            $messageId = $messageData['id'];
+
+            // Create giveaway in database
+            $giveaway = $guildModel->giveaways()->create([
+                'channel_id' => $validated['channel_id'],
+                'message_id' => $messageId,
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'prize_type' => $validated['prize_type'],
+                'prize_code' => $validated['prize_code'] ?? null,
+                'prize_role_id' => $validated['prize_role_id'] ?? null,
+                'prize_custom' => $validated['prize_custom'] ?? null,
+                'winner_count' => $validated['winner_count'],
+                'ends_at' => $endsAt,
+                'winner_message' => $validated['winner_message'] ?? null,
+                'ticket_message' => $validated['ticket_message'] ?? null,
+            ]);
+
+            // Update button with correct giveaway ID
+            $components[0]['components'][0]['custom_id'] = 'giveaway_join_' . $giveaway->id;
+            
+            Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+                'Content-Type' => 'application/json',
+            ])->patch("https://discord.com/api/v10/channels/{$validated['channel_id']}/messages/{$messageId}", [
+                'embeds' => [$embed],
+                'components' => $components,
+            ]);
+
+            return back()->with('success', 'Giveaway erfolgreich erstellt!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Fehler beim Erstellen des Giveaways: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteGiveaway(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $giveaway = $guildModel->giveaways()->findOrFail($id);
+
+        // Delete message from Discord if exists
+        if ($giveaway->message_id && $giveaway->channel_id) {
+            $botToken = config('services.discord.bot_token');
+            if ($botToken) {
+                try {
+                    Http::withHeaders([
+                        'Authorization' => 'Bot ' . $botToken,
+                    ])->delete("https://discord.com/api/v10/channels/{$giveaway->channel_id}/messages/{$giveaway->message_id}");
+                } catch (\Exception $e) {
+                    // Ignore errors
+                }
+            }
+        }
+
+        $giveaway->delete();
+
+        return back()->with('success', 'Giveaway erfolgreich gelöscht!');
     }
 
 }

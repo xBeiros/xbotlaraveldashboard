@@ -54,7 +54,9 @@
     "notifications": "Bildirimler",
     "serverManagement": "Sunucu Yönetimi",
     "ticketSystem": "Bilet Sistemi",
-    "deleteMessages": "Mesajları Sil"
+    "deleteMessages": "Mesajları Sil",
+    "gamesAndFun": "Oyunlar ve Eğlence",
+    "giveaway": "Çekiliş"
   },
   "dashboard": {
     "title": "Sunucu Seç",
@@ -557,6 +559,52 @@
       "rss": "RSS",
       "kick": "Kick",
       "podcast": "Podcast"
+    }
+  },
+  "giveaway": {
+    "title": "Çekiliş",
+    "createGiveaway": "Yeni Çekiliş Oluştur",
+    "editGiveaway": "Çekilişi Düzenle",
+    "noGiveaways": "Çekiliş oluşturulmadı",
+    "noGiveawaysDescription": "Topluluğunuzu ödüllendirmek için yeni bir çekiliş oluşturun!",
+    "form": {
+      "title": "Başlık *",
+      "titlePlaceholder": "örn. Discord Nitro Çekilişi",
+      "description": "Açıklama",
+      "descriptionPlaceholder": "Çekilişi açıklayın...",
+      "channel": "Kanal *",
+      "prizeType": "Ödül Türü *",
+      "prizeCode": "Kod",
+      "prizeCodePlaceholder": "örn. NITRO-ABC123",
+      "prizeRole": "Discord Rolü",
+      "prizeCustom": "Özel Ödül",
+      "prizeCustomPlaceholder": "örn. 10€ Amazon Hediye Çeki",
+      "winnerCount": "Kazanan Sayısı *",
+      "duration": "Süre",
+      "weeks": "Hafta",
+      "days": "Gün",
+      "hours": "Saat",
+      "minutes": "Dakika",
+      "winnerMessage": "Kazanan Mesajı (isteğe bağlı)",
+      "winnerMessagePlaceholder": "Tebrikler! Kazandınız!",
+      "ticketMessage": "Bilet Mesajı (isteğe bağlı)",
+      "ticketMessagePlaceholder": "Tebrikler! Çekilişi kazandınız!"
+    },
+    "list": {
+      "title": "Başlık",
+      "prize": "Ödül",
+      "winners": "Kazananlar",
+      "participants": "Katılımcılar",
+      "endsAt": "Biter",
+      "ended": "Bitti",
+      "active": "Aktif",
+      "delete": "Sil",
+      "deleteConfirm": "Bu çekilişi gerçekten silmek istiyor musunuz?"
+    },
+    "prizeTypes": {
+      "code": "Kod",
+      "role": "Discord Rolü",
+      "custom": "Özel Ödül"
     }
   }
 }

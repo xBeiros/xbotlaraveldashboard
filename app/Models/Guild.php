@@ -92,4 +92,9 @@ class Guild extends Model
     {
         return $this->hasMany(AutoDeleteMessage::class);
     }
+
+    public function giveaways()
+    {
+        return $this->hasMany(Giveaway::class);
+    }
 }

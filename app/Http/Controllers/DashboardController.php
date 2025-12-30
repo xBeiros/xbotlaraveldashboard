@@ -16,6 +16,7 @@ use App\Models\RankCardConfig;
 use App\Models\ReactionRole;
 use App\Models\TicketCategory;
 use App\Models\TicketPost;
+use App\Models\Giveaway;
 
 class DashboardController extends Controller
 {
@@ -1370,6 +1371,90 @@ class DashboardController extends Controller
                     'role_id' => $reward->role_id,
                 ];
             }),
+        ]);
+    }
+
+    public function giveaway($guild)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        // Prüfe ob User Zugriff auf diesen Server hat
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
+        }
+
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
+
+        // Lade alle Guilds für Sidebar
+        // Zeige nur Server, auf denen der Bot auch ist
+        $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
+            ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
+            ->map(function ($g) {
+                return [
+                    'id' => $g->guild_id,
+                    'name' => $g->name,
+                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
+                    'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
+                ];
+            });
+
+        // Lade Giveaways
+        $giveaways = $guildModel->giveaways()
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(function ($g) {
+                return [
+                    'id' => $g->id,
+                    'title' => $g->title,
+                    'description' => $g->description,
+                    'prize_type' => $g->prize_type,
+                    'prize_code' => $g->prize_code,
+                    'prize_role_id' => $g->prize_role_id,
+                    'prize_custom' => $g->prize_custom,
+                    'winner_count' => $g->winner_count,
+                    'ends_at' => $g->ends_at,
+                    'ended' => $g->ended,
+                    'channel_id' => $g->channel_id,
+                    'message_id' => $g->message_id,
+                    'winner_message' => $g->winner_message,
+                    'ticket_message' => $g->ticket_message,
+                    'participant_count' => $g->participants()->count(),
+                ];
+            });
+
+        return Inertia::render('Guild/Giveaway', [
+            'guild' => [
+                'id' => $userGuild->guild_id,
+                'name' => $userGuild->name,
+                'icon_url' => $userGuild->icon ? "https://cdn.discordapp.com/icons/{$userGuild->guild_id}/{$userGuild->icon}.png" : null,
+                'bot_joined' => true,
+            ],
+            'guilds' => $allGuilds,
+            'channels' => $this->fetchGuildChannels($guild),
+            'roles' => $this->fetchGuildRoles($guild),
+            'giveaways' => $giveaways,
         ]);
     }
 }

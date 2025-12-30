@@ -19,6 +19,7 @@ const props = defineProps({
 const showingSidebar = ref(true);
 const basicInfoOpen = ref(true);
 const serverManagementOpen = ref(true);
+const gamesAndFunOpen = ref(true);
 
 function switchGuild(guildId) {
     router.visit(route('guild.config', { guild: guildId }));
@@ -274,6 +275,40 @@ function switchGuild(guildId) {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                                 <span class="text-sm">{{ t('navigation.deleteMessages') }}</span>
+                            </Link>
+                        </div>
+                    </div>
+                    
+                    <!-- Spiele & Spaß Dropdown -->
+                    <div>
+                        <button
+                            @click="gamesAndFunOpen = !gamesAndFunOpen"
+                            class="w-full flex items-center justify-between px-3 py-2 rounded mb-1 transition-colors text-gray-300 hover:text-white"
+                        >
+                            <span class="text-xs font-semibold uppercase">{{ t('navigation.gamesAndFun') }}</span>
+                            <svg
+                                class="w-4 h-4 transition-transform duration-200"
+                                :class="{ 'rotate-180': gamesAndFunOpen }"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+                        
+                        <div v-show="gamesAndFunOpen" class="ml-4 space-y-1 mt-1">
+                            <Link
+                                :href="route('guild.giveaway', { guild: guild?.id })"
+                                :class="[
+                                    'flex items-center gap-3 px-3 py-2 rounded transition-colors',
+                                    route().current('guild.giveaway') ? 'bg-[#36393f] text-white' : 'text-gray-400 hover:bg-[#36393f] hover:text-white'
+                                ]"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                                </svg>
+                                <span class="text-sm">{{ t('navigation.giveaway') }}</span>
                             </Link>
                         </div>
                     </div>

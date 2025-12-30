@@ -54,7 +54,9 @@
     "notifications": "Notifications",
     "serverManagement": "Server Management",
     "ticketSystem": "Ticket System",
-    "deleteMessages": "Delete Messages"
+    "deleteMessages": "Delete Messages",
+    "gamesAndFun": "Games & Fun",
+    "giveaway": "Giveaway"
   },
   "dashboard": {
     "title": "Select Server",
@@ -557,6 +559,52 @@
       "rss": "RSS",
       "kick": "Kick",
       "podcast": "Podcast"
+    }
+  },
+  "giveaway": {
+    "title": "Giveaway",
+    "createGiveaway": "Create New Giveaway",
+    "editGiveaway": "Edit Giveaway",
+    "noGiveaways": "No giveaways created",
+    "noGiveawaysDescription": "Create a new giveaway to reward your community!",
+    "form": {
+      "title": "Title *",
+      "titlePlaceholder": "e.g. Discord Nitro Giveaway",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the giveaway...",
+      "channel": "Channel *",
+      "prizeType": "Prize Type *",
+      "prizeCode": "Code",
+      "prizeCodePlaceholder": "e.g. NITRO-ABC123",
+      "prizeRole": "Discord Role",
+      "prizeCustom": "Custom Prize",
+      "prizeCustomPlaceholder": "e.g. $10 Amazon Gift Card",
+      "winnerCount": "Winner Count *",
+      "duration": "Duration",
+      "weeks": "Weeks",
+      "days": "Days",
+      "hours": "Hours",
+      "minutes": "Minutes",
+      "winnerMessage": "Winner Message (optional)",
+      "winnerMessagePlaceholder": "Congratulations! You won!",
+      "ticketMessage": "Ticket Message (optional)",
+      "ticketMessagePlaceholder": "Congratulations! You won the giveaway!"
+    },
+    "list": {
+      "title": "Title",
+      "prize": "Prize",
+      "winners": "Winners",
+      "participants": "Participants",
+      "endsAt": "Ends",
+      "ended": "Ended",
+      "active": "Active",
+      "delete": "Delete",
+      "deleteConfirm": "Do you really want to delete this giveaway?"
+    },
+    "prizeTypes": {
+      "code": "Code",
+      "role": "Discord Role",
+      "custom": "Custom Prize"
     }
   }
 }

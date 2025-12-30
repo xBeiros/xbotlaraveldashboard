@@ -110,6 +110,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/guild/{guild}/ticket-close-config', [\App\Http\Controllers\GuildConfigController::class, 'updateTicketCloseConfig'])
         ->name('guild.ticket-close-config.update');
     
+    // Giveaway
+    Route::get('/guild/{guild}/giveaway', [\App\Http\Controllers\DashboardController::class, 'giveaway'])
+        ->name('guild.giveaway');
+    Route::post('/guild/{guild}/giveaway', [\App\Http\Controllers\GuildConfigController::class, 'storeGiveaway'])
+        ->name('guild.giveaway.store');
+    Route::delete('/guild/{guild}/giveaway/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteGiveaway'])
+        ->name('guild.giveaway.delete');
+    
     // Auto-Delete Messages
     Route::post('/guild/{guild}/auto-delete-messages', [\App\Http\Controllers\GuildConfigController::class, 'storeAutoDeleteMessage'])
         ->name('guild.auto-delete-messages.store');
