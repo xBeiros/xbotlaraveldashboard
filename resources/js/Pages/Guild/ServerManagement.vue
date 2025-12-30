@@ -86,17 +86,6 @@
     </GuildLayout>
 </template>
 
-<style scoped>
-/* Verbesserte Flaggen-Emoji Unterstützung für Windows Chrome */
-select {
-    font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-
-/* Fallback: Wenn Flaggen-Emojis nicht funktionieren, wird der Text in eckigen Klammern angezeigt */
-select option {
-    font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "EmojiOne Color", "Android Emoji", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-}
-</style>
 
 <script setup>
 import GuildLayout from '@/Layouts/GuildLayout.vue';
@@ -120,53 +109,53 @@ const form = useForm({
 // Zeitzonen-Liste gruppiert nach UTC-Offset und gemeinsamen Zeitzonen
 const timezones = [
     // UTC (GMT)
-    { value: 'Europe/London', flag: '🇬🇧', label: 'UTC+0 (GMT/BST) - London, Dublin, Lissabon' },
+    { value: 'Europe/London', label: 'UTC+0 (GMT/BST) - London, Dublin, Lissabon' },
     
     // UTC+1 (CET - Central European Time)
-    { value: 'Europe/Berlin', flag: '🇪🇺', label: 'UTC+1 (CET/CEST) - Mitteleuropa (Deutschland, Österreich, Schweiz, Frankreich, Italien, Spanien, etc.)' },
+    { value: 'Europe/Berlin', label: 'UTC+1 (CET/CEST) - Mitteleuropa (Deutschland, Österreich, Schweiz, Frankreich, Italien, Spanien, etc.)' },
     
     // UTC+2 (EET - Eastern European Time)
-    { value: 'Europe/Athens', flag: '🇪🇺', label: 'UTC+2 (EET/EEST) - Osteuropa (Griechenland, Finnland, Rumänien, etc.)' },
-    { value: 'Europe/Istanbul', flag: '🇹🇷', label: 'UTC+3 (TRT) - Türkei' },
+    { value: 'Europe/Athens', label: 'UTC+2 (EET/EEST) - Osteuropa (Griechenland, Finnland, Rumänien, etc.)' },
+    { value: 'Europe/Istanbul', label: 'UTC+3 (TRT) - Türkei' },
     
     // UTC+4
-    { value: 'Asia/Dubai', flag: '🇦🇪', label: 'UTC+4 (GST) - VAE, Georgien' },
+    { value: 'Asia/Dubai', label: 'UTC+4 (GST) - VAE, Georgien' },
     
     // UTC+5:30
-    { value: 'Asia/Kolkata', flag: '🇮🇳', label: 'UTC+5:30 (IST) - Indien' },
+    { value: 'Asia/Kolkata', label: 'UTC+5:30 (IST) - Indien' },
     
     // UTC+8
-    { value: 'Asia/Shanghai', flag: '🇨🇳', label: 'UTC+8 (CST) - China, Singapur, Malaysia' },
-    { value: 'Asia/Hong_Kong', flag: '🇭🇰', label: 'UTC+8 (HKT) - Hong Kong' },
-    { value: 'Asia/Singapore', flag: '🇸🇬', label: 'UTC+8 (SGT) - Singapur' },
+    { value: 'Asia/Shanghai', label: 'UTC+8 (CST) - China, Singapur, Malaysia' },
+    { value: 'Asia/Hong_Kong', label: 'UTC+8 (HKT) - Hong Kong' },
+    { value: 'Asia/Singapore', label: 'UTC+8 (SGT) - Singapur' },
     
     // UTC+9
-    { value: 'Asia/Tokyo', flag: '🇯🇵', label: 'UTC+9 (JST) - Japan, Südkorea' },
+    { value: 'Asia/Tokyo', label: 'UTC+9 (JST) - Japan, Südkorea' },
     
     // UTC+10
-    { value: 'Australia/Sydney', flag: '🇦🇺', label: 'UTC+10 (AEDT/AEST) - Australien (Ost), Papua-Neuguinea' },
-    { value: 'Australia/Melbourne', flag: '🇦🇺', label: 'UTC+10 (AEDT/AEST) - Australien (Südost)' },
+    { value: 'Australia/Sydney', label: 'UTC+10 (AEDT/AEST) - Australien (Ost), Papua-Neuguinea' },
+    { value: 'Australia/Melbourne', label: 'UTC+10 (AEDT/AEST) - Australien (Südost)' },
     
     // UTC+12
-    { value: 'Pacific/Auckland', flag: '🇳🇿', label: 'UTC+12 (NZDT/NZST) - Neuseeland, Fidschi' },
+    { value: 'Pacific/Auckland', label: 'UTC+12 (NZDT/NZST) - Neuseeland, Fidschi' },
     
     // UTC-3
-    { value: 'America/Sao_Paulo', flag: '🇧🇷', label: 'UTC-3 (BRT/BRST) - Brasilien, Argentinien, Uruguay' },
+    { value: 'America/Sao_Paulo', label: 'UTC-3 (BRT/BRST) - Brasilien, Argentinien, Uruguay' },
     
     // UTC-5 (EST - Eastern Standard Time)
-    { value: 'America/New_York', flag: '🇺🇸', label: 'UTC-5 (EST/EDT) - USA/Kanada (Ostküste)' },
-    { value: 'America/Toronto', flag: '🇨🇦', label: 'UTC-5 (EST/EDT) - Kanada (Ost)' },
+    { value: 'America/New_York', label: 'UTC-5 (EST/EDT) - USA/Kanada (Ostküste)' },
+    { value: 'America/Toronto', label: 'UTC-5 (EST/EDT) - Kanada (Ost)' },
     
     // UTC-6 (CST - Central Standard Time)
-    { value: 'America/Chicago', flag: '🇺🇸', label: 'UTC-6 (CST/CDT) - USA/Kanada (Mitte)' },
-    { value: 'America/Mexico_City', flag: '🇲🇽', label: 'UTC-6 (CST/CDT) - Mexiko, Zentralamerika' },
+    { value: 'America/Chicago', label: 'UTC-6 (CST/CDT) - USA/Kanada (Mitte)' },
+    { value: 'America/Mexico_City', label: 'UTC-6 (CST/CDT) - Mexiko, Zentralamerika' },
     
     // UTC-7 (MST - Mountain Standard Time)
-    { value: 'America/Denver', flag: '🇺🇸', label: 'UTC-7 (MST/MDT) - USA/Kanada (Rocky Mountains)' },
+    { value: 'America/Denver', label: 'UTC-7 (MST/MDT) - USA/Kanada (Rocky Mountains)' },
     
     // UTC-8 (PST - Pacific Standard Time)
-    { value: 'America/Los_Angeles', flag: '🇺🇸', label: 'UTC-8 (PST/PDT) - USA/Kanada (Westküste)' },
-    { value: 'America/Vancouver', flag: '🇨🇦', label: 'UTC-8 (PST/PDT) - Kanada (West)' },
+    { value: 'America/Los_Angeles', label: 'UTC-8 (PST/PDT) - USA/Kanada (Westküste)' },
+    { value: 'America/Vancouver', label: 'UTC-8 (PST/PDT) - Kanada (West)' },
 ];
 
 // Aktuelle Zeit in ausgewählter Zeitzone
