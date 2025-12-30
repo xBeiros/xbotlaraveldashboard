@@ -1763,25 +1763,28 @@ class GuildConfigController extends Controller
         }
 
         try {
+            // Get translations based on server language
+            $translations = $this->getGiveawayTranslations($language);
+            
             // Create embed and button via Discord API
             $embed = [
                 'title' => '🎉 ' . $validated['title'],
-                'description' => $validated['description'] ?? 'Klicke auf den Button unten, um am Gewinnspiel teilzunehmen!',
+                'description' => $validated['description'] ?? $translations['giveawayDescription'],
                 'color' => 0x5865f2,
                 'timestamp' => $endsAt->toIso8601String(),
                 'fields' => [
                     [
-                        'name' => 'Endet',
+                        'name' => $translations['endsAt'],
                         'value' => '<t:' . $endsAt->timestamp . ':R>',
                         'inline' => true,
                     ],
                     [
-                        'name' => 'Teilnehmer',
+                        'name' => $translations['participants'],
                         'value' => '0',
                         'inline' => true,
                     ],
                     [
-                        'name' => 'Gewinner',
+                        'name' => $translations['winners'],
                         'value' => (string)$validated['winner_count'],
                         'inline' => true,
                     ],
@@ -1790,19 +1793,19 @@ class GuildConfigController extends Controller
 
             if ($validated['prize_type'] === 'code' && $validated['prize_code']) {
                 $embed['fields'][] = [
-                    'name' => 'Preis',
-                    'value' => '🎁 Code',
+                    'name' => $translations['prize'],
+                    'value' => '🎁 ' . $translations['code'],
                     'inline' => false,
                 ];
             } elseif ($validated['prize_type'] === 'role' && $validated['prize_role_id']) {
                 $embed['fields'][] = [
-                    'name' => 'Preis',
-                    'value' => '🎭 Discord Rolle',
+                    'name' => $translations['prize'],
+                    'value' => '🎭 ' . $translations['discordRole'],
                     'inline' => false,
                 ];
             } elseif ($validated['prize_custom']) {
                 $embed['fields'][] = [
-                    'name' => 'Preis',
+                    'name' => $translations['prize'],
                     'value' => $validated['prize_custom'],
                     'inline' => false,
                 ];
@@ -1815,7 +1818,7 @@ class GuildConfigController extends Controller
                         [
                             'type' => 2, // Button
                             'style' => 1, // Primary
-                            'label' => 'Teilnehmen',
+                            'label' => $translations['participate'],
                             'custom_id' => 'giveaway_join_temp', // Will be updated after creation
                         ],
                     ],
@@ -1916,6 +1919,47 @@ class GuildConfigController extends Controller
     {
         // Berechtigung: MANAGE_GUILD (0x20) oder Administrator (0x8)
         return ($permissions & 0x20) !== 0 || ($permissions & 0x8) !== 0;
+    }
+
+    /**
+     * Gibt die Übersetzungen für Giveaways basierend auf der Sprache zurück
+     */
+    private function getGiveawayTranslations($language = 'de')
+    {
+        $translations = [
+            'de' => [
+                'giveawayDescription' => 'Klicke auf den Button unten, um am Gewinnspiel teilzunehmen!',
+                'endsAt' => 'Endet',
+                'participants' => 'Teilnehmer',
+                'winners' => 'Gewinner',
+                'participate' => 'Teilnehmen',
+                'prize' => 'Preis',
+                'code' => 'Code',
+                'discordRole' => 'Discord Rolle',
+            ],
+            'en' => [
+                'giveawayDescription' => 'Click the button below to participate in the giveaway!',
+                'endsAt' => 'Ends',
+                'participants' => 'Participants',
+                'winners' => 'Winners',
+                'participate' => 'Participate',
+                'prize' => 'Prize',
+                'code' => 'Code',
+                'discordRole' => 'Discord Role',
+            ],
+            'tr' => [
+                'giveawayDescription' => 'Çekilişe katılmak için aşağıdaki butona tıklayın!',
+                'endsAt' => 'Biter',
+                'participants' => 'Katılımcılar',
+                'winners' => 'Kazananlar',
+                'participate' => 'Katıl',
+                'prize' => 'Ödül',
+                'code' => 'Kod',
+                'discordRole' => 'Discord Rolü',
+            ],
+        ];
+
+        return $translations[$language] ?? $translations['de'];
     }
 
 }
