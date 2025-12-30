@@ -397,8 +397,8 @@
                                             </p>
                                             <div class="flex items-center gap-2 pt-3 mt-3 border-t border-[#202225]">
                                                 <img 
-                                                    v-if="guild.icon_url"
-                                                    :src="guild.icon_url" 
+                                                    v-if="props.guild?.icon_url"
+                                                    :src="props.guild.icon_url" 
                                                     alt="Server Icon" 
                                                     class="w-5 h-5 rounded-full"
                                                 />
@@ -406,7 +406,7 @@
                                                     v-else
                                                     class="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-xs font-bold"
                                                 >
-                                                    {{ guild.name?.charAt(0).toUpperCase() || 'X' }}
+                                                    {{ props.guild?.name?.charAt(0).toUpperCase() || 'X' }}
                                                 </div>
                                                 <span class="text-xs text-gray-400">{{ new Date().toLocaleDateString() }} {{ new Date().toLocaleTimeString() }}</span>
                                             </div>
@@ -763,7 +763,7 @@ const renderedCloseMessage = computed(() => {
     // Ersetze Platzhalter mit Beispielwerten
     message = message.replace(/{user}/g, '<span class="text-[#5865f2]">@Username</span>');
     message = message.replace(/{username}/g, '<span class="text-[#5865f2]">Username</span>');
-    message = message.replace(/{server}/g, '<span class="text-[#5865f2]">' + (guild.name || 'Server Name') + '</span>');
+    message = message.replace(/{server}/g, '<span class="text-[#5865f2]">' + (props.guild?.name || 'Server Name') + '</span>');
     return parseDiscordMarkdown(message);
 });
 
