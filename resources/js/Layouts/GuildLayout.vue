@@ -137,20 +137,6 @@ function switchGuild(guildId) {
                         </svg>
                         <span>{{ t('navigation.dashboard') }}</span>
                     </Link>
-                    
-                    <Link
-                        :href="route('guild.delete-messages', { guild: guild?.id })"
-                        :class="[
-                            'flex items-center gap-3 px-3 py-2 rounded mb-1 transition-colors',
-                            route().current('guild.delete-messages') ? 'bg-[#5865f2] text-white' : 'text-gray-300 hover:bg-[#36393f] hover:text-white'
-                        ]"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        <span>{{ t('navigation.deleteMessages') }}</span>
-                    </Link>
-                    
                     <!-- Grundlegende Informationen Dropdown -->
                     <div>
                         <button
@@ -276,6 +262,18 @@ function switchGuild(guildId) {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                                 <span class="text-sm">{{ t('navigation.ticketSystem') }}</span>
+                            </Link>
+                            <Link
+                                :href="route('guild.delete-messages', { guild: guild?.id })"
+                                :class="[
+                                    'flex items-center gap-3 px-3 py-2 rounded transition-colors',
+                                    route().current('guild.delete-messages') ? 'bg-[#36393f] text-white' : 'text-gray-400 hover:bg-[#36393f] hover:text-white'
+                                ]"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                <span class="text-sm">{{ t('navigation.deleteMessages') }}</span>
                             </Link>
                         </div>
                     </div>
