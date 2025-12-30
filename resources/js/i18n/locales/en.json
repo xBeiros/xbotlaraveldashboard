@@ -151,8 +151,10 @@
       "interval": "Interval",
       "intervalHelp": "How often should messages be deleted? (Minimum 5 minutes)",
       "deleteAllInfo": "⚠️ All messages in the channel will be deleted. Messages older than 14 days will be deleted individually.",
-      "warningTitle": "Important Notice",
+      "warningTitle": "⚠️ Important Notice",
       "warningDescription": "With automatic deletion, ALL messages in the selected channel will be deleted. This action cannot be undone. Please make sure you really want to delete all messages in this channel.",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
       "lastRun": "Last run",
       "noAutoDeletes": "No automatic deletions configured yet",
       "confirmDelete": "Do you really want to delete this automatic deletion?"
