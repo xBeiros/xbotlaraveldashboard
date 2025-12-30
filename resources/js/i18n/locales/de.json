@@ -56,7 +56,7 @@
     "ticketSystem": "Ticket-System",
     "deleteMessages": "Nachrichten Löschen",
     "gamesAndFun": "Spiele & Spaß",
-    "giveaway": "Gewinnspiel / Giveaway"
+    "giveaway": "Gewinnspiel"
   },
   "dashboard": {
     "title": "Server auswählen",
@@ -554,7 +554,7 @@
     }
   },
   "giveaway": {
-    "title": "Gewinnspiel / Giveaway",
+    "title": "Gewinnspiel",
     "createGiveaway": "Neues Gewinnspiel erstellen",
     "editGiveaway": "Gewinnspiel bearbeiten",
     "noGiveaways": "Keine Gewinnspiele erstellt",
