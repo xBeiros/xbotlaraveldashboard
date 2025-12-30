@@ -109,6 +109,16 @@ Route::middleware('auth')->group(function () {
         ->name('guild.ticket-transcript-setting.update');
     Route::put('/guild/{guild}/ticket-close-config', [\App\Http\Controllers\GuildConfigController::class, 'updateTicketCloseConfig'])
         ->name('guild.ticket-close-config.update');
+    
+    // Auto-Delete Messages
+    Route::post('/guild/{guild}/auto-delete-messages', [\App\Http\Controllers\GuildConfigController::class, 'storeAutoDeleteMessage'])
+        ->name('guild.auto-delete-messages.store');
+    Route::put('/guild/{guild}/auto-delete-messages/{id}', [\App\Http\Controllers\GuildConfigController::class, 'updateAutoDeleteMessage'])
+        ->name('guild.auto-delete-messages.update');
+    Route::put('/guild/{guild}/auto-delete-messages/{id}/toggle', [\App\Http\Controllers\GuildConfigController::class, 'toggleAutoDeleteMessage'])
+        ->name('guild.auto-delete-messages.toggle');
+    Route::delete('/guild/{guild}/auto-delete-messages/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteAutoDeleteMessage'])
+        ->name('guild.auto-delete-messages.delete');
 });
 
 require __DIR__.'/auth.php';

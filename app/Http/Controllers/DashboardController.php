@@ -610,6 +610,8 @@ class DashboardController extends Controller
                 ];
             });
 
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        
         return Inertia::render('Guild/DeleteMessages', [
             'guild' => [
                 'id' => $userGuild->guild_id,
@@ -619,6 +621,16 @@ class DashboardController extends Controller
             ],
             'guilds' => $allGuilds,
             'channels' => $this->fetchGuildChannels($guild),
+            'autoDeletes' => $guildModel->autoDeleteMessages()->get()->map(function ($ad) {
+                return [
+                    'id' => $ad->id,
+                    'channel_id' => $ad->channel_id,
+                    'interval_minutes' => $ad->interval_minutes,
+                    'delete_count' => $ad->delete_count,
+                    'enabled' => $ad->enabled,
+                    'last_run_at' => $ad->last_run_at?->toDateTimeString(),
+                ];
+            }),
         ]);
     }
 

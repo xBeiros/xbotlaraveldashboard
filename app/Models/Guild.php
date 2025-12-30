@@ -86,4 +86,9 @@ class Guild extends Model
     {
         return $this->hasMany(TicketPost::class);
     }
+
+    public function autoDeleteMessages()
+    {
+        return $this->hasMany(AutoDeleteMessage::class);
+    }
 }

@@ -141,7 +141,21 @@
     "availablePlaceholders": "Mevcut yer tutucular:",
     "placeholderCount": "{count} - Silinen mesaj sayısı",
     "placeholderChannel": "{channel} - Kanal adı",
-    "placeholderUser": "{user} - Silen kullanıcı"
+    "placeholderUser": "{user} - Silen kullanıcı",
+    "autoDelete": {
+      "title": "Otomatik Silmeler",
+      "description": "Düzenli aralıklarla otomatik olarak mesajları sil",
+      "addAutoDelete": "Otomatik silme ekle",
+      "createAutoDelete": "Otomatik silme oluştur",
+      "editAutoDelete": "Otomatik silmeyi düzenle",
+      "interval": "Aralık",
+      "intervalHelp": "Mesajlar ne sıklıkla silinsin? (En az 5 dakika)",
+      "deleteCount": "Silinecek mesaj sayısı",
+      "deleteCountHelp": "Her silmede kaldırılacak mesaj sayısı (maks. 100)",
+      "lastRun": "Son çalıştırma",
+      "noAutoDeletes": "Henüz otomatik silme yapılandırılmadı",
+      "confirmDelete": "Bu otomatik silmeyi gerçekten silmek istiyor musunuz?"
+    }
   },
   "ticketSystem": {
     "title": "Bilet Sistemi",
@@ -221,7 +235,11 @@
       "confirmationButtonTextHelp": "Onay butonunda gösterilen metin (maks. 80 karakter)",
       "availablePlaceholders": "Mevcut yer tutucular:",
       "placeholderUser": "{user} - Kullanıcı bahsi",
-      "placeholderServer": "{server} - Sunucu adı"
+      "placeholderUsername": "{username} - Kullanıcı adı",
+      "placeholderServer": "{server} - Sunucu adı",
+      "preview": "Önizleme",
+      "previewTitle": "✅ Bilet Kapatıldı",
+      "previewPlaceholder": "Özel mesaj girilmedi. Varsayılan mesaj kullanılacak."
     }
   },
   "welcome": {

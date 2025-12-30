@@ -17,6 +17,7 @@ use App\Models\ReactionRole;
 use App\Models\TicketCategory;
 use App\Models\TicketPost;
 use App\Models\Ticket;
+use App\Models\AutoDeleteMessage;
 use Illuminate\Support\Facades\Http;
 
 class GuildConfigController extends Controller
@@ -1578,6 +1579,118 @@ class GuildConfigController extends Controller
         ]);
 
         return back()->with('success', 'Ticket-Close-Einstellungen erfolgreich gespeichert!');
+    }
+
+    public function storeAutoDeleteMessage(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        
+        $validated = $request->validate([
+            'channel_id' => 'required|string',
+            'interval_minutes' => 'required|in:5,10,30,60',
+            'delete_count' => 'required|integer|min:1|max:100',
+            'enabled' => 'boolean',
+        ]);
+        
+        // Prüfe ob bereits eine Auto-Delete für diesen Channel existiert
+        $existing = $guildModel->autoDeleteMessages()
+            ->where('channel_id', $validated['channel_id'])
+            ->first();
+            
+        if ($existing) {
+            return back()->with('error', 'Für diesen Channel existiert bereits eine automatische Löschung.');
+        }
+        
+        $guildModel->autoDeleteMessages()->create($validated);
+
+        return back()->with('success', 'Automatische Löschung erfolgreich erstellt!');
+    }
+
+    public function updateAutoDeleteMessage(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $autoDelete = $guildModel->autoDeleteMessages()->findOrFail($id);
+        
+        $validated = $request->validate([
+            'channel_id' => 'required|string',
+            'interval_minutes' => 'required|in:5,10,30,60',
+            'delete_count' => 'required|integer|min:1|max:100',
+            'enabled' => 'boolean',
+        ]);
+        
+        // Prüfe ob bereits eine Auto-Delete für diesen Channel existiert (außer der aktuellen)
+        $existing = $guildModel->autoDeleteMessages()
+            ->where('channel_id', $validated['channel_id'])
+            ->where('id', '!=', $id)
+            ->first();
+            
+        if ($existing) {
+            return back()->with('error', 'Für diesen Channel existiert bereits eine automatische Löschung.');
+        }
+        
+        $autoDelete->update($validated);
+
+        return back()->with('success', 'Automatische Löschung erfolgreich aktualisiert!');
+    }
+
+    public function toggleAutoDeleteMessage(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $autoDelete = $guildModel->autoDeleteMessages()->findOrFail($id);
+        
+        $validated = $request->validate([
+            'enabled' => 'required|boolean',
+        ]);
+        
+        $autoDelete->update(['enabled' => $validated['enabled']]);
+
+        return back()->with('success', 'Automatische Löschung erfolgreich ' . ($validated['enabled'] ? 'aktiviert' : 'deaktiviert') . '!');
+    }
+
+    public function deleteAutoDeleteMessage($guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $autoDelete = $guildModel->autoDeleteMessages()->findOrFail($id);
+        
+        $autoDelete->delete();
+
+        return back()->with('success', 'Automatische Löschung erfolgreich gelöscht!');
     }
 
 }

@@ -141,7 +141,21 @@
     "availablePlaceholders": "Available placeholders:",
     "placeholderCount": "{count} - Number of deleted messages",
     "placeholderChannel": "{channel} - Channel name",
-    "placeholderUser": "{user} - User who deleted"
+    "placeholderUser": "{user} - User who deleted",
+    "autoDelete": {
+      "title": "Automatic Deletions",
+      "description": "Automatically delete messages at regular intervals",
+      "addAutoDelete": "Add automatic deletion",
+      "createAutoDelete": "Create automatic deletion",
+      "editAutoDelete": "Edit automatic deletion",
+      "interval": "Interval",
+      "intervalHelp": "How often should messages be deleted? (Minimum 5 minutes)",
+      "deleteCount": "Number of messages to delete",
+      "deleteCountHelp": "Number of messages to remove on each deletion (max. 100)",
+      "lastRun": "Last run",
+      "noAutoDeletes": "No automatic deletions configured yet",
+      "confirmDelete": "Do you really want to delete this automatic deletion?"
+    }
   },
   "ticketSystem": {
     "title": "Ticket System",
@@ -221,7 +235,11 @@
       "confirmationButtonTextHelp": "The text displayed on the confirmation button (max. 80 characters)",
       "availablePlaceholders": "Available placeholders:",
       "placeholderUser": "{user} - User mention",
-      "placeholderServer": "{server} - Server name"
+      "placeholderUsername": "{username} - Username",
+      "placeholderServer": "{server} - Server name",
+      "preview": "Preview",
+      "previewTitle": "✅ Ticket Closed",
+      "previewPlaceholder": "No custom message entered. The default message will be used."
     }
   },
   "welcome": {

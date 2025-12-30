@@ -141,7 +141,21 @@
     "availablePlaceholders": "Verfügbare Platzhalter:",
     "placeholderCount": "{count} - Anzahl der gelöschten Nachrichten",
     "placeholderChannel": "{channel} - Channel-Name",
-    "placeholderUser": "{user} - Benutzer, der gelöscht hat"
+    "placeholderUser": "{user} - Benutzer, der gelöscht hat",
+    "autoDelete": {
+      "title": "Automatische Löschungen",
+      "description": "Lösche automatisch Nachrichten in regelmäßigen Abständen",
+      "addAutoDelete": "Automatische Löschung hinzufügen",
+      "createAutoDelete": "Automatische Löschung erstellen",
+      "editAutoDelete": "Automatische Löschung bearbeiten",
+      "interval": "Intervall",
+      "intervalHelp": "Wie oft sollen Nachrichten gelöscht werden? (Mindestens 5 Minuten)",
+      "deleteCount": "Anzahl zu löschender Nachrichten",
+      "deleteCountHelp": "Anzahl der Nachrichten, die bei jeder Löschung entfernt werden (max. 100)",
+      "lastRun": "Letzte Ausführung",
+      "noAutoDeletes": "Noch keine automatischen Löschungen konfiguriert",
+      "confirmDelete": "Möchtest du diese automatische Löschung wirklich löschen?"
+    }
   },
   "ticketSystem": {
     "title": "Ticket-System",
@@ -221,7 +235,11 @@
       "confirmationButtonTextHelp": "Der Text, der auf dem Bestätigungs-Button angezeigt wird (max. 80 Zeichen)",
       "availablePlaceholders": "Verfügbare Platzhalter:",
       "placeholderUser": "{user} - Benutzer-Mention",
-      "placeholderServer": "{server} - Server-Name"
+      "placeholderUsername": "{username} - Benutzername",
+      "placeholderServer": "{server} - Server-Name",
+      "preview": "Vorschau",
+      "previewTitle": "✅ Ticket geschlossen",
+      "previewPlaceholder": "Keine individuelle Nachricht eingegeben. Die Standard-Nachricht wird verwendet."
     }
   },
   "welcome": {

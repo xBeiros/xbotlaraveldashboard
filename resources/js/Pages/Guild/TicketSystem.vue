@@ -357,8 +357,62 @@
                                 ></textarea>
                                 <p class="text-xs text-gray-400 mt-2">
                                     {{ $t('ticketSystem.closeConfig.availablePlaceholders') }}
-                                    <span class="text-[#5865f2]">{{ $t('ticketSystem.closeConfig.placeholderUser') }}, {{ $t('ticketSystem.closeConfig.placeholderServer') }}</span>
+                                    <code class="bg-[#1a1b1e] px-1.5 py-0.5 rounded text-[#5865f2]">{user}</code>,
+                                    <code class="bg-[#1a1b1e] px-1.5 py-0.5 rounded text-[#5865f2]">{username}</code>,
+                                    <code class="bg-[#1a1b1e] px-1.5 py-0.5 rounded text-[#5865f2]">{server}</code>
                                 </p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ $t('ticketSystem.closeConfig.placeholderUser') }},
+                                    {{ $t('ticketSystem.closeConfig.placeholderUsername') }},
+                                    {{ $t('ticketSystem.closeConfig.placeholderServer') }}
+                                </p>
+                            </div>
+                            
+                            <!-- Vorschau -->
+                            <div class="mt-4">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h4 class="text-sm font-semibold text-white">{{ $t('ticketSystem.closeConfig.preview') }}</h4>
+                                    <span class="text-xs text-gray-500">{{ $t('ticketSystem.ticketPost.previewNote') }}</span>
+                                </div>
+                                <div class="bg-[#1a1b1e] rounded-lg p-4 border border-[#202225]">
+                                    <!-- Discord-ähnliche Embed-Vorschau -->
+                                    <div
+                                        class="rounded-lg border-l-4 bg-[#2f3136] p-4 shadow-sm"
+                                        style="border-left-color: #5865f2"
+                                    >
+                                        <div class="space-y-3">
+                                            <h5 class="text-base font-semibold text-white leading-tight">
+                                                {{ $t('ticketSystem.closeConfig.previewTitle') }}
+                                            </h5>
+                                            <p
+                                                v-if="closeConfigForm.close_message"
+                                                class="text-sm text-gray-300 whitespace-pre-wrap leading-relaxed"
+                                                v-html="renderedCloseMessage"
+                                            ></p>
+                                            <p
+                                                v-else
+                                                class="text-sm text-gray-400 italic"
+                                            >
+                                                {{ $t('ticketSystem.closeConfig.previewPlaceholder') }}
+                                            </p>
+                                            <div class="flex items-center gap-2 pt-3 mt-3 border-t border-[#202225]">
+                                                <img 
+                                                    v-if="guild.icon_url"
+                                                    :src="guild.icon_url" 
+                                                    alt="Server Icon" 
+                                                    class="w-5 h-5 rounded-full"
+                                                />
+                                                <div
+                                                    v-else
+                                                    class="w-5 h-5 rounded-full bg-[#5865f2] flex items-center justify-center text-white text-xs font-bold"
+                                                >
+                                                    {{ guild.name?.charAt(0).toUpperCase() || 'X' }}
+                                                </div>
+                                                <span class="text-xs text-gray-400">{{ new Date().toLocaleDateString() }} {{ new Date().toLocaleTimeString() }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -701,6 +755,17 @@ function parseDiscordMarkdown(text) {
 
 const renderedTitle = computed(() => parseDiscordMarkdown(ticketPostForm.embed_title));
 const renderedDescription = computed(() => parseDiscordMarkdown(ticketPostForm.embed_description));
+
+// Close Message Rendering
+const renderedCloseMessage = computed(() => {
+    if (!closeConfigForm.close_message) return '';
+    let message = closeConfigForm.close_message;
+    // Ersetze Platzhalter mit Beispielwerten
+    message = message.replace(/{user}/g, '<span class="text-[#5865f2]">@Username</span>');
+    message = message.replace(/{username}/g, '<span class="text-[#5865f2]">Username</span>');
+    message = message.replace(/{server}/g, '<span class="text-[#5865f2]">' + (guild.name || 'Server Name') + '</span>');
+    return parseDiscordMarkdown(message);
+});
 
 const availableRoles = computed(() => {
     const selectedIds = selectedSupporterRoles.value.map(r => r.id);
