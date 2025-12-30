@@ -1020,6 +1020,229 @@ class GuildConfigController extends Controller
         return back()->with('success', 'Server-Einstellungen erfolgreich gespeichert!');
     }
 
+    public function deleteMessages(Request $request, $guild)
+    {
+        // Diese Methode wird für POST-Requests verwendet
+        // Die GET-Route wird im DashboardController behandelt
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $validated = $request->validate([
+            'channel_id' => 'required|string',
+            'mode' => 'required|in:count,time',
+            'count' => 'required_if:mode,count|integer|min:1|max:100',
+            'timeHours' => 'required_if:mode,time|integer|min:0',
+            'timeMinutes' => 'required_if:mode,time|integer|min:0|max:59',
+            'sendNotification' => 'boolean',
+            'notificationTitle' => 'nullable|string|max:256',
+            'notificationDescription' => 'nullable|string|max:4096',
+            'notificationColor' => 'nullable|string',
+            'showFooter' => 'boolean',
+        ]);
+
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return back()->with('error', 'Bot Token nicht konfiguriert!');
+        }
+
+        try {
+            // Bereite Daten für Bot vor
+            $deleteData = [
+                'guild_id' => $guild,
+                'channel_id' => $validated['channel_id'],
+                'mode' => $validated['mode'],
+                'count' => $validated['count'] ?? null,
+                'time_hours' => $validated['timeHours'] ?? 0,
+                'time_minutes' => $validated['timeMinutes'] ?? 0,
+                'send_notification' => $validated['sendNotification'] ?? false,
+                'notification_title' => $validated['notificationTitle'] ?? null,
+                'notification_description' => $validated['notificationDescription'] ?? null,
+                'notification_color' => $validated['notificationColor'] ?? '#5865f2',
+                'show_footer' => $validated['showFooter'] ?? true,
+                'user_id' => $user->discord_id,
+            ];
+
+            // Sende Request an Bot (über HTTP oder Queue)
+            // Hier verwenden wir einen HTTP-Request an den Bot
+            // Der Bot muss einen Endpoint haben, der diese Anfrage verarbeitet
+            // Alternativ: Verwende Discord API direkt (aber das ist komplizierter wegen Rate Limits)
+            
+            // Für jetzt: Sende direkt über Discord API
+            // Hole alle Nachrichten und lösche sie
+            $channelId = $validated['channel_id'];
+            $deletedCount = 0;
+            
+            if ($validated['mode'] === 'count') {
+                // Lösche die letzten X Nachrichten
+                $limit = min($validated['count'], 100); // Discord limit: max 100 pro Request
+                
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                ])->timeout(10)->get("https://discord.com/api/v10/channels/{$channelId}/messages?limit={$limit}");
+                
+                if ($response->successful()) {
+                    $messages = $response->json();
+                    
+                    // Lösche Nachrichten in Batches (max 100 pro Request)
+                    $messageIds = array_column($messages, 'id');
+                    
+                    if (!empty($messageIds)) {
+                        // Discord Bulk Delete API (max 100 Nachrichten, min 2, max 14 Tage alt)
+                        // Für einzelne Nachrichten verwenden wir DELETE /channels/{channel.id}/messages/{message.id}
+                        foreach ($messageIds as $messageId) {
+                            try {
+                                $deleteResponse = Http::withHeaders([
+                                    'Authorization' => 'Bot ' . $botToken,
+                                ])->timeout(5)->delete("https://discord.com/api/v10/channels/{$channelId}/messages/{$messageId}");
+                                
+                                if ($deleteResponse->successful()) {
+                                    $deletedCount++;
+                                }
+                                
+                                // Rate limit: 5 requests per second
+                                usleep(200000); // 0.2 seconds delay
+                            } catch (\Exception $e) {
+                                \Log::warning("Fehler beim Löschen der Nachricht {$messageId}: " . $e->getMessage());
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Lösche Nachrichten nach Zeitraum
+                $cutoffTime = now()->subHours($validated['timeHours'] ?? 0)->subMinutes($validated['timeMinutes'] ?? 0);
+                $cutoffTimestamp = $cutoffTime->timestamp * 1000; // Discord verwendet Millisekunden
+                
+                $lastId = null;
+                $allMessages = [];
+                
+                // Hole alle Nachrichten (bis zu 1000)
+                while (count($allMessages) < 1000) {
+                    $url = "https://discord.com/api/v10/channels/{$channelId}/messages?limit=100";
+                    if ($lastId) {
+                        $url .= "&before={$lastId}";
+                    }
+                    
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bot ' . $botToken,
+                    ])->timeout(10)->get($url);
+                    
+                    if (!$response->successful() || empty($response->json())) {
+                        break;
+                    }
+                    
+                    $messages = $response->json();
+                    $filteredMessages = array_filter($messages, function($msg) use ($cutoffTimestamp) {
+                        return (int)$msg['timestamp'] >= $cutoffTimestamp;
+                    });
+                    
+                    if (empty($filteredMessages)) {
+                        break; // Keine Nachrichten mehr im Zeitraum
+                    }
+                    
+                    $allMessages = array_merge($allMessages, array_values($filteredMessages));
+                    $lastId = end($messages)['id'];
+                    
+                    // Wenn die letzte Nachricht älter ist als der Cutoff, stoppe
+                    if ((int)end($messages)['timestamp'] < $cutoffTimestamp) {
+                        break;
+                    }
+                    
+                    usleep(200000); // Rate limit
+                }
+                
+                // Lösche alle gefundenen Nachrichten
+                foreach ($allMessages as $message) {
+                    try {
+                        $deleteResponse = Http::withHeaders([
+                            'Authorization' => 'Bot ' . $botToken,
+                        ])->timeout(5)->delete("https://discord.com/api/v10/channels/{$channelId}/messages/{$message['id']}");
+                        
+                        if ($deleteResponse->successful()) {
+                            $deletedCount++;
+                        }
+                        
+                        usleep(200000); // Rate limit
+                    } catch (\Exception $e) {
+                        \Log::warning("Fehler beim Löschen der Nachricht {$message['id']}: " . $e->getMessage());
+                    }
+                }
+            }
+            
+            // Sende Benachrichtigung falls aktiviert
+            if ($validated['sendNotification'] ?? false && $deletedCount > 0) {
+                $this->sendDeleteNotification($channelId, $deletedCount, $validated, $user);
+            }
+            
+            $successMessage = "Erfolgreich {$deletedCount} Nachrichten gelöscht";
+            return back()->with('success', $successMessage);
+            
+        } catch (\Exception $e) {
+            \Log::error('Fehler beim Löschen der Nachrichten: ' . $e->getMessage());
+            return back()->with('error', 'Fehler beim Löschen der Nachrichten: ' . $e->getMessage());
+        }
+    }
+
+    private function sendDeleteNotification($channelId, $count, $config, $user)
+    {
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return;
+        }
+
+        $embed = [];
+        
+        if (!empty($config['notificationTitle'])) {
+            $embed['title'] = str_replace(['{count}', '{channel}', '{user}'], [
+                $count,
+                '<#' . $channelId . '>',
+                '<@' . $user->discord_id . '>'
+            ], $config['notificationTitle']);
+        }
+        
+        if (!empty($config['notificationDescription'])) {
+            $embed['description'] = str_replace(['{count}', '{channel}', '{user}'], [
+                $count,
+                '<#' . $channelId . '>',
+                '<@' . $user->discord_id . '>'
+            ], $config['notificationDescription']);
+        }
+        
+        if (!empty($config['notificationColor'])) {
+            $color = str_replace('#', '', $config['notificationColor']);
+            $embed['color'] = hexdec($color);
+        }
+        
+        if ($config['showFooter'] ?? true) {
+            $embed['footer'] = [
+                'text' => now()->format('d.m.Y H:i'),
+            ];
+            $embed['timestamp'] = now()->toIso8601String();
+        }
+
+        $payload = [];
+        if (!empty($embed)) {
+            $payload['embeds'] = [$embed];
+        }
+
+        try {
+            Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+                'Content-Type' => 'application/json',
+            ])->timeout(10)->post(
+                "https://discord.com/api/v10/channels/{$channelId}/messages",
+                $payload
+            );
+        } catch (\Exception $e) {
+            \Log::error('Fehler beim Senden der Benachrichtigung: ' . $e->getMessage());
+        }
+    }
+
     // Ticket System
     public function storeTicketCategory(Request $request, $guild)
     {
@@ -1327,6 +1550,34 @@ class GuildConfigController extends Controller
         ]);
 
         return back()->with('success', 'Transcript-Einstellung erfolgreich gespeichert!');
+    }
+
+    public function updateTicketCloseConfig(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        
+        $validated = $request->validate([
+            'require_confirmation' => 'boolean',
+            'close_message' => 'nullable|string|max:2000',
+            'confirmation_button_text' => 'nullable|string|max:80',
+        ]);
+        
+        $guildModel->update([
+            'ticket_close_require_confirmation' => $validated['require_confirmation'] ?? false,
+            'ticket_close_message' => $validated['close_message'] ?? null,
+            'ticket_close_confirmation_button_text' => $validated['confirmation_button_text'] ?? null,
+        ]);
+
+        return back()->with('success', 'Ticket-Close-Einstellungen erfolgreich gespeichert!');
     }
 
 }

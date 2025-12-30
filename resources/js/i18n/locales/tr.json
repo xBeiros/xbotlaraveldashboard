@@ -51,7 +51,8 @@
     "socialNotifications": "Sosyal Medya Bildirimleri",
     "notifications": "Bildirimler",
     "serverManagement": "Sunucu Yönetimi",
-    "ticketSystem": "Bilet Sistemi"
+    "ticketSystem": "Bilet Sistemi",
+    "deleteMessages": "Mesajları Sil"
   },
   "dashboard": {
     "title": "Sunucu Seç",
@@ -107,6 +108,39 @@
       "activityCompeting": "Yarışıyor",
       "activityText": "Aktivite Metni",
       "activityTextPlaceholder": "/help"
+    },
+    "deleteMessages": {
+      "title": "Mesajları Sil",
+      "description": "Bir kanaldaki mesajları sayıya veya zaman dilimine göre sil",
+      "channelLabel": "Kanal Seç *",
+      "deleteMode": "Silme Modu",
+      "modeCount": "Sayıya Göre",
+      "modeTime": "Zaman Dilimine Göre",
+      "countLabel": "Mesaj Sayısı",
+      "countPlaceholder": "örn. 20",
+      "countHelp": "Son X mesaj silinecek",
+      "timeLabel": "Zaman Dilimi",
+      "timeHours": "Saat",
+      "timeMinutes": "Dakika",
+      "timeHelp": "Son X saat/dakikadaki tüm mesajlar silinecek",
+      "sendNotification": "Bildirim Gönder",
+      "sendNotificationHelp": "Silme işleminden sonra bir embed mesajı gönder",
+      "notificationTitle": "Embed Başlık",
+      "notificationTitlePlaceholder": "Mesajlar Silindi",
+      "notificationDescription": "Embed Açıklama",
+      "notificationDescriptionPlaceholder": "{count} mesaj silindi",
+      "notificationColor": "Embed Renk",
+      "showFooter": "Alt bilgiyi göster (sunucu adı ve zaman damgası)",
+      "deleteButton": "Mesajları Sil",
+      "deleting": "Siliniyor...",
+      "success": "Başarıyla {count} mesaj silindi",
+      "error": "Mesajlar silinirken hata oluştu",
+      "confirmDelete": "Gerçekten {count} mesajı silmek istiyor musunuz?",
+      "confirmDeleteTime": "Gerçekten son {time} içindeki tüm mesajları silmek istiyor musunuz?",
+      "availablePlaceholders": "Mevcut yer tutucular:",
+      "placeholderCount": "{count} - Silinen mesaj sayısı",
+      "placeholderChannel": "{channel} - Kanal adı",
+      "placeholderUser": "{user} - Silen kullanıcı"
     }
   },
   "ticketSystem": {
@@ -172,6 +206,22 @@
       "ticketNumber": "Bilet #{id}",
       "noTranscripts": "Henüz transkript mevcut değil.",
       "autoDelete": "Transkriptler 7 gün sonra otomatik olarak silinir."
+    },
+    "closeConfig": {
+      "title": "Bilet Kapatma",
+      "description": "Biletler kapatılırken mesaj ve davranışı yapılandırın",
+      "requireConfirmation": "Onay gerekli",
+      "requireConfirmationHelp": "Etkinleştirilirse, 'Bileti Kapat' butonuna tıklandıktan sonra bilet gerçekten kapatılmadan önce bir onay gösterilir.",
+      "useCustomMessage": "Özel kapatma mesajı kullan",
+      "useCustomMessageHelp": "Etkinleştirilirse, kapatırken özel bir mesaj kullanılır. Devre dışı bırakılırsa, varsayılan mesaj kullanılır.",
+      "closeMessage": "Kapatma mesajı",
+      "closeMessagePlaceholder": "Bilet {user} tarafından kapatıldı.",
+      "confirmationButtonText": "Onay butonu metni",
+      "confirmationButtonTextPlaceholder": "Evet, bileti kapat",
+      "confirmationButtonTextHelp": "Onay butonunda gösterilen metin (maks. 80 karakter)",
+      "availablePlaceholders": "Mevcut yer tutucular:",
+      "placeholderUser": "{user} - Kullanıcı bahsi",
+      "placeholderServer": "{server} - Sunucu adı"
     }
   },
   "welcome": {

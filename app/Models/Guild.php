@@ -18,6 +18,9 @@ class Guild extends Model
         'prefix',
         'language',
         'ticket_transcript_enabled',
+        'ticket_close_require_confirmation',
+        'ticket_close_message',
+        'ticket_close_confirmation_button_text',
         'bot_avatar',
         'bot_banner',
         'bot_nickname',
@@ -26,6 +29,7 @@ class Guild extends Model
     protected $casts = [
         'bot_active' => 'boolean',
         'ticket_transcript_enabled' => 'boolean',
+        'ticket_close_require_confirmation' => 'boolean',
     ];
 
     public function welcomeConfig()

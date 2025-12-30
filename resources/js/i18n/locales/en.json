@@ -51,7 +51,8 @@
     "socialNotifications": "Social Media Notifications",
     "notifications": "Notifications",
     "serverManagement": "Server Management",
-    "ticketSystem": "Ticket System"
+    "ticketSystem": "Ticket System",
+    "deleteMessages": "Delete Messages"
   },
   "dashboard": {
     "title": "Select Server",
@@ -107,6 +108,39 @@
       "activityCompeting": "Competing in",
       "activityText": "Activity Text",
       "activityTextPlaceholder": "/help"
+    },
+    "deleteMessages": {
+      "title": "Delete Messages",
+      "description": "Delete messages in a channel by count or time period",
+      "channelLabel": "Select Channel *",
+      "deleteMode": "Delete Mode",
+      "modeCount": "By Count",
+      "modeTime": "By Time Period",
+      "countLabel": "Number of Messages",
+      "countPlaceholder": "e.g. 20",
+      "countHelp": "The last X messages will be deleted",
+      "timeLabel": "Time Period",
+      "timeHours": "Hours",
+      "timeMinutes": "Minutes",
+      "timeHelp": "All messages in the last X hours/minutes will be deleted",
+      "sendNotification": "Send Notification",
+      "sendNotificationHelp": "Send an embed message after deletion",
+      "notificationTitle": "Embed Title",
+      "notificationTitlePlaceholder": "Messages Deleted",
+      "notificationDescription": "Embed Description",
+      "notificationDescriptionPlaceholder": "{count} messages were deleted",
+      "notificationColor": "Embed Color",
+      "showFooter": "Show footer (server name and timestamp)",
+      "deleteButton": "Delete Messages",
+      "deleting": "Deleting...",
+      "success": "Successfully deleted {count} messages",
+      "error": "Error deleting messages",
+      "confirmDelete": "Do you really want to delete {count} messages?",
+      "confirmDeleteTime": "Do you really want to delete all messages in the last {time}?",
+      "availablePlaceholders": "Available placeholders:",
+      "placeholderCount": "{count} - Number of deleted messages",
+      "placeholderChannel": "{channel} - Channel name",
+      "placeholderUser": "{user} - User who deleted"
     }
   },
   "ticketSystem": {
@@ -172,6 +206,22 @@
       "ticketNumber": "Ticket #{id}",
       "noTranscripts": "No transcripts available yet.",
       "autoDelete": "Transcripts are automatically deleted after 7 days."
+    },
+    "closeConfig": {
+      "title": "Ticket Closing",
+      "description": "Configure the message and behavior when closing tickets",
+      "requireConfirmation": "Require confirmation",
+      "requireConfirmationHelp": "If enabled, a confirmation will be shown after clicking 'Close Ticket' before the ticket is actually closed.",
+      "useCustomMessage": "Use custom close message",
+      "useCustomMessageHelp": "If enabled, a custom message will be used when closing. If disabled, the default message will be used.",
+      "closeMessage": "Close message",
+      "closeMessagePlaceholder": "The ticket was closed by {user}.",
+      "confirmationButtonText": "Confirmation button text",
+      "confirmationButtonTextPlaceholder": "Yes, close ticket",
+      "confirmationButtonTextHelp": "The text displayed on the confirmation button (max. 80 characters)",
+      "availablePlaceholders": "Available placeholders:",
+      "placeholderUser": "{user} - User mention",
+      "placeholderServer": "{server} - Server name"
     }
   },
   "welcome": {

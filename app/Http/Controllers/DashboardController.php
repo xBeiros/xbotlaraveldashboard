@@ -567,6 +567,61 @@ class DashboardController extends Controller
         ]);
     }
 
+    public function deleteMessages($guild)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
+        }
+
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
+
+        // Zeige alle Server, die der User verwalten kann (auch ohne Bot)
+        $allGuilds = UserGuild::where('user_id', $user->id)
+            ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
+            ->map(function ($g) {
+                return [
+                    'id' => $g->guild_id,
+                    'name' => $g->name,
+                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
+                    'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
+                ];
+            });
+
+        return Inertia::render('Guild/DeleteMessages', [
+            'guild' => [
+                'id' => $userGuild->guild_id,
+                'name' => $userGuild->name,
+                'icon_url' => $userGuild->icon ? "https://cdn.discordapp.com/icons/{$userGuild->guild_id}/{$userGuild->icon}.png" : null,
+                'bot_joined' => true,
+            ],
+            'guilds' => $allGuilds,
+            'channels' => $this->fetchGuildChannels($guild),
+        ]);
+    }
+
     public function ticketSystem($guild)
     {
         $user = Auth::user();
@@ -676,6 +731,11 @@ class DashboardController extends Controller
                     ];
                 }),
             'ticketTranscriptEnabled' => $guildModel->ticket_transcript_enabled ?? true,
+            'ticketCloseConfig' => [
+                'require_confirmation' => $guildModel->ticket_close_require_confirmation ?? false,
+                'close_message' => $guildModel->ticket_close_message,
+                'confirmation_button_text' => $guildModel->ticket_close_confirmation_button_text,
+            ],
         ]);
     }
 

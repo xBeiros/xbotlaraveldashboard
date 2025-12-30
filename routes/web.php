@@ -84,6 +84,12 @@ Route::middleware('auth')->group(function () {
     Route::put('/guild/{guild}/server-management', [\App\Http\Controllers\GuildConfigController::class, 'updateServerManagement'])
         ->name('guild.server-management.update');
     
+    // Nachrichten Löschen
+    Route::get('/guild/{guild}/delete-messages', [\App\Http\Controllers\DashboardController::class, 'deleteMessages'])
+        ->name('guild.delete-messages');
+    Route::post('/guild/{guild}/delete-messages', [\App\Http\Controllers\GuildConfigController::class, 'deleteMessages'])
+        ->name('guild.delete-messages.post');
+    
     // Ticket System
     Route::get('/guild/{guild}/ticket-system', [\App\Http\Controllers\DashboardController::class, 'ticketSystem'])
         ->name('guild.ticket-system');
@@ -101,6 +107,8 @@ Route::middleware('auth')->group(function () {
         ->name('guild.ticket.transcript');
     Route::put('/guild/{guild}/ticket-transcript-setting', [\App\Http\Controllers\GuildConfigController::class, 'updateTicketTranscriptSetting'])
         ->name('guild.ticket-transcript-setting.update');
+    Route::put('/guild/{guild}/ticket-close-config', [\App\Http\Controllers\GuildConfigController::class, 'updateTicketCloseConfig'])
+        ->name('guild.ticket-close-config.update');
 });
 
 require __DIR__.'/auth.php';

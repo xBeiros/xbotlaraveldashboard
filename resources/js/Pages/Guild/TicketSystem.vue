@@ -311,6 +311,85 @@
             </div>
 
             <div class="space-y-6 mt-6">
+                <!-- Ticket-Close-Konfiguration -->
+                <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
+                    <h2 class="text-lg font-semibold text-white mb-4">{{ $t('ticketSystem.closeConfig.title') }}</h2>
+                    <p class="text-sm text-gray-400 mb-6">{{ $t('ticketSystem.closeConfig.description') }}</p>
+                    
+                    <div class="space-y-4">
+                        <!-- Bestätigung erforderlich -->
+                        <div class="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                v-model="closeConfigForm.require_confirmation"
+                                class="w-4 h-4 text-[#5865f2] bg-[#36393f] border-[#202225] rounded focus:ring-[#5865f2]"
+                            />
+                            <label class="text-sm text-gray-300 cursor-pointer">
+                                {{ $t('ticketSystem.closeConfig.requireConfirmation') }}
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-400 ml-6">{{ $t('ticketSystem.closeConfig.requireConfirmationHelp') }}</p>
+
+                        <!-- Individuelle Close-Nachricht -->
+                        <div class="flex items-center gap-2">
+                            <input
+                                type="checkbox"
+                                v-model="closeConfigForm.use_custom_message"
+                                class="w-4 h-4 text-[#5865f2] bg-[#36393f] border-[#202225] rounded focus:ring-[#5865f2]"
+                            />
+                            <label class="text-sm text-gray-300 cursor-pointer">
+                                {{ $t('ticketSystem.closeConfig.useCustomMessage') }}
+                            </label>
+                        </div>
+                        <p class="text-xs text-gray-400 ml-6">{{ $t('ticketSystem.closeConfig.useCustomMessageHelp') }}</p>
+
+                        <!-- Custom Close Message -->
+                        <div v-if="closeConfigForm.use_custom_message" class="space-y-4 pl-6 border-l-2 border-[#202225]">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ $t('ticketSystem.closeConfig.closeMessage') }}
+                                </label>
+                                <textarea
+                                    v-model="closeConfigForm.close_message"
+                                    rows="4"
+                                    :placeholder="$t('ticketSystem.closeConfig.closeMessagePlaceholder')"
+                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2] resize-none"
+                                ></textarea>
+                                <p class="text-xs text-gray-400 mt-2">
+                                    {{ $t('ticketSystem.closeConfig.availablePlaceholders') }}
+                                    <span class="text-[#5865f2]">{{ $t('ticketSystem.closeConfig.placeholderUser') }}, {{ $t('ticketSystem.closeConfig.placeholderServer') }}</span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Bestätigungs-Button Text (nur wenn Bestätigung aktiviert) -->
+                        <div v-if="closeConfigForm.require_confirmation" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-300 mb-2">
+                                    {{ $t('ticketSystem.closeConfig.confirmationButtonText') }}
+                                </label>
+                                <input
+                                    type="text"
+                                    v-model="closeConfigForm.confirmation_button_text"
+                                    :placeholder="$t('ticketSystem.closeConfig.confirmationButtonTextPlaceholder')"
+                                    maxlength="80"
+                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                />
+                                <p class="text-xs text-gray-400 mt-2">{{ $t('ticketSystem.closeConfig.confirmationButtonTextHelp') }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 flex items-center justify-end gap-3">
+                        <button
+                            @click="saveCloseConfig"
+                            :disabled="closeConfigForm.processing"
+                            class="px-6 py-2.5 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all disabled:opacity-50 font-medium"
+                        >
+                            {{ closeConfigForm.processing ? $t('common.saving') : $t('common.save') }}
+                        </button>
+                    </div>
+                </div>
 
                 <!-- Ticket-Transcripts -->
                 <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
@@ -555,6 +634,14 @@ const props = defineProps({
         type: Boolean,
         default: true,
     },
+    ticketCloseConfig: {
+        type: Object,
+        default: () => ({
+            require_confirmation: false,
+            close_message: null,
+            confirmation_button_text: null,
+        }),
+    },
 });
 
 // Ticket Post
@@ -573,6 +660,14 @@ const resendingPost = ref(false);
 
 // Transcript Setting
 const transcriptEnabled = ref(props.ticketTranscriptEnabled ?? true);
+
+// Ticket Close Config
+const closeConfigForm = useForm({
+    require_confirmation: props.ticketCloseConfig?.require_confirmation ?? false,
+    use_custom_message: !!props.ticketCloseConfig?.close_message,
+    close_message: props.ticketCloseConfig?.close_message || '',
+    confirmation_button_text: props.ticketCloseConfig?.confirmation_button_text || '',
+});
 
 // Preview Dropdown
 const previewDropdownOpen = ref(false);
@@ -709,6 +804,18 @@ function updateTranscriptSetting() {
     router.put(route('guild.ticket-transcript-setting.update', { guild: props.guild.id }), {
         transcript_enabled: transcriptEnabled.value,
     }, {
+        preserveScroll: true,
+    });
+}
+
+function saveCloseConfig() {
+    const data = {
+        require_confirmation: closeConfigForm.require_confirmation,
+        close_message: closeConfigForm.use_custom_message ? closeConfigForm.close_message : null,
+        confirmation_button_text: closeConfigForm.require_confirmation ? closeConfigForm.confirmation_button_text : null,
+    };
+    
+    closeConfigForm.transform(() => data).put(route('guild.ticket-close-config.update', { guild: props.guild.id }), {
         preserveScroll: true,
     });
 }

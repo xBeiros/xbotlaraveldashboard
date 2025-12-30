@@ -68,8 +68,6 @@ const form = useForm({
     language: props.guildModel?.language || 'de',
 });
 
-
-
 function saveSettings() {
     form.put(route('guild.server-management.update', { guild: props.guild.id }), {
         preserveScroll: true,
