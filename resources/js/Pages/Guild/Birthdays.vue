@@ -505,6 +505,12 @@ const editForm = useForm({
     embed_color: '#5865f2',
 });
 
+const configForm = useForm({
+    embed_title: '',
+    embed_description: '',
+    embed_color: '#5865f2',
+});
+
 function filterMembers() {
     if (!memberSearch.value) {
         filteredMembers.value = [];
@@ -563,12 +569,6 @@ function closeForm() {
     memberSearch.value = '';
     editingBirthday.value = false;
 }
-
-const configForm = useForm({
-    embed_title: '',
-    embed_description: '',
-    embed_color: '#5865f2',
-});
 
 function saveBirthday() {
     if (showEditModal.value && editingBirthdayId.value) {
