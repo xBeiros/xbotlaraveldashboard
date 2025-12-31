@@ -265,7 +265,7 @@
                             />
                             <div>
                                 <h3 class="text-lg font-semibold text-white">{{ getMemberName(birthday.user_id) }}</h3>
-                                <p class="text-sm text-gray-400">{{ t('birthdays.birthday') }}: {{ formatBirthday(birthday.birthday) }}</p>
+                                <p class="text-sm text-gray-400">{{ t('birthdays.list.birthday') }}: {{ formatBirthday(birthday.birthday) }}</p>
                             </div>
                         </div>
                         <div class="flex gap-2">

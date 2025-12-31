@@ -615,18 +615,36 @@
     "noBirthdays": "No birthdays created",
     "noBirthdaysDescription": "Add member birthdays to celebrate them automatically!",
     "form": {
+      "member": "Member",
       "selectMember": "Select Member *",
       "searchMember": "Search member...",
       "birthday": "Birthday *",
-      "birthdayPlaceholder": "DD.MM.YYYY"
+      "birthdayPlaceholder": "DD.MM.YYYY",
+      "birthdayRole": "Birthday Role",
+      "birthdayRoleDescription": "Role that will be automatically assigned on the birthday",
+      "channel": "Channel",
+      "enabled": "Enabled",
+      "sendEmbed": "Send Embed",
+      "embedConfig": "Embed Configuration",
+      "embedTitle": "Embed Title",
+      "embedTitlePlaceholder": "e.g. 🎉 Birthday!",
+      "embedDescription": "Embed Description",
+      "embedDescriptionPlaceholder": "e.g. {user} has a birthday today! 🎂",
+      "placeholders": "Available placeholders: {user}, {username}, {age}",
+      "embedColor": "Embed Color"
     },
     "list": {
       "member": "Member",
       "birthday": "Birthday",
       "nextBirthday": "Next Birthday",
+      "role": "Role",
+      "channel": "Channel",
+      "enabled": "Enabled",
+      "sendEmbed": "Send Embed",
       "delete": "Delete",
       "deleteConfirm": "Do you really want to delete this birthday?"
     },
+    "deleteConfirm": "Do you really want to delete this birthday?",
     "config": {
       "title": "Birthday Configuration",
       "enabled": "Enable Birthdays",

@@ -615,18 +615,36 @@
     "noBirthdays": "Doğum günü oluşturulmadı",
     "noBirthdaysDescription": "Üyelerin doğum günlerini ekleyerek otomatik olarak kutlayın!",
     "form": {
+      "member": "Üye",
       "selectMember": "Üye Seç *",
       "searchMember": "Üye ara...",
       "birthday": "Doğum Günü *",
-      "birthdayPlaceholder": "GG.AA.YYYY"
+      "birthdayPlaceholder": "GG.AA.YYYY",
+      "birthdayRole": "Doğum Günü Rolü",
+      "birthdayRoleDescription": "Doğum gününde otomatik olarak verilecek rol",
+      "channel": "Kanal",
+      "enabled": "Etkin",
+      "sendEmbed": "Embed Gönder",
+      "embedConfig": "Embed Yapılandırması",
+      "embedTitle": "Embed Başlığı",
+      "embedTitlePlaceholder": "örn. 🎉 Doğum Günü!",
+      "embedDescription": "Embed Açıklaması",
+      "embedDescriptionPlaceholder": "örn. {user} bugün doğum günü! 🎂",
+      "placeholders": "Kullanılabilir yer tutucular: {user}, {username}, {age}",
+      "embedColor": "Embed Rengi"
     },
     "list": {
       "member": "Üye",
       "birthday": "Doğum Günü",
       "nextBirthday": "Sonraki Doğum Günü",
+      "role": "Rol",
+      "channel": "Kanal",
+      "enabled": "Etkin",
+      "sendEmbed": "Embed Gönder",
       "delete": "Sil",
       "deleteConfirm": "Bu doğum gününü gerçekten silmek istiyor musunuz?"
     },
+    "deleteConfirm": "Bu doğum gününü gerçekten silmek istiyor musunuz?",
     "config": {
       "title": "Doğum Günü Yapılandırması",
       "enabled": "Doğum Günlerini Etkinleştir",

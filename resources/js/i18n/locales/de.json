@@ -608,18 +608,36 @@
     "noBirthdays": "Keine Geburtstage erstellt",
     "noBirthdaysDescription": "Füge Geburtstage von Mitgliedern hinzu, um sie automatisch zu feiern!",
     "form": {
+      "member": "Mitglied",
       "selectMember": "Mitglied auswählen *",
       "searchMember": "Mitglied suchen...",
       "birthday": "Geburtsdatum *",
-      "birthdayPlaceholder": "TT.MM.JJJJ"
+      "birthdayPlaceholder": "TT.MM.JJJJ",
+      "birthdayRole": "Geburtstags-Rolle",
+      "birthdayRoleDescription": "Rolle, die am Geburtstag automatisch vergeben wird",
+      "channel": "Kanal",
+      "enabled": "Aktiviert",
+      "sendEmbed": "Embed senden",
+      "embedConfig": "Embed-Konfiguration",
+      "embedTitle": "Embed-Titel",
+      "embedTitlePlaceholder": "z.B. 🎉 Geburtstag!",
+      "embedDescription": "Embed-Beschreibung",
+      "embedDescriptionPlaceholder": "z.B. {user} hat heute Geburtstag! 🎂",
+      "placeholders": "Verfügbare Platzhalter: {user}, {username}, {age}",
+      "embedColor": "Embed-Farbe"
     },
     "list": {
       "member": "Mitglied",
       "birthday": "Geburtstag",
       "nextBirthday": "Nächster Geburtstag",
+      "role": "Rolle",
+      "channel": "Kanal",
+      "enabled": "Aktiviert",
+      "sendEmbed": "Embed senden",
       "delete": "Löschen",
       "deleteConfirm": "Möchtest du diesen Geburtstag wirklich löschen?"
     },
+    "deleteConfirm": "Möchtest du diesen Geburtstag wirklich löschen?",
     "config": {
       "title": "Geburtstags-Konfiguration",
       "enabled": "Geburtstage aktivieren",
