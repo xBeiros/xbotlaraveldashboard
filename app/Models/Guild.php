@@ -107,9 +107,4 @@ class Guild extends Model
     {
         return $this->hasOne(BirthdayConfig::class);
     }
-
-    public function birthdays()
-    {
-        return $this->hasMany(Birthday::class);
-    }
 }
