@@ -17,6 +17,8 @@ use App\Models\ReactionRole;
 use App\Models\TicketCategory;
 use App\Models\TicketPost;
 use App\Models\Giveaway;
+use App\Models\Birthday;
+use App\Models\BirthdayConfig;
 
 class DashboardController extends Controller
 {
@@ -1116,6 +1118,78 @@ class DashboardController extends Controller
         }
     }
 
+    private function fetchGuildMembers($guildId, $limit = 1000)
+    {
+        $botToken = config('services.discord.bot_token');
+        
+        if (!$botToken) {
+            return [];
+        }
+
+        try {
+            $members = [];
+            $after = null;
+            
+            // Discord API erlaubt max 1000 Mitglieder pro Request
+            // Wir holen alle Mitglieder in Batches
+            do {
+                $url = "https://discord.com/api/v10/guilds/{$guildId}/members?limit=1000";
+                if ($after) {
+                    $url .= "&after={$after}";
+                }
+                
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                ])->timeout(10)->get($url);
+
+                if ($response->successful()) {
+                    $batch = $response->json();
+                    if (empty($batch)) {
+                        break;
+                    }
+                    
+                    foreach ($batch as $member) {
+                        $user = $member['user'] ?? null;
+                        if ($user && !($user['bot'] ?? false)) { // Nur echte User, keine Bots
+                            $members[] = [
+                                'id' => $user['id'],
+                                'username' => $user['username'] ?? 'Unknown',
+                                'discriminator' => $user['discriminator'] ?? '0000',
+                                'display_name' => $member['nick'] ?? $user['username'] ?? 'Unknown',
+                                'avatar' => $user['avatar'] ?? null,
+                                'avatar_url' => $user['avatar'] 
+                                    ? "https://cdn.discordapp.com/avatars/{$user['id']}/{$user['avatar']}.png?size=256"
+                                    : "https://cdn.discordapp.com/embed/avatars/" . (($user['discriminator'] ?? '0000') % 5) . ".png",
+                            ];
+                        }
+                        
+                        // Setze after für nächsten Batch
+                        if (isset($user['id'])) {
+                            $after = $user['id'];
+                        }
+                    }
+                    
+                    // Wenn weniger als 1000 zurückgegeben wurden, sind wir fertig
+                    if (count($batch) < 1000) {
+                        break;
+                    }
+                } else {
+                    break;
+                }
+            } while (count($members) < $limit && $after);
+            
+            // Sortiere nach Display-Name
+            usort($members, function($a, $b) {
+                return strcasecmp($a['display_name'], $b['display_name']);
+            });
+            
+            return $members;
+        } catch (\Exception $e) {
+            \Log::warning("Failed to fetch members for guild {$guildId}: " . $e->getMessage());
+            return [];
+        }
+    }
+
     private function fetchGuildCategories($guildId)
     {
         $botToken = config('services.discord.bot_token');
@@ -1455,6 +1529,97 @@ class DashboardController extends Controller
             'channels' => $this->fetchGuildChannels($guild),
             'roles' => $this->fetchGuildRoles($guild),
             'giveaways' => $giveaways,
+        ]);
+    }
+
+    public function birthdays($guild)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        // Prüfe ob User Zugriff auf diesen Server hat
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck; // Redirect mit Fehlermeldung (nur wenn User kein Bot-Master ist)
+        }
+
+        // Lade oder erstelle Guild-Model mit korrektem Bot-Status
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
+
+        // Lade alle Guilds für Sidebar
+        $allGuilds = UserGuild::where('user_id', $user->id)
+            ->where('bot_joined', true)
+            ->get()
+            ->filter(function ($g) {
+                return $this->canManageGuild($g->permissions);
+            })
+            ->sortBy('name')
+            ->values()
+            ->map(function ($g) {
+                return [
+                    'id' => $g->guild_id,
+                    'name' => $g->name,
+                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
+                    'owner' => $g->owner,
+                    'bot_joined' => $g->bot_joined ?? false,
+                ];
+            });
+
+        // Lade Kanäle, Rollen und Mitglieder
+        $channels = $this->fetchGuildChannels($guild);
+        $roles = $this->fetchGuildRoles($guild);
+        $members = $this->fetchGuildMembers($guild);
+
+        // Lade Geburtstage
+        $birthdays = $guildModel->birthdays()
+            ->orderBy('birthday', 'asc')
+            ->get()
+            ->map(function ($b) {
+                return [
+                    'id' => $b->id,
+                    'user_id' => $b->user_id,
+                    'birthday' => $b->birthday->format('Y-m-d'),
+                ];
+            });
+
+        // Lade Geburtstags-Konfiguration
+        $birthdayConfig = $guildModel->birthdayConfig;
+        $config = [
+            'enabled' => $birthdayConfig->enabled ?? false,
+            'channel_id' => $birthdayConfig->channel_id ?? null,
+            'role_id' => $birthdayConfig->role_id ?? null,
+            'embed_title' => $birthdayConfig->embed_title ?? null,
+            'embed_description' => $birthdayConfig->embed_description ?? null,
+            'embed_color' => $birthdayConfig->embed_color ?? '#5865f2',
+            'embed_thumbnail' => $birthdayConfig->embed_thumbnail ?? null,
+            'embed_image' => $birthdayConfig->embed_image ?? null,
+        ];
+
+        return Inertia::render('Guild/Birthdays', [
+            'guild' => [
+                'id' => $userGuild->guild_id,
+                'name' => $userGuild->name,
+                'icon_url' => $userGuild->icon ? "https://cdn.discordapp.com/icons/{$userGuild->guild_id}/{$userGuild->icon}.png" : null,
+                'bot_joined' => true,
+            ],
+            'guilds' => $allGuilds,
+            'channels' => $channels,
+            'roles' => $roles,
+            'members' => $members,
+            'birthdays' => $birthdays,
+            'birthdayConfig' => $config,
         ]);
     }
 }

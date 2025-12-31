@@ -56,7 +56,8 @@
     "ticketSystem": "Ticket System",
     "deleteMessages": "Delete Messages",
     "gamesAndFun": "Games & Fun",
-    "giveaway": "Giveaway"
+    "giveaway": "Giveaway",
+    "birthdays": "Birthdays"
   },
   "dashboard": {
     "title": "Select Server",
@@ -605,6 +606,42 @@
       "code": "Code",
       "role": "Discord Role",
       "custom": "Custom Prize"
+    }
+  },
+  "birthdays": {
+    "title": "Birthdays",
+    "addBirthday": "Add Birthday",
+    "editBirthday": "Edit Birthday",
+    "noBirthdays": "No birthdays created",
+    "noBirthdaysDescription": "Add member birthdays to celebrate them automatically!",
+    "form": {
+      "selectMember": "Select Member *",
+      "searchMember": "Search member...",
+      "birthday": "Birthday *",
+      "birthdayPlaceholder": "DD.MM.YYYY"
+    },
+    "list": {
+      "member": "Member",
+      "birthday": "Birthday",
+      "nextBirthday": "Next Birthday",
+      "delete": "Delete",
+      "deleteConfirm": "Do you really want to delete this birthday?"
+    },
+    "config": {
+      "title": "Birthday Configuration",
+      "enabled": "Enable Birthdays",
+      "channel": "Channel for Birthday Messages",
+      "role": "Role for Birthday Person",
+      "embedTitle": "Embed Title",
+      "embedDescription": "Embed Description",
+      "embedColor": "Embed Color",
+      "embedThumbnail": "Embed Thumbnail URL",
+      "embedImage": "Embed Image URL",
+      "placeholders": {
+        "user": "{user} - User Mention",
+        "username": "{username} - Username",
+        "age": "{age} - Age"
+      }
     }
   }
 }

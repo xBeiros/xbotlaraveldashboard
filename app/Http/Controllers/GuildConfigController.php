@@ -19,6 +19,7 @@ use App\Models\TicketPost;
 use App\Models\Ticket;
 use App\Models\AutoDeleteMessage;
 use App\Models\Giveaway;
+use App\Models\Birthday;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -1913,6 +1914,105 @@ class GuildConfigController extends Controller
         $giveaway->delete();
 
         return back()->with('success', 'Giveaway erfolgreich gelöscht!');
+    }
+
+    public function storeBirthday(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'user_id' => 'required|string',
+            'birthday' => 'required|date',
+        ]);
+
+        $guildModel->birthdays()->updateOrCreate(
+            ['user_id' => $validated['user_id']],
+            ['birthday' => $validated['birthday']]
+        );
+
+        return back()->with('success', 'Geburtstag erfolgreich hinzugefügt!');
+    }
+
+    public function updateBirthday(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $birthday = $guildModel->birthdays()->findOrFail($id);
+
+        $validated = $request->validate([
+            'birthday' => 'required|date',
+        ]);
+
+        $birthday->update(['birthday' => $validated['birthday']]);
+
+        return back()->with('success', 'Geburtstag erfolgreich aktualisiert!');
+    }
+
+    public function deleteBirthday(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $birthday = $guildModel->birthdays()->findOrFail($id);
+        $birthday->delete();
+
+        return back()->with('success', 'Geburtstag erfolgreich gelöscht!');
+    }
+
+    public function updateBirthdayConfig(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'enabled' => 'nullable|boolean',
+            'channel_id' => 'nullable|string',
+            'role_id' => 'nullable|string',
+            'embed_title' => 'nullable|string|max:256',
+            'embed_description' => 'nullable|string|max:2000',
+            'embed_color' => 'nullable|string|max:7',
+            'embed_thumbnail' => 'nullable|string|max:500',
+            'embed_image' => 'nullable|string|max:500',
+        ]);
+
+        $guildModel->birthdayConfig()->updateOrCreate(
+            ['guild_id' => $guildModel->id],
+            $validated
+        );
+
+        return back()->with('success', 'Geburtstags-Konfiguration erfolgreich gespeichert!');
     }
 
     /**

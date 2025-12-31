@@ -56,7 +56,8 @@
     "ticketSystem": "Bilet Sistemi",
     "deleteMessages": "Mesajları Sil",
     "gamesAndFun": "Oyunlar ve Eğlence",
-    "giveaway": "Çekiliş"
+    "giveaway": "Çekiliş",
+    "birthdays": "Doğum Günleri"
   },
   "dashboard": {
     "title": "Sunucu Seç",
@@ -605,6 +606,42 @@
       "code": "Kod",
       "role": "Discord Rolü",
       "custom": "Özel Ödül"
+    }
+  },
+  "birthdays": {
+    "title": "Doğum Günleri",
+    "addBirthday": "Doğum Günü Ekle",
+    "editBirthday": "Doğum Günü Düzenle",
+    "noBirthdays": "Doğum günü oluşturulmadı",
+    "noBirthdaysDescription": "Üyelerin doğum günlerini ekleyerek otomatik olarak kutlayın!",
+    "form": {
+      "selectMember": "Üye Seç *",
+      "searchMember": "Üye ara...",
+      "birthday": "Doğum Günü *",
+      "birthdayPlaceholder": "GG.AA.YYYY"
+    },
+    "list": {
+      "member": "Üye",
+      "birthday": "Doğum Günü",
+      "nextBirthday": "Sonraki Doğum Günü",
+      "delete": "Sil",
+      "deleteConfirm": "Bu doğum gününü gerçekten silmek istiyor musunuz?"
+    },
+    "config": {
+      "title": "Doğum Günü Yapılandırması",
+      "enabled": "Doğum Günlerini Etkinleştir",
+      "channel": "Doğum Günü Mesajları için Kanal",
+      "role": "Doğum Günü Kişisi için Rol",
+      "embedTitle": "Embed Başlığı",
+      "embedDescription": "Embed Açıklaması",
+      "embedColor": "Embed Rengi",
+      "embedThumbnail": "Embed Thumbnail URL",
+      "embedImage": "Embed Görsel URL",
+      "placeholders": {
+        "user": "{user} - Kullanıcı Bahsi",
+        "username": "{username} - Kullanıcı Adı",
+        "age": "{age} - Yaş"
+      }
     }
   }
 }

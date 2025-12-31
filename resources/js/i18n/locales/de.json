@@ -56,7 +56,9 @@
     "ticketSystem": "Ticket-System",
     "deleteMessages": "Nachrichten Löschen",
     "gamesAndFun": "Spiele & Spaß",
-    "giveaway": "Gewinnspiel"
+    "giveaway": "Gewinnspiel",
+    "birthdays": "Geburtstage",
+    "birthdays": "Geburtstage"
   },
   "dashboard": {
     "title": "Server auswählen",
@@ -597,6 +599,42 @@
       "code": "Code",
       "role": "Discord Rolle",
       "custom": "Custom Preis"
+    }
+  },
+  "birthdays": {
+    "title": "Geburtstage",
+    "addBirthday": "Geburtstag hinzufügen",
+    "editBirthday": "Geburtstag bearbeiten",
+    "noBirthdays": "Keine Geburtstage erstellt",
+    "noBirthdaysDescription": "Füge Geburtstage von Mitgliedern hinzu, um sie automatisch zu feiern!",
+    "form": {
+      "selectMember": "Mitglied auswählen *",
+      "searchMember": "Mitglied suchen...",
+      "birthday": "Geburtsdatum *",
+      "birthdayPlaceholder": "TT.MM.JJJJ"
+    },
+    "list": {
+      "member": "Mitglied",
+      "birthday": "Geburtstag",
+      "nextBirthday": "Nächster Geburtstag",
+      "delete": "Löschen",
+      "deleteConfirm": "Möchtest du diesen Geburtstag wirklich löschen?"
+    },
+    "config": {
+      "title": "Geburtstags-Konfiguration",
+      "enabled": "Geburtstage aktivieren",
+      "channel": "Kanal für Geburtstags-Nachrichten",
+      "role": "Rolle für Geburtstagskinder",
+      "embedTitle": "Embed-Titel",
+      "embedDescription": "Embed-Beschreibung",
+      "embedColor": "Embed-Farbe",
+      "embedThumbnail": "Embed-Thumbnail URL",
+      "embedImage": "Embed-Bild URL",
+      "placeholders": {
+        "user": "{user} - Benutzer-Mention",
+        "username": "{username} - Benutzername",
+        "age": "{age} - Alter"
+      }
     }
   }
 }

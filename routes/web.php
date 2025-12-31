@@ -118,6 +118,28 @@ Route::middleware('auth')->group(function () {
     Route::delete('/guild/{guild}/giveaway/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteGiveaway'])
         ->name('guild.giveaway.delete');
     
+    // Birthdays
+    Route::get('/guild/{guild}/birthdays', [\App\Http\Controllers\DashboardController::class, 'birthdays'])
+        ->name('guild.birthdays');
+    Route::post('/guild/{guild}/birthdays', [\App\Http\Controllers\GuildConfigController::class, 'storeBirthday'])
+        ->name('guild.birthdays.store');
+    Route::put('/guild/{guild}/birthdays/{id}', [\App\Http\Controllers\GuildConfigController::class, 'updateBirthday'])
+        ->name('guild.birthdays.update');
+    Route::delete('/guild/{guild}/birthdays/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteBirthday'])
+        ->name('guild.birthdays.delete');
+    Route::put('/guild/{guild}/birthday-config', [\App\Http\Controllers\GuildConfigController::class, 'updateBirthdayConfig'])
+        ->name('guild.birthday-config.update');
+    
+    // Birthdays
+    Route::get('/guild/{guild}/birthdays', [\App\Http\Controllers\DashboardController::class, 'birthdays'])
+        ->name('guild.birthdays');
+    Route::post('/guild/{guild}/birthdays', [\App\Http\Controllers\GuildConfigController::class, 'storeBirthday'])
+        ->name('guild.birthdays.store');
+    Route::put('/guild/{guild}/birthdays/{id}', [\App\Http\Controllers\GuildConfigController::class, 'updateBirthday'])
+        ->name('guild.birthdays.update');
+    Route::delete('/guild/{guild}/birthdays/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteBirthday'])
+        ->name('guild.birthdays.delete');
+    
     // Auto-Delete Messages
     Route::post('/guild/{guild}/auto-delete-messages', [\App\Http\Controllers\GuildConfigController::class, 'storeAutoDeleteMessage'])
         ->name('guild.auto-delete-messages.store');

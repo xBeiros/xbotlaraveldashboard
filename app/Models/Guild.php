@@ -97,4 +97,19 @@ class Guild extends Model
     {
         return $this->hasMany(Giveaway::class);
     }
+
+    public function birthdays()
+    {
+        return $this->hasMany(Birthday::class);
+    }
+
+    public function birthdayConfig()
+    {
+        return $this->hasOne(BirthdayConfig::class);
+    }
+
+    public function birthdays()
+    {
+        return $this->hasMany(Birthday::class);
+    }
 }
