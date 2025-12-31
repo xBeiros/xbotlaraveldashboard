@@ -551,6 +551,7 @@ function editBirthday(birthday) {
 function closeEditModal() {
     showEditModal.value = false;
     editForm.reset();
+    configForm.reset();
     selectedMember.value = null;
     editingBirthdayId.value = null;
 }
@@ -563,6 +564,12 @@ function closeForm() {
     editingBirthday.value = false;
 }
 
+const configForm = useForm({
+    embed_title: '',
+    embed_description: '',
+    embed_color: '#5865f2',
+});
+
 function saveBirthday() {
     if (showEditModal.value && editingBirthdayId.value) {
         // Update birthday first
@@ -570,11 +577,9 @@ function saveBirthday() {
             preserveScroll: true,
             onSuccess: () => {
                 // Then update birthday config with embed settings
-                const configForm = useForm({
-                    embed_title: editForm.embed_title,
-                    embed_description: editForm.embed_description,
-                    embed_color: editForm.embed_color,
-                });
+                configForm.embed_title = editForm.embed_title;
+                configForm.embed_description = editForm.embed_description;
+                configForm.embed_color = editForm.embed_color;
                 
                 configForm.put(route('guild.birthday-config.update', { guild: props.guild.id }), {
                     preserveScroll: true,
