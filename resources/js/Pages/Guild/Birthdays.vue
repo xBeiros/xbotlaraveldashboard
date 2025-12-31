@@ -233,15 +233,31 @@
                 </form>
             </div>
 
+            <!-- Search Bar -->
+            <div v-if="birthdays.length > 0 && !showForm" class="mb-4">
+                <div class="relative">
+                    <input
+                        type="text"
+                        v-model="birthdaySearch"
+                        :placeholder="t('birthdays.searchPlaceholder')"
+                        class="w-full rounded-lg bg-[#36393f] border border-[#202225] text-white px-4 py-2 pl-10 focus:outline-none focus:border-[#5865f2]"
+                    />
+                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+            </div>
+
             <!-- Birthdays List -->
-            <div v-if="birthdays.length === 0 && !showForm" class="bg-[#2f3136] rounded-lg border border-[#202225] p-8">
+            <div v-if="filteredBirthdays.length === 0 && !showForm" class="bg-[#2f3136] rounded-lg border border-[#202225] p-8">
                 <div class="text-center py-12">
                     <svg class="w-16 h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <h2 class="text-xl font-semibold text-white mb-2">{{ t('birthdays.noBirthdays') }}</h2>
-                    <p class="text-gray-400 mb-6">{{ t('birthdays.noBirthdaysDescription') }}</p>
+                    <h2 class="text-xl font-semibold text-white mb-2">{{ birthdaySearch ? t('birthdays.noResults') : t('birthdays.noBirthdays') }}</h2>
+                    <p class="text-gray-400 mb-6">{{ birthdaySearch ? t('birthdays.noResultsDescription') : t('birthdays.noBirthdaysDescription') }}</p>
                     <button
+                        v-if="!birthdaySearch"
                         @click="openCreateForm"
                         class="px-4 py-2 bg-gradient-to-r from-[#5865f2] to-[#4752c4] hover:from-[#4752c4] hover:to-[#3c45a5] text-white rounded-lg transition-all font-medium"
                     >
@@ -250,91 +266,74 @@
                 </div>
             </div>
 
-            <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div v-else-if="!showForm" class="bg-[#2f3136] rounded-lg border border-[#202225] overflow-hidden">
+                <!-- Table Header -->
+                <div class="grid grid-cols-12 gap-4 p-4 bg-[#36393f] border-b border-[#202225] text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                    <div class="col-span-3">{{ t('birthdays.list.member') }}</div>
+                    <div class="col-span-2">{{ t('birthdays.list.birthday') }}</div>
+                    <div class="col-span-2">{{ t('birthdays.list.role') }}</div>
+                    <div class="col-span-2">{{ t('birthdays.list.channel') }}</div>
+                    <div class="col-span-1 text-center">{{ t('birthdays.list.enabled') }}</div>
+                    <div class="col-span-2 text-right">{{ t('common.actions') }}</div>
+                </div>
+
+                <!-- Table Rows -->
                 <div
-                    v-for="birthday in birthdays"
+                    v-for="birthday in filteredBirthdays"
                     :key="birthday.id"
-                    class="bg-gradient-to-br from-[#2f3136] to-[#36393f] rounded-xl border border-[#202225] p-6 hover:border-[#5865f2] transition-all duration-200 shadow-lg hover:shadow-xl"
+                    class="grid grid-cols-12 gap-4 p-4 border-b border-[#202225] hover:bg-[#36393f] transition-colors"
                 >
-                    <!-- Header with Avatar and Name -->
-                    <div class="flex items-center justify-between mb-4 pb-4 border-b border-[#202225]">
-                        <div class="flex items-center gap-3">
-                            <div class="relative">
-                                <img
-                                    :src="getMemberAvatar(birthday.user_id)"
-                                    :alt="getMemberName(birthday.user_id)"
-                                    class="w-14 h-14 rounded-full ring-2 ring-[#5865f2] ring-offset-2 ring-offset-[#2f3136]"
-                                />
-                                <div class="absolute -bottom-1 -right-1 w-5 h-5 bg-[#5865f2] rounded-full flex items-center justify-center">
-                                    <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-lg font-bold text-white">{{ getMemberName(birthday.user_id) }}</h3>
-                                <p class="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                    </svg>
-                                    {{ formatBirthday(birthday.birthday) }}
-                                </p>
-                            </div>
-                        </div>
+                    <!-- Member -->
+                    <div class="col-span-3 flex items-center gap-3">
+                        <img
+                            :src="getMemberAvatar(birthday.user_id)"
+                            :alt="getMemberName(birthday.user_id)"
+                            class="w-8 h-8 rounded-full"
+                        />
+                        <span class="text-white font-medium text-sm">{{ getMemberName(birthday.user_id) }}</span>
                     </div>
 
-                    <!-- Birthday Info Cards -->
-                    <div class="space-y-2 mb-4">
-                        <div class="flex items-center justify-between p-2 bg-[#202225]/50 rounded-lg">
-                            <span class="text-xs text-gray-400 flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                                </svg>
-                                {{ t('birthdays.list.role') }}
-                            </span>
-                            <span class="text-sm font-medium text-white">{{ getRoleName(birthdayConfig?.role_id) || t('common.notSet') }}</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-[#202225]/50 rounded-lg">
-                            <span class="text-xs text-gray-400 flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                </svg>
-                                {{ t('birthdays.list.channel') }}
-                            </span>
-                            <span class="text-sm font-medium text-white">{{ getChannelName(birthdayConfig?.channel_id) || t('common.notSet') }}</span>
-                        </div>
-                        <div class="flex items-center justify-between p-2 bg-[#202225]/50 rounded-lg">
-                            <span class="text-xs text-gray-400 flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {{ t('birthdays.list.enabled') }}
-                            </span>
-                            <span :class="[
-                                'text-xs font-semibold px-2 py-1 rounded',
-                                birthdayConfig?.enabled ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
-                            ]">
-                                {{ birthdayConfig?.enabled ? t('common.enabled') : t('common.disabled') }}
-                            </span>
-                        </div>
+                    <!-- Birthday -->
+                    <div class="col-span-2 flex items-center">
+                        <span class="text-gray-300 text-sm">{{ formatBirthday(birthday.birthday) }}</span>
                     </div>
 
-                    <!-- Action Buttons -->
-                    <div class="flex gap-2 pt-4 border-t border-[#202225]">
+                    <!-- Role -->
+                    <div class="col-span-2 flex items-center">
+                        <span class="text-gray-300 text-sm">{{ getRoleName(birthdayConfig?.role_id) || t('common.notSet') }}</span>
+                    </div>
+
+                    <!-- Channel -->
+                    <div class="col-span-2 flex items-center">
+                        <span class="text-gray-300 text-sm">{{ getChannelName(birthdayConfig?.channel_id) || t('common.notSet') }}</span>
+                    </div>
+
+                    <!-- Enabled -->
+                    <div class="col-span-1 flex items-center justify-center">
+                        <span :class="[
+                            'text-xs font-semibold px-2 py-1 rounded',
+                            birthdayConfig?.enabled ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
+                        ]">
+                            {{ birthdayConfig?.enabled ? t('common.enabled') : t('common.disabled') }}
+                        </span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="col-span-2 flex items-center justify-end gap-2">
                         <button
                             @click="editBirthday(birthday)"
-                            class="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs font-medium transition-colors flex items-center gap-1"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                             {{ t('common.edit') }}
                         </button>
                         <button
                             @click="deleteBirthday(birthday.id)"
-                            class="flex-1 px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white rounded-lg text-sm font-medium transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 flex items-center justify-center gap-2"
+                            class="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-medium transition-colors flex items-center gap-1"
                         >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
                             {{ t('common.delete') }}
@@ -485,6 +484,7 @@ const memberSearch = ref('');
 const filteredMembers = ref([]);
 const selectedMember = ref(null);
 const editingBirthdayId = ref(null);
+const birthdaySearch = ref('');
 
 const form = useForm({
     user_id: '',
@@ -633,5 +633,18 @@ function formatBirthday(dateString) {
     const date = new Date(dateString);
     return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
+
+const filteredBirthdays = computed(() => {
+    if (!birthdaySearch.value) {
+        return props.birthdays;
+    }
+    
+    const search = birthdaySearch.value.toLowerCase();
+    return props.birthdays.filter(birthday => {
+        const memberName = getMemberName(birthday.user_id).toLowerCase();
+        const birthdayDate = formatBirthday(birthday.birthday).toLowerCase();
+        return memberName.includes(search) || birthdayDate.includes(search);
+    });
+});
 </script>
 

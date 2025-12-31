@@ -633,6 +633,9 @@
       "placeholders": "Kullanılabilir yer tutucular: {user}, {username}, {age}",
       "embedColor": "Embed Rengi"
     },
+    "searchPlaceholder": "Doğum günlerini ara...",
+    "noResults": "Sonuç bulunamadı",
+    "noResultsDescription": "Farklı bir arama deneyin.",
     "list": {
       "member": "Üye",
       "birthday": "Doğum Günü",

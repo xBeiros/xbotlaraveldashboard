@@ -31,7 +31,11 @@
     "noMoreItems": "Alle bereits ausgewählt",
     "unknown": "Unbekannt",
     "optional": "optional",
-    "enable": "Aktivieren"
+    "enable": "Aktivieren",
+    "notSet": "Nicht gesetzt",
+    "actions": "Aktionen",
+    "activate": "Aktivieren",
+    "deactivate": "Deaktivieren"
   },
   "languages": {
     "german": "Deutsch",
@@ -626,6 +630,9 @@
       "placeholders": "Verfügbare Platzhalter: {user}, {username}, {age}",
       "embedColor": "Embed-Farbe"
     },
+    "searchPlaceholder": "Geburtstage suchen...",
+    "noResults": "Keine Ergebnisse gefunden",
+    "noResultsDescription": "Versuche es mit einer anderen Suche.",
     "list": {
       "member": "Mitglied",
       "birthday": "Geburtstag",

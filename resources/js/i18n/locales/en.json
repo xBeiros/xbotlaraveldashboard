@@ -31,7 +31,11 @@
     "noMoreItems": "All already selected",
     "unknown": "Unknown",
     "optional": "optional",
-    "enable": "Enable"
+    "enable": "Enable",
+    "notSet": "Not set",
+    "actions": "Actions",
+    "activate": "Activate",
+    "deactivate": "Deactivate"
   },
   "languages": {
     "german": "German",
@@ -633,6 +637,9 @@
       "placeholders": "Available placeholders: {user}, {username}, {age}",
       "embedColor": "Embed Color"
     },
+    "searchPlaceholder": "Search birthdays...",
+    "noResults": "No results found",
+    "noResultsDescription": "Try a different search.",
     "list": {
       "member": "Member",
       "birthday": "Birthday",
