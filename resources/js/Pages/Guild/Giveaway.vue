@@ -331,7 +331,7 @@
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
-import { ref } from 'vue';
+import { ref, watch, computed } from 'vue';
 
 const { t } = useI18n();
 
