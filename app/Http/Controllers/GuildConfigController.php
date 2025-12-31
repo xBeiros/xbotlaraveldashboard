@@ -1723,7 +1723,8 @@ class GuildConfigController extends Controller
             'description' => 'nullable|string|max:2000',
             'channel_id' => 'required|string',
             'prize_type' => 'required|in:code,role,custom',
-            'prize_code' => 'nullable|string|max:255|required_if:prize_type,code',
+            'prize_codes' => 'nullable|array|required_if:prize_type,code',
+            'prize_codes.*' => 'required|string|max:255',
             'prize_role_id' => 'nullable|string|required_if:prize_type,role',
             'prize_custom' => 'nullable|string|max:500|required_if:prize_type,custom',
             'winner_count' => 'required|integer|min:1|max:100',
@@ -1734,6 +1735,14 @@ class GuildConfigController extends Controller
             'winner_message' => 'nullable|string|max:2000',
             'ticket_message' => 'nullable|string|max:2000',
         ]);
+
+        // Validate that prize_codes count matches winner_count for code type
+        if ($validated['prize_type'] === 'code') {
+            $codeCount = count($validated['prize_codes'] ?? []);
+            if ($codeCount !== $validated['winner_count']) {
+                return back()->withErrors(['prize_codes' => "Die Anzahl der Codes muss der Anzahl der Gewinner ({$validated['winner_count']}) entsprechen."])->withInput();
+            }
+        }
 
         // Validate that at least one duration field is set
         $hasDuration = ($validated['duration_weeks'] ?? 0) > 0 
@@ -1795,7 +1804,7 @@ class GuildConfigController extends Controller
                 ],
             ];
 
-            if ($validated['prize_type'] === 'code' && $validated['prize_code']) {
+            if ($validated['prize_type'] === 'code' && !empty($validated['prize_codes'])) {
                 $embed['fields'][] = [
                     'name' => $translations['prize'],
                     'value' => '🎁 ' . $translations['code'],
@@ -1851,7 +1860,7 @@ class GuildConfigController extends Controller
                 'title' => $validated['title'],
                 'description' => $validated['description'],
                 'prize_type' => $validated['prize_type'],
-                'prize_code' => $validated['prize_code'] ?? null,
+                'prize_code' => ($validated['prize_type'] === 'code' && !empty($validated['prize_codes'])) ? json_encode($validated['prize_codes']) : null,
                 'prize_role_id' => $validated['prize_role_id'] ?? null,
                 'prize_custom' => $validated['prize_custom'] ?? null,
                 'winner_count' => $validated['winner_count'],

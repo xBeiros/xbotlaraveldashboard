@@ -106,15 +106,24 @@
 
                     <div v-if="form.prize_type === 'code'">
                         <label class="block text-sm font-medium text-gray-300 mb-2">
-                            {{ t('giveaway.form.prizeCode') }}
+                            {{ t('giveaway.form.prizeCodes') }} ({{ form.winner_count }} {{ t('giveaway.form.codesRequired') }})
                         </label>
-                        <input
-                            type="text"
-                            v-model="form.prize_code"
-                            required
-                            :placeholder="t('giveaway.form.prizeCodePlaceholder')"
-                            class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                        />
+                        <div class="space-y-2">
+                            <div
+                                v-for="(code, index) in prizeCodes"
+                                :key="index"
+                                class="flex items-center gap-2"
+                            >
+                                <input
+                                    type="text"
+                                    v-model="prizeCodes[index]"
+                                    required
+                                    :placeholder="t('giveaway.form.prizeCodePlaceholder') + ' ' + (index + 1)"
+                                    class="flex-1 rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                />
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">{{ t('giveaway.form.codesDescription') }}</p>
                     </div>
 
                     <div v-if="form.prize_type === 'role'">
@@ -341,7 +350,7 @@ const form = useForm({
     description: '',
     channel_id: '',
     prize_type: 'custom',
-    prize_code: '',
+    prize_codes: [],
     prize_role_id: '',
     prize_custom: '',
     winner_count: 1,
@@ -353,6 +362,34 @@ const form = useForm({
     ticket_message: '',
 });
 
+const prizeCodes = ref(['']);
+
+// Watch winner_count and prize_type to update prizeCodes array
+watch([() => form.winner_count, () => form.prize_type], ([newWinnerCount, newPrizeType]) => {
+    if (newPrizeType === 'code') {
+        const currentLength = prizeCodes.value.length;
+        if (newWinnerCount > currentLength) {
+            // Add more code inputs
+            for (let i = currentLength; i < newWinnerCount; i++) {
+                prizeCodes.value.push('');
+            }
+        } else if (newWinnerCount < currentLength) {
+            // Remove excess code inputs
+            prizeCodes.value = prizeCodes.value.slice(0, newWinnerCount);
+        }
+    }
+}, { immediate: true });
+
+// Watch prize_type to reset prizeCodes when switching away from code
+watch(() => form.prize_type, (newType) => {
+    if (newType !== 'code') {
+        prizeCodes.value = [''];
+    } else {
+        // Initialize with correct number of codes
+        prizeCodes.value = Array(form.winner_count).fill('').map(() => '');
+    }
+});
+
 function openCreateForm() {
     form.reset();
     form.prize_type = 'custom';
@@ -361,6 +398,7 @@ function openCreateForm() {
     form.duration_days = 0;
     form.duration_hours = 1;
     form.duration_minutes = 0;
+    prizeCodes.value = [''];
     showForm.value = true;
 }
 
@@ -370,6 +408,13 @@ function closeForm() {
 }
 
 function saveGiveaway() {
+    // Prepare prize_codes array for code type
+    if (form.prize_type === 'code') {
+        form.prize_codes = prizeCodes.value.filter(code => code.trim() !== '');
+    } else {
+        form.prize_codes = [];
+    }
+    
     form.post(route('guild.giveaway.store', { guild: props.guild.id }), {
         preserveScroll: true,
         onSuccess: () => {
