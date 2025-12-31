@@ -11,7 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('birthday_configs', function (Blueprint $table) {
+        if (!Schema::hasTable('birthday_configs')) {
+            Schema::create('birthday_configs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             $table->boolean('enabled')->default(false);
@@ -23,9 +24,11 @@ return new class extends Migration
             $table->string('embed_thumbnail')->nullable();
             $table->string('embed_image')->nullable();
             $table->timestamps();
-        });
+            });
+        }
 
-        Schema::create('birthdays', function (Blueprint $table) {
+        if (!Schema::hasTable('birthdays')) {
+            Schema::create('birthdays', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             $table->string('user_id'); // Discord User ID
@@ -33,9 +36,11 @@ return new class extends Migration
             $table->timestamps();
             
             $table->unique(['guild_id', 'user_id']); // Ein User kann nur ein Geburtsdatum pro Guild haben
-        });
+            });
+        }
 
-        Schema::create('birthday_processed', function (Blueprint $table) {
+        if (!Schema::hasTable('birthday_processed')) {
+            Schema::create('birthday_processed', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             $table->string('user_id'); // Discord User ID
@@ -43,7 +48,8 @@ return new class extends Migration
             $table->timestamps();
             
             $table->unique(['guild_id', 'user_id', 'processed_date']); // Ein Geburtstag kann nur einmal pro Tag verarbeitet werden
-        });
+            });
+        }
     }
 
     /**
