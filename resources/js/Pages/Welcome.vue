@@ -113,7 +113,7 @@ function logout() {
         </nav>
 
         <!-- Hero Section -->
-        <section class="relative w-full py-20 md:py-32 overflow-hidden">
+        <section class="relative w-full min-h-[calc(100vh-5rem)] py-20 md:py-32 overflow-hidden">
             <div 
                 class="absolute inset-0"
                 style="background: linear-gradient(rgb(19, 21, 31) -4.84%, rgb(29, 28, 47) 34.9%, rgb(33, 32, 54) 48.6%, rgb(51, 40, 62) 66.41%, rgb(98, 61, 83) 103.41%, rgb(140, 81, 102) 132.18%);"
