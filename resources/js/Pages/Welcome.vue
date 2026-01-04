@@ -71,9 +71,9 @@ function logout() {
                         </Link>
 
                         <!-- User Dropdown (wenn eingeloggt) -->
-                        <Dropdown v-if="$page.props.auth.user" align="right" width="48">
+                        <Dropdown v-if="$page.props.auth.user" align="right" width="48" content-classes="bg-[#2f3136] border border-[#202225]">
                             <template #trigger>
-                                <button class="flex items-center gap-2 hover:bg-[#36393f] px-3 py-2 rounded transition-colors">
+                                <button class="flex items-center gap-2 bg-[#36393f] hover:bg-[#40444b] px-3 py-2 rounded transition-colors">
                                     <img
                                         v-if="$page.props.auth.user.avatar"
                                         :src="$page.props.auth.user.avatar"
@@ -93,7 +93,7 @@ function logout() {
                                 </button>
                             </template>
                             <template #content>
-                                <DropdownLink :href="route('logout')" method="post" as="button" class="text-red-400 hover:text-red-300">
+                                <DropdownLink :href="route('logout')" method="post" as="button" class="text-red-400 hover:text-red-300 hover:bg-[#36393f]">
                                     Abmelden
                                 </DropdownLink>
                             </template>
