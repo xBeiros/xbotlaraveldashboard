@@ -38,7 +38,7 @@ function logout() {
         <!-- Sticky Navbar -->
         <nav class="sticky top-0 z-50 bg-[#2f3136] border-b border-[#202225]">
             <div class="max-w-7xl mx-auto px-6">
-                <div class="flex items-center justify-between h-16">
+                <div class="flex items-center justify-between h-20">
                     <!-- Logo & Brand -->
                     <div class="flex items-center gap-3">
                         <div class="logo-container">
@@ -62,7 +62,7 @@ function logout() {
                         <Link
                             v-if="$page.props.auth.user"
                             :href="route('dashboard')"
-                            class="px-4 py-2 bg-gradient-to-r from-[#f59e0b] to-[#d97706] hover:from-[#d97706] hover:to-[#b45309] text-white rounded-lg transition-all font-medium flex items-center gap-2 shadow-lg hover:shadow-xl"
+                            class="px-4 py-2 bg-gradient-to-r from-[#1e3a8a] via-[#3b82f6] to-[#60a5fa] hover:from-[#1e40af] hover:via-[#2563eb] hover:to-[#3b82f6] text-white rounded-lg transition-all font-medium flex items-center gap-2 shadow-lg hover:shadow-xl"
                         >
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
@@ -86,7 +86,7 @@ function logout() {
                                     >
                                         {{ $page.props.auth.user.name?.charAt(0).toUpperCase() || 'U' }}
                                     </div>
-                                    <span class="text-sm text-white font-medium">{{ $page.props.auth.user.name }}</span>
+                                    <span class="text-sm text-white font-medium">{{ $page.props.auth.user.name || $page.props.auth.user.username || 'User' }}</span>
                                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                                     </svg>
