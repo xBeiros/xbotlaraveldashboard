@@ -41,11 +41,13 @@ function logout() {
                 <div class="flex items-center justify-between h-16">
                     <!-- Logo & Brand -->
                     <div class="flex items-center gap-3">
-                        <img 
-                            src="/images/logo.svg" 
-                            alt="XBot Logo" 
-                            class="w-10 h-10"
-                        />
+                        <div class="logo-container">
+                            <img 
+                                src="/images/logo.svg" 
+                                alt="XBot Logo" 
+                                class="w-10 h-10 logo-shine"
+                            />
+                        </div>
                         <span class="font-bold text-lg text-white">XBot</span>
                     </div>
 
@@ -424,3 +426,38 @@ function logout() {
         </div>
     </div>
 </template>
+
+<style scoped>
+.logo-container {
+    position: relative;
+    display: inline-block;
+}
+
+.logo-shine {
+    animation: pulse 2s ease-in-out infinite, shine 3s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(88, 101, 242, 0.6));
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 8px rgba(88, 101, 242, 0.6));
+    }
+    50% {
+        transform: scale(1.05);
+        filter: drop-shadow(0 0 12px rgba(88, 101, 242, 0.8));
+    }
+}
+
+@keyframes shine {
+    0% {
+        filter: drop-shadow(0 0 8px rgba(88, 101, 242, 0.6));
+    }
+    50% {
+        filter: drop-shadow(0 0 16px rgba(88, 101, 242, 0.9)) drop-shadow(0 0 24px rgba(88, 101, 242, 0.5));
+    }
+    100% {
+        filter: drop-shadow(0 0 8px rgba(88, 101, 242, 0.6));
+    }
+}
+</style>
