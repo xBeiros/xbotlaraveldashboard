@@ -4,10 +4,12 @@
             @click="showDropdown = !showDropdown"
             class="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#36393f] hover:bg-[#40444b] transition-colors text-sm text-gray-300 hover:text-white"
         >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.196 3.196l1.4 1.4M6 18h12M18 16v2M3 5l3 3m0 0l3-3m-3 3v12" />
-            </svg>
-            <span>{{ currentLanguageName }}</span>
+            <img 
+                :src="`/images/lang/${currentLanguage}.png`" 
+                :alt="currentLanguageCode"
+                class="w-5 h-5 rounded-sm"
+            />
+            <span>{{ currentLanguageCode }}</span>
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
             </svg>
@@ -22,13 +24,20 @@
                 :key="lang.code"
                 @click="changeLanguage(lang.code)"
                 :class="[
-                    'w-full px-4 py-2 text-left text-sm transition-colors flex items-center justify-between',
+                    'w-full px-4 py-2 text-left text-sm transition-colors flex items-center justify-between gap-2',
                     currentLanguage === lang.code
                         ? 'bg-[#5865f2] text-white'
                         : 'text-gray-300 hover:bg-[#36393f] hover:text-white'
                 ]"
             >
-                <span>{{ lang.name }}</span>
+                <div class="flex items-center gap-2">
+                    <img 
+                        :src="`/images/lang/${lang.code}.png`" 
+                        :alt="lang.name"
+                        class="w-5 h-5 rounded-sm"
+                    />
+                    <span>{{ lang.name }}</span>
+                </div>
                 <svg
                     v-if="currentLanguage === lang.code"
                     class="w-4 h-4"
@@ -59,9 +68,8 @@ const languages = [
 
 const currentLanguage = computed(() => locale.value);
 
-const currentLanguageName = computed(() => {
-    const lang = languages.find(l => l.code === currentLanguage.value);
-    return lang ? lang.name : 'Deutsch';
+const currentLanguageCode = computed(() => {
+    return currentLanguage.value.toUpperCase();
 });
 
 function changeLanguage(lang) {

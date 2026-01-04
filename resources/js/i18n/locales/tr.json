@@ -667,5 +667,13 @@
         "age": "{age} - Yaş"
       }
     }
+  },
+  "landing": {
+    "heroTitle": "Topluluğunuz İçin En İyi Tümü-Bir-Arada Discord Botu.",
+    "heroDescription": "XBot, Topluluğunuz İçin Tam Bir Discord Moderasyon Botudur. Topluluk isteklerine göre sürekli genişletiliyor ve Tamamen Ücretsiz.",
+    "addToDiscord": "Discord'a Ekle",
+    "dashboard": "Kontrol Paneli",
+    "loginWithDiscord": "Discord ile Giriş Yap",
+    "logout": "Çıkış Yap"
   }
 }

@@ -671,5 +671,13 @@
         "age": "{age} - Age"
       }
     }
+  },
+  "landing": {
+    "heroTitle": "The Best All-In-One Discord Bot for Your Community.",
+    "heroDescription": "XBot is a Complete Discord Moderation Bot for your Community. Constantly expanding based on community requests and Completely Free.",
+    "addToDiscord": "Add to Discord",
+    "dashboard": "Dashboard",
+    "loginWithDiscord": "Login with Discord",
+    "logout": "Logout"
   }
 }
