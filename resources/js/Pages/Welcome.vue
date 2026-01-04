@@ -41,9 +41,11 @@ function logout() {
                 <div class="flex items-center justify-between h-16">
                     <!-- Logo & Brand -->
                     <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-[#5865f2] rounded-full flex items-center justify-center">
-                            <span class="text-white font-bold text-sm">XB</span>
-                        </div>
+                        <img 
+                            src="/images/logo.svg" 
+                            alt="XBot Logo" 
+                            class="w-10 h-10"
+                        />
                         <span class="font-bold text-lg text-white">XBot</span>
                     </div>
 
