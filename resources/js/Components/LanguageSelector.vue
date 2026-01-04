@@ -2,7 +2,7 @@
     <div class="relative" ref="dropdownRef">
         <button
             @click="showDropdown = !showDropdown"
-            class="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#36393f] hover:bg-[#40444b] transition-colors text-sm text-gray-300 hover:text-white"
+            class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-[#40444b] transition-colors text-sm text-gray-300 hover:text-white"
         >
             <img 
                 :src="`/images/lang/${currentLanguage}.png`" 
