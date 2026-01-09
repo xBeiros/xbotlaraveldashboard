@@ -316,6 +316,7 @@ function refreshGuilds() {
                         </div>
                     </div>
                 </div>
+                </div>
             </div>
         </main>
         
