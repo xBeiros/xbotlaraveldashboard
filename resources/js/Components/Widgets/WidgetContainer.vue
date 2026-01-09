@@ -119,18 +119,9 @@ const startDrag = (e) => {
     }, { once: true });
 };
 
-let refreshInterval = null;
-
 onMounted(() => {
     fetchData();
-    // Auto-refresh alle 30 Sekunden
-    refreshInterval = setInterval(fetchData, 30000);
-});
-
-onUnmounted(() => {
-    if (refreshInterval) {
-        clearInterval(refreshInterval);
-    }
+    // Keine automatische Aktualisierung - nur bei manuellem Refresh oder Seitenreload
 });
 </script>
 
