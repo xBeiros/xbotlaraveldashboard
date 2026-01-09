@@ -1,7 +1,7 @@
 <script setup>
 import GuildLayout from '@/Layouts/GuildLayout.vue';
 import { Head, router } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import MembersWidget from '@/Components/Widgets/MembersWidget.vue';
 import TicketsWidget from '@/Components/Widgets/TicketsWidget.vue';
@@ -19,12 +19,18 @@ const props = defineProps({
     },
 });
 
-// Debug: Log widgets
-console.log('Widgets received:', props.widgets);
-console.log('Widgets length:', props.widgets?.length);
+// Reaktive Widgets-Liste für Drag & Drop
+const widgetsList = ref([...props.widgets]);
+
+// Aktualisiere widgetsList wenn props.widgets sich ändert
+watch(() => props.widgets, (newWidgets) => {
+    widgetsList.value = [...newWidgets];
+}, { immediate: true, deep: true });
 
 const showAddWidgetModal = ref(false);
 const selectedWidgetType = ref(null);
+const draggedWidgetIndex = ref(null);
+const dragOverWidgetIndex = ref(null);
 
 const availableWidgetTypes = computed(() => [
     { value: 'members', label: t('widgets.types.members') },
