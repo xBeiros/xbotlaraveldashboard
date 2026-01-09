@@ -35,6 +35,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'discord_token',
+        'discord_refresh_token',
     ];
 
     /**
