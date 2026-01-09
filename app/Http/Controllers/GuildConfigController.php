@@ -506,11 +506,13 @@ class GuildConfigController extends Controller
         );
 
         if (!$response->successful()) {
+            $errorBody = $response->json();
+            $errorMessage = $errorBody['message'] ?? 'Unbekannter Fehler';
             \Log::error('Discord API Error:', [
                 'status' => $response->status(),
-                'body' => $response->body(),
+                'error' => $errorMessage,
             ]);
-            throw new \Exception('Fehler beim Senden der Nachricht: ' . $response->status());
+            throw new \Exception('Fehler beim Senden der Nachricht: ' . $errorMessage);
         }
 
         $messageData = $response->json();
@@ -1502,7 +1504,6 @@ class GuildConfigController extends Controller
             $errorMessage = $errorBody['message'] ?? 'Unbekannter Fehler';
             \Log::error('Discord API Error:', [
                 'status' => $response->status(),
-                'body' => $response->body(),
                 'error' => $errorMessage,
             ]);
             throw new \Exception('Fehler beim Senden der Nachricht: ' . $errorMessage . ' (Status: ' . $response->status() . ')');
@@ -1847,7 +1848,13 @@ class GuildConfigController extends Controller
             ]);
 
             if (!$response->successful()) {
-                return back()->with('error', 'Fehler beim Senden des Giveaways: ' . $response->body());
+                $errorBody = $response->json();
+                $errorMessage = $errorBody['message'] ?? 'Unbekannter Fehler';
+                \Log::error('Discord API Error beim Senden des Giveaways:', [
+                    'status' => $response->status(),
+                    'error' => $errorMessage,
+                ]);
+                return back()->with('error', 'Fehler beim Senden des Giveaways: ' . $errorMessage);
             }
 
             $messageData = $response->json();
