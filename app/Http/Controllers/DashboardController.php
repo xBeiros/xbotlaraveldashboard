@@ -1492,12 +1492,16 @@ class DashboardController extends BaseGuildController
     {
         $user = Auth::user();
         
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+        
         $validated = $request->validate([
             'widget_type' => 'required|string|in:members,tickets,giveaways,leveling',
             'guild_id' => 'nullable|string',
             'position' => 'nullable|integer|min:0',
-            'column' => 'nullable|integer|min:0',
-            'row' => 'nullable|integer|min:0',
+            'column' => 'nullable|integer|min:1',
+            'row' => 'nullable|integer|min:1',
             'config' => 'nullable|array',
         ]);
 
@@ -1508,27 +1512,47 @@ class DashboardController extends BaseGuildController
             ->first();
 
         if ($existing) {
-            return response()->json(['error' => 'Widget dieses Typs existiert bereits'], 400);
+            // Wenn eine guild_id vorhanden ist, leite zur Config-Seite weiter (mit Fehlermeldung)
+            if ($validated['guild_id']) {
+                return redirect()->route('guild.config', ['guild' => $validated['guild_id']])
+                    ->with('error', 'Ein Widget dieses Typs existiert bereits für diesen Server.');
+            }
+            return redirect()->route('dashboard')
+                ->with('error', 'Ein Widget dieses Typs existiert bereits.');
         }
 
-        $widget = DashboardWidget::create([
-            'user_id' => $user->id,
-            'guild_id' => $validated['guild_id'] ?? null,
-            'widget_type' => $validated['widget_type'],
-            'position' => $validated['position'] ?? 0,
-            'column' => $validated['column'] ?? 1,
-            'row' => $validated['row'] ?? 1,
-            'config' => $validated['config'] ?? [],
-            'enabled' => true,
-        ]);
+        try {
+            $widget = DashboardWidget::create([
+                'user_id' => $user->id,
+                'guild_id' => $validated['guild_id'] ?? null,
+                'widget_type' => $validated['widget_type'],
+                'position' => $validated['position'] ?? 0,
+                'column' => $validated['column'] ?? 1,
+                'row' => $validated['row'] ?? 1,
+                'config' => $validated['config'] ?? [],
+                'enabled' => true,
+            ]);
 
-        // Wenn eine guild_id vorhanden ist, leite zur Config-Seite weiter
-        if ($validated['guild_id']) {
-            return redirect()->route('guild.config', ['guild' => $validated['guild_id']]);
+            // Wenn eine guild_id vorhanden ist, leite zur Config-Seite weiter
+            if ($validated['guild_id']) {
+                return redirect()->route('guild.config', ['guild' => $validated['guild_id']])
+                    ->with('success', 'Widget erfolgreich hinzugefügt.');
+            }
+            
+            // Sonst zurück zum Dashboard
+            return redirect()->route('dashboard')
+                ->with('success', 'Widget erfolgreich hinzugefügt.');
+        } catch (\Exception $e) {
+            \Log::error('Fehler beim Erstellen des Widgets: ' . $e->getMessage());
+            
+            if ($validated['guild_id']) {
+                return redirect()->route('guild.config', ['guild' => $validated['guild_id']])
+                    ->with('error', 'Fehler beim Hinzufügen des Widgets: ' . $e->getMessage());
+            }
+            
+            return redirect()->route('dashboard')
+                ->with('error', 'Fehler beim Hinzufügen des Widgets: ' . $e->getMessage());
         }
-        
-        // Sonst zurück zum Dashboard
-        return redirect()->route('dashboard');
     }
 
     /**

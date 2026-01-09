@@ -83,6 +83,14 @@ const removeWidget = (widgetId) => {
 
     <GuildLayout :guild="guild" :guilds="guilds">
         <div class="p-8">
+            <!-- Success/Error Messages -->
+            <div v-if="$page.props.flash?.success" class="mb-4 p-4 bg-green-500/20 border border-green-500 rounded-lg text-green-400">
+                {{ $page.props.flash.success }}
+            </div>
+            <div v-if="$page.props.flash?.error" class="mb-4 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-400">
+                {{ $page.props.flash.error }}
+            </div>
+            
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-2xl font-bold text-white">Dashboard</h1>
                 <button
