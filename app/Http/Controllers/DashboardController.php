@@ -274,6 +274,7 @@ class DashboardController extends BaseGuildController
             ],
             'guilds' => $allGuilds,
             'channels' => $channels,
+            'widgets' => $widgets,
             'welcomeConfig' => $welcomeConfig ? [
                 'enabled' => $welcomeConfig->enabled,
                 'channel_id' => $welcomeConfig->channel_id,
