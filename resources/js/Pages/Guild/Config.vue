@@ -49,28 +49,36 @@ const addWidget = async () => {
         return;
     }
     
-    try {
-        router.post(route('dashboard.widgets.store'), {
-            widget_type: selectedWidgetType.value,
-            guild_id: props.guild.id,
-            position: props.widgets.length,
-            column: 1,
-            row: 1,
-        }, {
-            preserveState: false,
-            preserveScroll: false,
-            onSuccess: () => {
-                showAddWidgetModal.value = false;
-                selectedWidgetType.value = null;
-            },
-            onError: (errors) => {
-                console.error('Error adding widget:', errors);
-                alert(errors.error || 'Fehler beim Hinzufügen des Widgets');
-            }
-        });
-    } catch (e) {
-        console.error('Error adding widget:', e);
+    if (!props.guild?.id) {
+        console.error('Guild ID fehlt');
+        alert('Fehler: Server-ID nicht gefunden');
+        return;
     }
+    
+    router.post(route('dashboard.widgets.store'), {
+        widget_type: selectedWidgetType.value,
+        guild_id: props.guild.id,
+        position: props.widgets.length,
+        column: 1,
+        row: 1,
+    }, {
+        preserveState: false,
+        preserveScroll: false,
+        onSuccess: () => {
+            showAddWidgetModal.value = false;
+            selectedWidgetType.value = null;
+        },
+        onError: (errors) => {
+            console.error('Error adding widget:', errors);
+            if (errors.message) {
+                alert(errors.message);
+            } else if (typeof errors === 'string') {
+                alert(errors);
+            } else {
+                alert('Fehler beim Hinzufügen des Widgets');
+            }
+        }
+    });
 };
 
 const removeWidget = (widgetId) => {
