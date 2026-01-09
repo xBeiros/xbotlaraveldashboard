@@ -777,7 +777,7 @@ class DashboardController extends BaseGuildController
      * Helper-Methode: Lädt bot_joined Status nach verifyAndUpdateBotStatus
      * und erstellt/aktualisiert Guild-Model mit korrektem bot_active Status
      */
-    private function getOrCreateGuildModel($guildId, $userGuild, $user)
+    protected function getOrCreateGuildModel($guildId, $userGuild, $user)
     {
         // Lade bot_joined Status nach verifyAndUpdateBotStatus (wurde dort bereits aktualisiert)
         $userGuild->refresh();
