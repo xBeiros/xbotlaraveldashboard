@@ -21,6 +21,9 @@ use App\Models\AutoDeleteMessage;
 use App\Models\Giveaway;
 use App\Models\Birthday;
 use App\Models\AddOn;
+use App\Models\TeamRank;
+use App\Models\TeamMember;
+use App\Models\TeamManagementConfig;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 

@@ -125,6 +125,35 @@
     "title": "Add-Ons",
     "description": "Erweitere deinen Bot mit zusätzlichen Funktionen. Aktiviere oder deaktiviere Add-Ons nach Bedarf."
   },
+  "teamManagement": {
+    "title": "Team Verwaltung",
+    "ranks": {
+      "title": "Ränge",
+      "addRank": "Rang hinzufügen",
+      "editRank": "Rang bearbeiten",
+      "noRanks": "Noch keine Ränge vorhanden",
+      "name": "Rang-Name",
+      "memberCount": "{count} Mitglieder",
+      "confirmDelete": "Möchtest du diesen Rang wirklich löschen? Alle Mitglieder werden entfernt."
+    },
+    "members": {
+      "title": "Team-Mitglieder",
+      "addMember": "Mitglied hinzufügen",
+      "noMembers": "Noch keine Mitglieder vorhanden",
+      "member": "Mitglied",
+      "rank": "Rang",
+      "searchMember": "Mitglied suchen...",
+      "confirmRemove": "Möchtest du dieses Mitglied wirklich entfernen?"
+    },
+    "config": {
+      "title": "Konfiguration",
+      "channel": "Benachrichtigungs-Kanal",
+      "notifyJoin": "Team-Beitritt benachrichtigen",
+      "notifyLeave": "Team-Austritt benachrichtigen",
+      "notifyUpgrade": "Rang-Aufstieg benachrichtigen",
+      "notifyDowngrade": "Rang-Abstieg benachrichtigen"
+    }
+  },
   "serverManagement": {
     "title": "Einstellungen",
     "serverLanguage": "Serversprache",

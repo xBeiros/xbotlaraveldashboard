@@ -23,6 +23,9 @@ use App\Models\BirthdayConfig;
 use App\Models\DashboardWidget;
 use App\Models\Ticket;
 use App\Models\AddOn;
+use App\Models\TeamRank;
+use App\Models\TeamMember;
+use App\Models\TeamManagementConfig;
 
 class DashboardController extends BaseGuildController
 {

@@ -121,6 +121,35 @@
     "title": "Eklentiler",
     "description": "Botunuza ek özellikler ekleyin. İhtiyacınıza göre eklentileri etkinleştirin veya devre dışı bırakın."
   },
+  "teamManagement": {
+    "title": "Takım Yönetimi",
+    "ranks": {
+      "title": "Rütbeler",
+      "addRank": "Rütbe Ekle",
+      "editRank": "Rütbe Düzenle",
+      "noRanks": "Henüz rütbe yok",
+      "name": "Rütbe Adı",
+      "memberCount": "{count} üye",
+      "confirmDelete": "Bu rütbeyi gerçekten silmek istiyor musunuz? Tüm üyeler kaldırılacak."
+    },
+    "members": {
+      "title": "Takım Üyeleri",
+      "addMember": "Üye Ekle",
+      "noMembers": "Henüz üye yok",
+      "member": "Üye",
+      "rank": "Rütbe",
+      "searchMember": "Üye ara...",
+      "confirmRemove": "Bu üyeyi gerçekten kaldırmak istiyor musunuz?"
+    },
+    "config": {
+      "title": "Yapılandırma",
+      "channel": "Bildirim Kanalı",
+      "notifyJoin": "Takıma katılımı bildir",
+      "notifyLeave": "Takımdan ayrılmayı bildir",
+      "notifyUpgrade": "Rütbe yükseltmeyi bildir",
+      "notifyDowngrade": "Rütbe düşürmeyi bildir"
+    }
+  },
   "serverManagement": {
     "title": "Ayarlar",
     "serverLanguage": "Sunucu Dili",

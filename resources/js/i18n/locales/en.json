@@ -125,6 +125,35 @@
     "title": "Add-Ons",
     "description": "Extend your bot with additional features. Enable or disable add-ons as needed."
   },
+  "teamManagement": {
+    "title": "Team Management",
+    "ranks": {
+      "title": "Ranks",
+      "addRank": "Add Rank",
+      "editRank": "Edit Rank",
+      "noRanks": "No ranks yet",
+      "name": "Rank Name",
+      "memberCount": "{count} members",
+      "confirmDelete": "Do you really want to delete this rank? All members will be removed."
+    },
+    "members": {
+      "title": "Team Members",
+      "addMember": "Add Member",
+      "noMembers": "No members yet",
+      "member": "Member",
+      "rank": "Rank",
+      "searchMember": "Search member...",
+      "confirmRemove": "Do you really want to remove this member?"
+    },
+    "config": {
+      "title": "Configuration",
+      "channel": "Notification Channel",
+      "notifyJoin": "Notify team join",
+      "notifyLeave": "Notify team leave",
+      "notifyUpgrade": "Notify rank upgrade",
+      "notifyDowngrade": "Notify rank downgrade"
+    }
+  },
   "serverManagement": {
     "title": "Settings",
     "serverLanguage": "Server Language",
