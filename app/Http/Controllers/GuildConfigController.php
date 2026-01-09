@@ -2117,7 +2117,7 @@ class GuildConfigController extends BaseGuildController
     /**
      * Toggle Add-On Status
      */
-    public function toggleAddOn(Request $request, $guild, $type)
+    public function toggleAddOn(Request $request, $guild)
     {
         $user = Auth::user();
         
@@ -2136,12 +2136,13 @@ class GuildConfigController extends BaseGuildController
         $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
 
         $validated = $request->validate([
+            'addon_type' => 'required|string',
             'enabled' => 'required|boolean',
         ]);
 
         // Validiere Add-On-Typ
         $allowedTypes = ['team_management'];
-        if (!in_array($type, $allowedTypes)) {
+        if (!in_array($validated['addon_type'], $allowedTypes)) {
             return redirect()->route('guild.config', ['guild' => $guild])
                 ->with('error', 'Ungültiger Add-On-Typ.');
         }
@@ -2149,7 +2150,7 @@ class GuildConfigController extends BaseGuildController
         AddOn::updateOrCreate(
             [
                 'guild_id' => $guildModel->id,
-                'addon_type' => $type,
+                'addon_type' => $validated['addon_type'],
             ],
             [
                 'enabled' => $validated['enabled'],
