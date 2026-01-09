@@ -96,82 +96,91 @@ const removeWidget = (widgetId) => {
 };
 
 // Drag & Drop Funktionen
-const onWidgetDragStart = (index) => {
+const onWidgetDragStart = (event, index) => {
     draggedWidgetIndex.value = index;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/html', event.target);
+    // Füge eine Klasse zum Body hinzu, um Drag-Styling zu aktivieren
+    document.body.classList.add('dragging-widget');
 };
 
 const onWidgetDragEnd = () => {
+    // Aktualisiere die Positionen nur wenn tatsächlich verschoben wurde
+    if (draggedWidgetIndex.value !== null && dragOverWidgetIndex.value !== null) {
+        const oldIndex = draggedWidgetIndex.value;
+        const newIndex = dragOverWidgetIndex.value;
+        
+        if (oldIndex !== newIndex) {
+            // Erstelle eine neue Array-Kopie
+            const newArray = [...widgetsList.value];
+            
+            // Entferne das Element von der alten Position
+            const [draggedWidget] = newArray.splice(oldIndex, 1);
+            
+            // Berechne die neue Position
+            let insertIndex = newIndex;
+            if (oldIndex < newIndex) {
+                insertIndex = newIndex - 1;
+            }
+            
+            // Füge das Element an der neuen Position ein
+            newArray.splice(insertIndex, 0, draggedWidget);
+            
+            // Aktualisiere die Positionen
+            newArray.forEach((widget, index) => {
+                widget.position = index;
+            });
+            
+            // Aktualisiere das Array sofort für flüssige UI
+            widgetsList.value = newArray;
+            
+            // Speichere die neuen Positionen im Hintergrund (ohne Page-Reload)
+            router.post(route('dashboard.widgets.reorder'), {
+                widgets: newArray.map((widget, index) => ({
+                    id: widget.id,
+                    position: index,
+                    column: widget.column || 1,
+                    row: widget.row || 1,
+                })),
+                guild_id: props.guild.id,
+            }, {
+                preserveState: true,
+                preserveScroll: true,
+                only: ['widgets'], // Nur Widgets aktualisieren, nicht die ganze Seite
+                onError: (errors) => {
+                    console.error('Error reordering widgets:', errors);
+                    // Bei Fehler: Zurück zum ursprünglichen Zustand
+                    widgetsList.value = [...props.widgets];
+                }
+            });
+        }
+    }
+    
     draggedWidgetIndex.value = null;
     dragOverWidgetIndex.value = null;
+    document.body.classList.remove('dragging-widget');
 };
 
 const onWidgetDragOver = (event, index) => {
     event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    
     if (draggedWidgetIndex.value !== null && draggedWidgetIndex.value !== index) {
         dragOverWidgetIndex.value = index;
     }
 };
 
-const onWidgetDrop = async (event, dropIndex) => {
-    event.preventDefault();
+const onWidgetDragLeave = (event, index) => {
+    // Nur zurücksetzen, wenn wir wirklich das Element verlassen (nicht nur ein Child)
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = event.clientX;
+    const y = event.clientY;
     
-    if (draggedWidgetIndex.value === null || draggedWidgetIndex.value === dropIndex) {
-        dragOverWidgetIndex.value = null;
-        return;
+    if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+        if (dragOverWidgetIndex.value === index) {
+            dragOverWidgetIndex.value = null;
+        }
     }
-    
-    const oldIndex = draggedWidgetIndex.value;
-    
-    // Erstelle eine neue Array-Kopie
-    const newArray = [...widgetsList.value];
-    
-    // Entferne das Element von der alten Position
-    const [draggedWidget] = newArray.splice(oldIndex, 1);
-    
-    // Berechne die neue Position
-    let newIndex = dropIndex;
-    if (oldIndex < dropIndex) {
-        newIndex = dropIndex - 1;
-    }
-    
-    // Füge das Element an der neuen Position ein
-    newArray.splice(newIndex, 0, draggedWidget);
-    
-    // Aktualisiere die Positionen
-    newArray.forEach((widget, index) => {
-        widget.position = index;
-    });
-    
-    // Aktualisiere das Array
-    widgetsList.value = newArray;
-    
-    // Speichere die neuen Positionen
-    try {
-        router.post(route('dashboard.widgets.reorder'), {
-            widgets: newArray.map((widget, index) => ({
-                id: widget.id,
-                position: index,
-                column: widget.column || 1,
-                row: widget.row || 1,
-            })),
-            guild_id: props.guild.id,
-        }, {
-            preserveState: true,
-            preserveScroll: true,
-            onError: (errors) => {
-                console.error('Error reordering widgets:', errors);
-                // Bei Fehler: Zurück zum ursprünglichen Zustand
-                widgetsList.value = [...props.widgets];
-            }
-        });
-    } catch (e) {
-        console.error('Error reordering widgets:', e);
-        // Bei Fehler: Zurück zum ursprünglichen Zustand
-        widgetsList.value = [...props.widgets];
-    }
-    
-    draggedWidgetIndex.value = null;
-    dragOverWidgetIndex.value = null;
 };
 </script>
 
@@ -205,17 +214,19 @@ const onWidgetDrop = async (event, dropIndex) => {
             <div v-if="widgetsList && widgetsList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
                 <div
                     v-for="(widget, index) in widgetsList"
-                    :key="widget.id"
+                    :key="`widget-${widget.id}-${widget.position}`"
                     :draggable="true"
-                    @dragstart="onWidgetDragStart(index)"
+                    @dragstart="onWidgetDragStart($event, index)"
                     @dragend="onWidgetDragEnd"
                     @dragover="onWidgetDragOver($event, index)"
-                    @drop="onWidgetDrop($event, index)"
+                    @dragleave="onWidgetDragLeave($event, index)"
                     :class="[
-                        'transition-all',
-                        draggedWidgetIndex === index ? 'opacity-50 cursor-grabbing' : 'cursor-grab',
-                        dragOverWidgetIndex === index && draggedWidgetIndex !== index ? 'scale-105 z-10' : ''
+                        'transition-all duration-200 ease-in-out',
+                        draggedWidgetIndex === index ? 'opacity-30 scale-95 cursor-grabbing z-50' : 'cursor-grab',
+                        dragOverWidgetIndex === index && draggedWidgetIndex !== index ? 'scale-105 z-40 border-2 border-[#5865f2] rounded-lg' : '',
+                        draggedWidgetIndex !== null && draggedWidgetIndex !== index && dragOverWidgetIndex !== index ? 'opacity-100' : ''
                     ]"
+                    style="will-change: transform;"
                 >
                     <component
                         :is="getWidgetComponent(widget.type)"
