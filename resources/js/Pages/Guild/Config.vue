@@ -32,12 +32,18 @@ const selectedWidgetType = ref(null);
 const draggedWidgetIndex = ref(null);
 const dragOverWidgetIndex = ref(null);
 
-const availableWidgetTypes = computed(() => [
+const allWidgetTypes = [
     { value: 'members', label: t('widgets.types.members') },
     { value: 'tickets', label: t('widgets.types.tickets') },
     { value: 'giveaways', label: t('widgets.types.giveaways') },
     { value: 'leveling', label: t('widgets.types.leveling') },
-]);
+];
+
+// Filtere bereits hinzugefügte Widget-Typen heraus
+const availableWidgetTypes = computed(() => {
+    const existingTypes = widgetsList.value.map(w => w.type);
+    return allWidgetTypes.filter(widget => !existingTypes.includes(widget.value));
+});
 
 const getWidgetComponent = (type) => {
     switch (type) {

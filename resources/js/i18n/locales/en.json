@@ -84,6 +84,7 @@
     "addFirstWidget": "Add First Widget",
     "noWidgets": "No widgets added yet",
     "noWidgetsDescription": "Add your first widget to display statistics for this server.",
+    "allWidgetsAdded": "All available widgets have already been added.",
     "selectType": "Widget Type",
     "selectTypePlaceholder": "Please select...",
     "selectGuild": "Server",

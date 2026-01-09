@@ -80,6 +80,7 @@
     "addFirstWidget": "İlk Widget'ı Ekle",
     "noWidgets": "Henüz widget eklenmedi",
     "noWidgetsDescription": "Bu sunucu için istatistikleri göstermek üzere ilk widget'ınızı ekleyin.",
+    "allWidgetsAdded": "Tüm mevcut widget'lar zaten eklenmiş.",
     "selectType": "Widget Türü",
     "selectTypePlaceholder": "Lütfen seçin...",
     "selectGuild": "Sunucu",
