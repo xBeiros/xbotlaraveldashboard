@@ -255,6 +255,16 @@ class DashboardController extends BaseGuildController
                 ];
             });
 
+        // Debug: Log widgets (nur in Entwicklung)
+        if (config('app.debug')) {
+            \Log::info("Config page - Widgets loaded", [
+                'user_id' => $user->id,
+                'guild_id' => $guild,
+                'widgets_count' => $widgets->count(),
+                'widgets' => $widgets->toArray(),
+            ]);
+        }
+
         return Inertia::render('Guild/Config', [
             'guild' => [
                 'id' => $userGuild->guild_id,

@@ -19,6 +19,10 @@ const props = defineProps({
     },
 });
 
+// Debug: Log widgets
+console.log('Widgets received:', props.widgets);
+console.log('Widgets length:', props.widgets?.length);
+
 const showAddWidgetModal = ref(false);
 const selectedWidgetType = ref(null);
 
