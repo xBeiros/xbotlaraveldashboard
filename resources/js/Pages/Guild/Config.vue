@@ -50,7 +50,7 @@ const addWidget = async () => {
     }
     
     try {
-        await router.post(route('dashboard.widgets.store'), {
+        router.post(route('dashboard.widgets.store'), {
             widget_type: selectedWidgetType.value,
             guild_id: props.guild.id,
             position: props.widgets.length,
@@ -59,10 +59,15 @@ const addWidget = async () => {
         }, {
             preserveState: false,
             preserveScroll: false,
+            onSuccess: () => {
+                showAddWidgetModal.value = false;
+                selectedWidgetType.value = null;
+            },
+            onError: (errors) => {
+                console.error('Error adding widget:', errors);
+                alert(errors.error || 'Fehler beim Hinzufügen des Widgets');
+            }
         });
-        
-        showAddWidgetModal.value = false;
-        selectedWidgetType.value = null;
     } catch (e) {
         console.error('Error adding widget:', e);
     }

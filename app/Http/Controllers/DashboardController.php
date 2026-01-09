@@ -1516,13 +1516,19 @@ class DashboardController extends BaseGuildController
             'guild_id' => $validated['guild_id'] ?? null,
             'widget_type' => $validated['widget_type'],
             'position' => $validated['position'] ?? 0,
-            'column' => $validated['column'] ?? 0,
-            'row' => $validated['row'] ?? 0,
+            'column' => $validated['column'] ?? 1,
+            'row' => $validated['row'] ?? 1,
             'config' => $validated['config'] ?? [],
             'enabled' => true,
         ]);
 
-        return response()->json($widget);
+        // Wenn eine guild_id vorhanden ist, leite zur Config-Seite weiter
+        if ($validated['guild_id']) {
+            return redirect()->route('guild.config', ['guild' => $validated['guild_id']]);
+        }
+        
+        // Sonst zurück zum Dashboard
+        return redirect()->route('dashboard');
     }
 
     /**
