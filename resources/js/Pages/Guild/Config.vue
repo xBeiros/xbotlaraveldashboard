@@ -268,7 +268,15 @@ const onWidgetDragLeave = (event, index) => {
                 <h3 class="text-xl font-bold mb-4">{{ t('widgets.addWidget') }}</h3>
                 
                 <div class="space-y-4">
-                    <div>
+                    <div v-if="availableWidgetTypes.length === 0">
+                        <div class="text-center py-8">
+                            <svg class="w-16 h-16 mx-auto text-gray-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-gray-400">{{ t('widgets.allWidgetsAdded') }}</p>
+                        </div>
+                    </div>
+                    <div v-else>
                         <label class="block text-sm font-medium text-gray-300 mb-2">
                             {{ t('widgets.selectType') }}
                         </label>
