@@ -61,7 +61,9 @@
     "deleteMessages": "Delete Messages",
     "gamesAndFun": "Games & Fun",
     "giveaway": "Giveaway",
-    "birthdays": "Birthdays"
+    "birthdays": "Birthdays",
+    "addOns": "Add-Ons",
+    "teamManagement": "Team Management"
   },
   "dashboard": {
     "title": "Dashboard",

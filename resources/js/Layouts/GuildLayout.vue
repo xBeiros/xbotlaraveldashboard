@@ -24,6 +24,12 @@ const showingSidebar = ref(true);
 const basicInfoOpen = ref(true);
 const serverManagementOpen = ref(true);
 const gamesAndFunOpen = ref(true);
+const addOnsOpen = ref(true);
+
+// Prüfe ob Add-Ons aktiviert sind
+const hasActiveAddOns = computed(() => {
+    return Object.values(props.addOns || {}).some(addOn => addOn.enabled);
+});
 
 function switchGuild(guildId) {
     router.visit(route('guild.config', { guild: guildId }));
