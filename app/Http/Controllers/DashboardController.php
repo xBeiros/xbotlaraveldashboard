@@ -22,6 +22,7 @@ use App\Models\Birthday;
 use App\Models\BirthdayConfig;
 use App\Models\DashboardWidget;
 use App\Models\Ticket;
+use App\Models\AddOn;
 
 class DashboardController extends BaseGuildController
 {
@@ -255,15 +256,18 @@ class DashboardController extends BaseGuildController
                 ];
             });
 
-        // Debug: Log widgets (nur in Entwicklung)
-        if (config('app.debug')) {
-            \Log::info("Config page - Widgets loaded", [
-                'user_id' => $user->id,
-                'guild_id' => $guild,
-                'widgets_count' => $widgets->count(),
-                'widgets' => $widgets->toArray(),
-            ]);
-        }
+        // Lade Add-Ons für diesen Server
+        $addOns = AddOn::where('guild_id', $guildModel->id)->get()->keyBy('addon_type');
+        
+        // Verfügbare Add-Ons definieren
+        $availableAddOns = [
+            'team_management' => [
+                'type' => 'team_management',
+                'name' => 'Team Verwaltung',
+                'description' => 'Verwalte dein Team mit Rängen, Mitgliedern und Benachrichtigungen',
+                'enabled' => $addOns->has('team_management') ? $addOns['team_management']->enabled : false,
+            ],
+        ];
 
         return Inertia::render('Guild/Config', [
             'guild' => [
@@ -275,6 +279,7 @@ class DashboardController extends BaseGuildController
             'guilds' => $allGuilds,
             'channels' => $channels,
             'widgets' => $widgets,
+            'addOns' => $availableAddOns,
             'welcomeConfig' => $welcomeConfig ? [
                 'enabled' => $welcomeConfig->enabled,
                 'channel_id' => $welcomeConfig->channel_id,

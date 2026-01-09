@@ -27,7 +27,7 @@ return new class extends Migration
             
             // Add foreign key constraint if guild_id column was added
             if (Schema::hasColumn('birthdays', 'guild_id')) {
-                Schema::table('birthdays', function (Blueprint $table) {
+        Schema::table('birthdays', function (Blueprint $table) {
                     $table->foreign('guild_id')->references('id')->on('guilds')->onDelete('cascade');
                 });
             }
@@ -51,12 +51,12 @@ return new class extends Migration
     public function down(): void
     {
         if (Schema::hasTable('birthdays')) {
-            Schema::table('birthdays', function (Blueprint $table) {
+        Schema::table('birthdays', function (Blueprint $table) {
                 if (Schema::hasColumn('birthdays', 'guild_id')) {
                     $table->dropForeign(['guild_id']);
                     $table->dropColumn('guild_id');
                 }
-            });
+        });
         }
     }
 };

@@ -107,4 +107,24 @@ class Guild extends Model
     {
         return $this->hasOne(BirthdayConfig::class);
     }
+
+    public function addOns()
+    {
+        return $this->hasMany(AddOn::class);
+    }
+
+    public function teamRanks()
+    {
+        return $this->hasMany(TeamRank::class);
+    }
+
+    public function teamMembers()
+    {
+        return $this->hasMany(TeamMember::class);
+    }
+
+    public function teamManagementConfig()
+    {
+        return $this->hasOne(TeamManagementConfig::class);
+    }
 }

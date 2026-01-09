@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('embed_thumbnail')->nullable();
             $table->string('embed_image')->nullable();
             $table->timestamps();
-            });
+        });
         }
 
         if (!Schema::hasTable('birthdays')) {

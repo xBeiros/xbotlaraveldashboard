@@ -57,7 +57,9 @@
     "deleteMessages": "Mesajları Sil",
     "gamesAndFun": "Oyunlar ve Eğlence",
     "giveaway": "Çekiliş",
-    "birthdays": "Doğum Günleri"
+    "birthdays": "Doğum Günleri",
+    "addOns": "Eklentiler",
+    "teamManagement": "Takım Yönetimi"
   },
   "dashboard": {
     "title": "Kontrol Paneli",
@@ -114,6 +116,10 @@
       "title": "Seviye Sistemi",
       "description": "Seviye sistemindeki kullanıcı sayısı"
     }
+  },
+  "addOns": {
+    "title": "Eklentiler",
+    "description": "Botunuza ek özellikler ekleyin. İhtiyacınıza göre eklentileri etkinleştirin veya devre dışı bırakın."
   },
   "serverManagement": {
     "title": "Ayarlar",

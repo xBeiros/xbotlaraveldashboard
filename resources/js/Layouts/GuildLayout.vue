@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { Link, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import Dropdown from '@/Components/Dropdown.vue';
@@ -13,6 +13,10 @@ const props = defineProps({
     guilds: {
         type: Array,
         default: () => []
+    },
+    addOns: {
+        type: Object,
+        default: () => ({})
     }
 });
 

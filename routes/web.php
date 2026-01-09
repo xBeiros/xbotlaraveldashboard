@@ -42,6 +42,8 @@ Route::middleware('auth')->group(function () {
     // Server Konfiguration
     Route::get('/guild/{guild}/config', [\App\Http\Controllers\DashboardController::class, 'config'])
         ->name('guild.config');
+    Route::post('/guild/{guild}/addon/toggle', [\App\Http\Controllers\GuildConfigController::class, 'toggleAddOn'])
+        ->name('guild.addon.toggle');
     Route::get('/guild/{guild}/welcome', [\App\Http\Controllers\DashboardController::class, 'welcome'])
         ->name('guild.welcome');
     Route::get('/guild/{guild}/reaction-roles', [\App\Http\Controllers\DashboardController::class, 'reactionRoles'])

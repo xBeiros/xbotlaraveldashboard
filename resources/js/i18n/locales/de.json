@@ -62,7 +62,8 @@
     "gamesAndFun": "Spiele & Spaß",
     "giveaway": "Gewinnspiel",
     "birthdays": "Geburtstage",
-    "birthdays": "Geburtstage"
+    "addOns": "Add-Ons",
+    "teamManagement": "Team Verwaltung"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -119,6 +120,10 @@
       "title": "Leveling-System",
       "description": "Anzahl der User im Leveling-System"
     }
+  },
+  "addOns": {
+    "title": "Add-Ons",
+    "description": "Erweitere deinen Bot mit zusätzlichen Funktionen. Aktiviere oder deaktiviere Add-Ons nach Bedarf."
   },
   "serverManagement": {
     "title": "Einstellungen",

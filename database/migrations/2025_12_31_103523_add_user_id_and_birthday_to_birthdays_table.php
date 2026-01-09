@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         if (Schema::hasTable('birthdays')) {
-            Schema::table('birthdays', function (Blueprint $table) {
+        Schema::table('birthdays', function (Blueprint $table) {
                 if (!Schema::hasColumn('birthdays', 'user_id')) {
                     $table->string('user_id')->nullable()->after('guild_id');
                 }
                 if (!Schema::hasColumn('birthdays', 'birthday')) {
                     $table->date('birthday')->nullable()->after('user_id');
                 }
-            });
+        });
         }
     }
 
@@ -29,14 +29,14 @@ return new class extends Migration
     public function down(): void
     {
         if (Schema::hasTable('birthdays')) {
-            Schema::table('birthdays', function (Blueprint $table) {
+        Schema::table('birthdays', function (Blueprint $table) {
                 if (Schema::hasColumn('birthdays', 'user_id')) {
                     $table->dropColumn('user_id');
                 }
                 if (Schema::hasColumn('birthdays', 'birthday')) {
                     $table->dropColumn('birthday');
                 }
-            });
+        });
         }
     }
 };

@@ -20,6 +20,7 @@ use App\Models\Ticket;
 use App\Models\AutoDeleteMessage;
 use App\Models\Giveaway;
 use App\Models\Birthday;
+use App\Models\AddOn;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 

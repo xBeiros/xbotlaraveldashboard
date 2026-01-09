@@ -17,6 +17,10 @@ const props = defineProps({
         type: Array,
         default: () => [],
     },
+    addOns: {
+        type: Object,
+        default: () => ({}),
+    },
 });
 
 // Reaktive Widgets-Liste für Drag & Drop
@@ -99,6 +103,22 @@ const addWidget = async () => {
 
 const removeWidget = (widgetId) => {
     router.reload({ only: ['widgets'] });
+};
+
+// Add-On Toggle
+const toggleAddOn = async (addonType, enabled) => {
+    try {
+        router.post(route('guild.addon.toggle', { guild: props.guild.id }), {
+            addon_type: addonType,
+            enabled: !enabled,
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+            only: ['addOns'],
+        });
+    } catch (e) {
+        console.error('Error toggling add-on:', e);
+    }
 };
 
 // Drag & Drop Funktionen
@@ -193,7 +213,7 @@ const onWidgetDragLeave = (event, index) => {
 <template>
     <Head :title="`${guild.name} - Dashboard`" />
 
-    <GuildLayout :guild="guild" :guilds="guilds">
+    <GuildLayout :guild="guild" :guilds="guilds" :add-ons="addOns">
         <div class="p-8">
             <!-- Success/Error Messages -->
             <div v-if="$page.props.flash?.success" class="mb-4 p-4 bg-green-500/20 border border-green-500 rounded-lg text-green-400">
@@ -255,6 +275,36 @@ const onWidgetDragLeave = (event, index) => {
                 >
                     {{ t('widgets.addFirstWidget') }}
                 </button>
+            </div>
+            
+            <!-- Add-Ons Section -->
+            <div class="mt-8">
+                <h2 class="text-xl font-bold mb-4 text-white">{{ t('addOns.title') }}</h2>
+                <div class="bg-[#2f3136] rounded-lg border border-[#202225] p-6">
+                    <p class="text-gray-400 mb-4 text-sm">{{ t('addOns.description') }}</p>
+                    
+                    <div class="space-y-4">
+                        <div
+                            v-for="(addOn, type) in addOns"
+                            :key="type"
+                            class="flex items-center justify-between p-4 bg-[#36393f] rounded-lg border border-[#202225]"
+                        >
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-white mb-1">{{ addOn.name }}</h3>
+                                <p class="text-sm text-gray-400">{{ addOn.description }}</p>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer ml-4">
+                                <input
+                                    type="checkbox"
+                                    :checked="addOn.enabled"
+                                    @change="toggleAddOn(type, addOn.enabled)"
+                                    class="sr-only peer"
+                                />
+                                <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#5865f2]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#5865f2]"></div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         

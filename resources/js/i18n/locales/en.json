@@ -119,6 +119,10 @@
       "description": "Number of users in the leveling system"
     }
   },
+  "addOns": {
+    "title": "Add-Ons",
+    "description": "Extend your bot with additional features. Enable or disable add-ons as needed."
+  },
   "serverManagement": {
     "title": "Settings",
     "serverLanguage": "Server Language",
