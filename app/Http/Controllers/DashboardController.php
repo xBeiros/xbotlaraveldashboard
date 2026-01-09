@@ -1504,6 +1504,119 @@ class DashboardController extends BaseGuildController
         ]);
     }
 
+    public function teamManagement($guild)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        // Prüfe ob User Zugriff auf diesen Server hat
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        // Prüfe ob Bot noch auf dem Server ist (blockiert nicht für Bot-Master)
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck;
+        }
+
+        // Prüfe ob Team-Verwaltung Add-On aktiviert ist
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
+        $addOn = AddOn::where('guild_id', $guildModel->id)
+            ->where('addon_type', 'team_management')
+            ->where('enabled', true)
+            ->first();
+
+        if (!$addOn) {
+            return redirect()->route('guild.config', ['guild' => $guild])
+                ->with('error', 'Team-Verwaltung Add-On ist nicht aktiviert.');
+        }
+
+        // Lade alle Guilds für Sidebar
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
+
+        // Lade Kanäle, Rollen und Mitglieder
+        $channels = $this->fetchGuildChannels($guild);
+        $roles = $this->fetchGuildRoles($guild);
+        $members = $this->fetchGuildMembers($guild);
+
+        // Lade Team-Ränge
+        $teamRanks = $guildModel->teamRanks()
+            ->orderBy('sort_order')
+            ->get()
+            ->map(function ($rank) {
+                return [
+                    'id' => $rank->id,
+                    'name' => $rank->name,
+                    'sort_order' => $rank->sort_order,
+                    'visible' => $rank->visible,
+                    'member_count' => $rank->members()->count(),
+                ];
+            });
+
+        // Lade Team-Mitglieder
+        $teamMembers = $guildModel->teamMembers()
+            ->with('rank')
+            ->get()
+            ->map(function ($member) {
+                return [
+                    'id' => $member->id,
+                    'user_id' => $member->user_id,
+                    'rank_id' => $member->rank_id,
+                    'rank_name' => $member->rank->name ?? null,
+                ];
+            });
+
+        // Lade Team-Management-Konfiguration
+        $teamConfig = $guildModel->teamManagementConfig;
+        $config = [
+            'channel_id' => $teamConfig->channel_id ?? null,
+            'notify_join' => $teamConfig->notify_join ?? true,
+            'notify_leave' => $teamConfig->notify_leave ?? true,
+            'notify_upgrade' => $teamConfig->notify_upgrade ?? true,
+            'notify_downgrade' => $teamConfig->notify_downgrade ?? true,
+            'join_embed' => $teamConfig->join_embed ?? null,
+            'leave_embed' => $teamConfig->leave_embed ?? null,
+            'upgrade_embed' => $teamConfig->upgrade_embed ?? null,
+            'downgrade_embed' => $teamConfig->downgrade_embed ?? null,
+        ];
+
+        // Lade Add-Ons für Sidebar
+        $addOns = AddOn::where('guild_id', $guildModel->id)->get()->keyBy('addon_type');
+        $availableAddOns = [
+            'team_management' => [
+                'type' => 'team_management',
+                'name' => 'Team Verwaltung',
+                'description' => 'Verwalte dein Team mit Rängen, Mitgliedern und Benachrichtigungen',
+                'enabled' => $addOns->has('team_management') ? $addOns['team_management']->enabled : false,
+            ],
+        ];
+
+        return Inertia::render('Guild/TeamManagement', [
+            'guild' => [
+                'id' => $userGuild->guild_id,
+                'name' => $userGuild->name,
+                'icon_url' => $userGuild->icon ? "https://cdn.discordapp.com/icons/{$userGuild->guild_id}/{$userGuild->icon}.png" : null,
+                'bot_joined' => true,
+            ],
+            'guilds' => $allGuilds,
+            'channels' => $channels,
+            'roles' => $roles,
+            'members' => $members,
+            'teamRanks' => $teamRanks,
+            'teamMembers' => $teamMembers,
+            'teamConfig' => $config,
+            'addOns' => $availableAddOns,
+        ]);
+    }
+
     /**
      * Store a new dashboard widget
      */

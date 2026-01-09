@@ -48,6 +48,26 @@ Route::middleware('auth')->group(function () {
     // Team-Verwaltung
     Route::get('/guild/{guild}/team-management', [\App\Http\Controllers\DashboardController::class, 'teamManagement'])
         ->name('guild.team-management');
+    Route::post('/guild/{guild}/team-management/ranks', [\App\Http\Controllers\GuildConfigController::class, 'storeTeamRank'])
+        ->name('guild.team-management.rank.store');
+    Route::put('/guild/{guild}/team-management/ranks/{id}', [\App\Http\Controllers\GuildConfigController::class, 'updateTeamRank'])
+        ->name('guild.team-management.rank.update');
+    Route::delete('/guild/{guild}/team-management/ranks/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteTeamRank'])
+        ->name('guild.team-management.rank.delete');
+    Route::put('/guild/{guild}/team-management/ranks/{id}/toggle', [\App\Http\Controllers\GuildConfigController::class, 'toggleTeamRankVisibility'])
+        ->name('guild.team-management.rank.toggle');
+    Route::post('/guild/{guild}/team-management/ranks/{id}/move', [\App\Http\Controllers\GuildConfigController::class, 'moveTeamRank'])
+        ->name('guild.team-management.rank.move');
+    Route::post('/guild/{guild}/team-management/members', [\App\Http\Controllers\GuildConfigController::class, 'storeTeamMember'])
+        ->name('guild.team-management.member.store');
+    Route::delete('/guild/{guild}/team-management/members/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteTeamMember'])
+        ->name('guild.team-management.member.delete');
+    Route::put('/guild/{guild}/team-management/config', [\App\Http\Controllers\GuildConfigController::class, 'updateTeamManagementConfig'])
+        ->name('guild.team-management.config.update');
+    
+    // Team-Verwaltung
+    Route::get('/guild/{guild}/team-management', [\App\Http\Controllers\DashboardController::class, 'teamManagement'])
+        ->name('guild.team-management');
     Route::get('/guild/{guild}/welcome', [\App\Http\Controllers\DashboardController::class, 'welcome'])
         ->name('guild.welcome');
     Route::get('/guild/{guild}/reaction-roles', [\App\Http\Controllers\DashboardController::class, 'reactionRoles'])
