@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\UserGuild;
 use App\Models\Guild;
@@ -19,6 +20,8 @@ use App\Models\TicketPost;
 use App\Models\Giveaway;
 use App\Models\Birthday;
 use App\Models\BirthdayConfig;
+use App\Models\DashboardWidget;
+use App\Models\Ticket;
 
 class DashboardController extends BaseGuildController
 {
@@ -159,9 +162,27 @@ class DashboardController extends BaseGuildController
             }
         }
 
+        // Lade Widgets für den User (globale Widgets ohne guild_id)
+        $widgets = DashboardWidget::where('user_id', $user->id)
+            ->whereNull('guild_id')
+            ->where('enabled', true)
+            ->orderBy('position')
+            ->get()
+            ->map(function ($widget) {
+                return [
+                    'id' => $widget->id,
+                    'type' => $widget->widget_type,
+                    'position' => $widget->position,
+                    'column' => $widget->column,
+                    'row' => $widget->row,
+                    'config' => $widget->config ?? [],
+                ];
+            });
+
         return Inertia::render('Dashboard', [
             'guilds' => $userGuilds,
             'botClientId' => $botClientId,
+            'widgets' => $widgets,
         ]);
     }
 
@@ -1446,5 +1467,194 @@ class DashboardController extends BaseGuildController
             'birthdays' => $birthdays,
             'birthdayConfig' => $config,
         ]);
+    }
+
+    /**
+     * Store a new dashboard widget
+     */
+    public function storeWidget(Request $request)
+    {
+        $user = Auth::user();
+        
+        $validated = $request->validate([
+            'widget_type' => 'required|string|in:members,tickets,giveaways,leveling',
+            'guild_id' => 'nullable|string',
+            'position' => 'nullable|integer|min:0',
+            'column' => 'nullable|integer|min:0',
+            'row' => 'nullable|integer|min:0',
+            'config' => 'nullable|array',
+        ]);
+
+        // Prüfe ob bereits ein Widget dieses Typs für diese Guild existiert
+        $existing = DashboardWidget::where('user_id', $user->id)
+            ->where('guild_id', $validated['guild_id'] ?? null)
+            ->where('widget_type', $validated['widget_type'])
+            ->first();
+
+        if ($existing) {
+            return response()->json(['error' => 'Widget dieses Typs existiert bereits'], 400);
+        }
+
+        $widget = DashboardWidget::create([
+            'user_id' => $user->id,
+            'guild_id' => $validated['guild_id'] ?? null,
+            'widget_type' => $validated['widget_type'],
+            'position' => $validated['position'] ?? 0,
+            'column' => $validated['column'] ?? 0,
+            'row' => $validated['row'] ?? 0,
+            'config' => $validated['config'] ?? [],
+            'enabled' => true,
+        ]);
+
+        return response()->json($widget);
+    }
+
+    /**
+     * Update a dashboard widget
+     */
+    public function updateWidget(Request $request, $id)
+    {
+        $user = Auth::user();
+        
+        $widget = DashboardWidget::where('user_id', $user->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'position' => 'nullable|integer|min:0',
+            'column' => 'nullable|integer|min:0',
+            'row' => 'nullable|integer|min:0',
+            'config' => 'nullable|array',
+            'enabled' => 'nullable|boolean',
+        ]);
+
+        $widget->update($validated);
+
+        return response()->json($widget);
+    }
+
+    /**
+     * Delete a dashboard widget
+     */
+    public function deleteWidget($id)
+    {
+        $user = Auth::user();
+        
+        $widget = DashboardWidget::where('user_id', $user->id)
+            ->where('id', $id)
+            ->firstOrFail();
+
+        $widget->delete();
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Reorder widgets
+     */
+    public function reorderWidgets(Request $request)
+    {
+        $user = Auth::user();
+        
+        $validated = $request->validate([
+            'widgets' => 'required|array',
+            'widgets.*.id' => 'required|integer|exists:dashboard_widgets,id',
+            'widgets.*.position' => 'required|integer|min:0',
+            'widgets.*.column' => 'required|integer|min:0',
+            'widgets.*.row' => 'required|integer|min:0',
+        ]);
+
+        foreach ($validated['widgets'] as $widgetData) {
+            DashboardWidget::where('user_id', $user->id)
+                ->where('id', $widgetData['id'])
+                ->update([
+                    'position' => $widgetData['position'],
+                    'column' => $widgetData['column'],
+                    'row' => $widgetData['row'],
+                ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    /**
+     * Get widget data based on type
+     */
+    public function getWidgetData($type, Request $request)
+    {
+        $user = Auth::user();
+        $guildId = $request->get('guild_id');
+
+        switch ($type) {
+            case 'members':
+                if (!$guildId) {
+                    return response()->json(['error' => 'Guild ID required'], 400);
+                }
+                $guildModel = Guild::where('discord_id', $guildId)->first();
+                if (!$guildModel) {
+                    return response()->json(['count' => 0]);
+                }
+                // Hole Mitgliederanzahl über Discord API
+                $botToken = config('services.discord.bot_token');
+                if ($botToken) {
+                    try {
+                        $response = Http::withHeaders([
+                            'Authorization' => 'Bot ' . $botToken,
+                        ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}?with_counts=true");
+                        
+                        if ($response->successful()) {
+                            $guildData = $response->json();
+                            return response()->json(['count' => $guildData['approximate_member_count'] ?? 0]);
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning("Failed to fetch member count: " . $e->getMessage());
+                    }
+                }
+                return response()->json(['count' => 0]);
+                
+            case 'tickets':
+                if (!$guildId) {
+                    return response()->json(['error' => 'Guild ID required'], 400);
+                }
+                $guildModel = Guild::where('discord_id', $guildId)->first();
+                if (!$guildModel) {
+                    return response()->json(['count' => 0]);
+                }
+                $count = Ticket::where('guild_id', $guildModel->id)
+                    ->where('status', 'open')
+                    ->count();
+                return response()->json(['count' => $count]);
+                
+            case 'giveaways':
+                if (!$guildId) {
+                    return response()->json(['error' => 'Guild ID required'], 400);
+                }
+                $guildModel = Guild::where('discord_id', $guildId)->first();
+                if (!$guildModel) {
+                    return response()->json(['count' => 0]);
+                }
+                $count = Giveaway::where('guild_id', $guildModel->id)
+                    ->where('ended', false)
+                    ->count();
+                return response()->json(['count' => $count]);
+                
+            case 'leveling':
+                if (!$guildId) {
+                    return response()->json(['error' => 'Guild ID required'], 400);
+                }
+                $guildModel = Guild::where('discord_id', $guildId)->first();
+                if (!$guildModel) {
+                    return response()->json(['count' => 0]);
+                }
+                // Zähle User im Leveling-System
+                $count = DB::table('user_levels')
+                    ->where('guild_id', $guildModel->id)
+                    ->distinct('user_id')
+                    ->count('user_id');
+                return response()->json(['count' => $count]);
+                
+            default:
+                return response()->json(['error' => 'Invalid widget type'], 400);
+        }
     }
 }

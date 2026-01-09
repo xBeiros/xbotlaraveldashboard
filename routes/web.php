@@ -14,9 +14,21 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
-    ->middleware(['auth'])
-    ->name('dashboard');
+    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
+        ->middleware(['auth'])
+        ->name('dashboard');
+    
+    // Dashboard Widgets
+    Route::post('/dashboard/widgets', [\App\Http\Controllers\DashboardController::class, 'storeWidget'])
+        ->name('dashboard.widgets.store');
+    Route::put('/dashboard/widgets/{id}', [\App\Http\Controllers\DashboardController::class, 'updateWidget'])
+        ->name('dashboard.widgets.update');
+    Route::delete('/dashboard/widgets/{id}', [\App\Http\Controllers\DashboardController::class, 'deleteWidget'])
+        ->name('dashboard.widgets.delete');
+    Route::post('/dashboard/widgets/reorder', [\App\Http\Controllers\DashboardController::class, 'reorderWidgets'])
+        ->name('dashboard.widgets.reorder');
+    Route::get('/dashboard/widgets/data/{type}', [\App\Http\Controllers\DashboardController::class, 'getWidgetData'])
+        ->name('dashboard.widgets.data');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

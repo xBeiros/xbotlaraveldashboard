@@ -60,7 +60,8 @@
     "birthdays": "Doğum Günleri"
   },
   "dashboard": {
-    "title": "Sunucu Seç",
+    "title": "Kontrol Paneli",
+    "servers": "Sunucular",
     "welcome": "Hoş Geldiniz",
     "selectServer": "Sunucu Seç",
     "botInvite": "Bot Davet Et",
@@ -72,6 +73,44 @@
     "error": {
       "guildIdMissing": "Hata: Sunucu ID eksik. Lütfen tekrar deneyin.",
       "botClientIdMissing": "Bot Client ID yapılandırılmamış. Lütfen yöneticiye başvurun."
+    }
+  },
+  "widgets": {
+    "addWidget": "Widget Ekle",
+    "addFirstWidget": "İlk Widget'ı Ekle",
+    "noWidgets": "Henüz widget eklenmedi. İstatistikleri göstermek için ilk widget'ınızı ekleyin.",
+    "selectType": "Widget Türü",
+    "selectTypePlaceholder": "Lütfen seçin...",
+    "selectGuild": "Sunucu",
+    "allServers": "Tüm Sunucular",
+    "refresh": "Yenile",
+    "remove": "Kaldır",
+    "confirmRemove": "Bu widget'ı gerçekten kaldırmak istiyor musunuz?",
+    "error": {
+      "loading": "Yükleme hatası",
+      "network": "Ağ hatası"
+    },
+    "types": {
+      "members": "Üyeler",
+      "tickets": "Biletler",
+      "giveaways": "Çekilişler",
+      "leveling": "Seviye Sistemi"
+    },
+    "members": {
+      "title": "Üyeler",
+      "description": "Sunucu üyelerinin toplam sayısı"
+    },
+    "tickets": {
+      "title": "Açık Biletler",
+      "description": "Şu anda açık bilet sayısı"
+    },
+    "giveaways": {
+      "title": "Aktif Çekilişler",
+      "description": "Devam eden çekiliş sayısı"
+    },
+    "leveling": {
+      "title": "Seviye Sistemi",
+      "description": "Seviye sistemindeki kullanıcı sayısı"
     }
   },
   "serverManagement": {

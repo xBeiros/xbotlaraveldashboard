@@ -65,7 +65,8 @@
     "birthdays": "Geburtstage"
   },
   "dashboard": {
-    "title": "Server auswählen",
+    "title": "Dashboard",
+    "servers": "Server",
     "welcome": "Willkommen",
     "selectServer": "Server auswählen",
     "botInvite": "Bot einladen",
@@ -77,6 +78,44 @@
     "error": {
       "guildIdMissing": "Fehler: Server-ID fehlt. Bitte versuche es erneut.",
       "botClientIdMissing": "Bot Client ID nicht konfiguriert. Bitte kontaktiere den Administrator."
+    }
+  },
+  "widgets": {
+    "addWidget": "Widget hinzufügen",
+    "addFirstWidget": "Erstes Widget hinzufügen",
+    "noWidgets": "Noch keine Widgets hinzugefügt. Füge dein erstes Widget hinzu, um Statistiken anzuzeigen.",
+    "selectType": "Widget-Typ",
+    "selectTypePlaceholder": "Bitte wählen...",
+    "selectGuild": "Server",
+    "allServers": "Alle Server",
+    "refresh": "Aktualisieren",
+    "remove": "Entfernen",
+    "confirmRemove": "Möchtest du dieses Widget wirklich entfernen?",
+    "error": {
+      "loading": "Fehler beim Laden",
+      "network": "Netzwerkfehler"
+    },
+    "types": {
+      "members": "Mitglieder",
+      "tickets": "Tickets",
+      "giveaways": "Gewinnspiele",
+      "leveling": "Leveling"
+    },
+    "members": {
+      "title": "Mitglieder",
+      "description": "Gesamtanzahl der Server-Mitglieder"
+    },
+    "tickets": {
+      "title": "Offene Tickets",
+      "description": "Anzahl der aktuell offenen Tickets"
+    },
+    "giveaways": {
+      "title": "Aktive Gewinnspiele",
+      "description": "Anzahl der laufenden Gewinnspiele"
+    },
+    "leveling": {
+      "title": "Leveling-System",
+      "description": "Anzahl der User im Leveling-System"
     }
   },
   "serverManagement": {
