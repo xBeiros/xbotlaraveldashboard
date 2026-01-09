@@ -117,7 +117,7 @@ const removeWidget = (widgetId) => {
             </div>
             
             <!-- Widget Grid -->
-            <div v-if="widgets.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+            <div v-if="widgets && widgets.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
                 <component
                     v-for="widget in widgets"
                     :key="widget.id"
