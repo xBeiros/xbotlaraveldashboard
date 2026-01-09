@@ -2114,4 +2114,50 @@ class GuildConfigController extends BaseGuildController
         return $translations[$language] ?? $translations['de'];
     }
 
+    /**
+     * Toggle Add-On Status
+     */
+    public function toggleAddOn(Request $request, $guild, $type)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'enabled' => 'required|boolean',
+        ]);
+
+        // Validiere Add-On-Typ
+        $allowedTypes = ['team_management'];
+        if (!in_array($type, $allowedTypes)) {
+            return redirect()->route('guild.config', ['guild' => $guild])
+                ->with('error', 'Ungültiger Add-On-Typ.');
+        }
+
+        AddOn::updateOrCreate(
+            [
+                'guild_id' => $guildModel->id,
+                'addon_type' => $type,
+            ],
+            [
+                'enabled' => $validated['enabled'],
+            ]
+        );
+
+        return redirect()->route('guild.config', ['guild' => $guild])
+            ->with('success', 'Add-On erfolgreich ' . ($validated['enabled'] ? 'aktiviert' : 'deaktiviert') . '!');
+    }
+
 }
