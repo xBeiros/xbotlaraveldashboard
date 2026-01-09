@@ -20,7 +20,7 @@ use App\Models\Giveaway;
 use App\Models\Birthday;
 use App\Models\BirthdayConfig;
 
-class DashboardController extends Controller
+class DashboardController extends BaseGuildController
 {
     public function index(Request $request)
     {
@@ -212,25 +212,8 @@ class DashboardController extends Controller
         $welcomeConfig = $guildModel->welcomeConfig()->firstOrCreate([]);
         $goodbyeConfig = $guildModel->goodbyeConfig()->firstOrCreate([]);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         // Lade Kanäle vom Discord Server
         $channels = $this->fetchGuildChannels($guild);
@@ -317,25 +300,8 @@ class DashboardController extends Controller
         $welcomeConfig = $guildModel->welcomeConfig()->firstOrCreate([]);
         $goodbyeConfig = $guildModel->goodbyeConfig()->firstOrCreate([]);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         // Lade Kanäle vom Discord Server
         $channels = $this->fetchGuildChannels($guild);
@@ -423,25 +389,8 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         // Lade Kanäle und Rollen vom Discord Server
         $channels = $this->fetchGuildChannels($guild);
@@ -504,25 +453,8 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         // Hole Bot-Info
         $botInfo = null;
@@ -598,25 +530,8 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
         
@@ -672,25 +587,8 @@ class DashboardController extends Controller
         // Aktualisiere bot_active Status
         $guildModel->update(['bot_active' => true]);
         
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
         $channels = $this->fetchGuildChannels($guild);
         $categories = $this->fetchGuildCategories($guild);
         $roles = $this->fetchGuildRoles($guild);
@@ -786,25 +684,8 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         // Lade Kanäle vom Discord Server
         $channels = $this->fetchGuildChannels($guild);
@@ -839,11 +720,6 @@ class DashboardController extends Controller
         ]);
     }
 
-    private function canManageGuild($permissions)
-    {
-        // Berechtigung: MANAGE_GUILD (0x20) oder Administrator (0x8)
-        return ($permissions & 0x20) !== 0 || ($permissions & 0x8) !== 0;
-    }
 
     /**
      * Prüft ob Bot noch auf dem Server ist und aktualisiert den Status
@@ -1023,25 +899,8 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         $channels = $this->fetchGuildChannels($guild);
         $roles = $this->fetchGuildRoles($guild);
@@ -1373,25 +1232,8 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         $channels = $this->fetchGuildChannels($guild);
         $roles = $this->fetchGuildRoles($guild);
@@ -1474,25 +1316,8 @@ class DashboardController extends Controller
         // Lade oder erstelle Guild-Model mit korrektem Bot-Status
         $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
 
-        // Lade alle Guilds für Sidebar
-        // Zeige nur Server, auf denen der Bot auch ist
-        $allGuilds = UserGuild::where('user_id', $user->id)
-            ->where('bot_joined', true)
-            ->get()
-            ->filter(function ($g) {
-                return $this->canManageGuild($g->permissions);
-            })
-            ->sortBy('name')
-            ->values()
-            ->map(function ($g) {
-                return [
-                    'id' => $g->guild_id,
-                    'name' => $g->name,
-                    'icon_url' => $g->icon ? "https://cdn.discordapp.com/icons/{$g->guild_id}/{$g->icon}.png" : null,
-                    'owner' => $g->owner,
-                    'bot_joined' => $g->bot_joined ?? false,
-                ];
-            });
+        // Lade alle Guilds für Sidebar (mit Caching)
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
 
         // Lade Giveaways
         $giveaways = $guildModel->giveaways()

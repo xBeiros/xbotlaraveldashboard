@@ -23,42 +23,84 @@ use App\Models\Birthday;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class GuildConfigController extends Controller
+class GuildConfigController extends BaseGuildController
 {
-    public function updateWelcome(Request $request, $guild)
+    /**
+     * Prüft Zugriff und gibt UserGuild und GuildModel zurück
+     * 
+     * @param string $guild Discord Guild ID
+     * @return array ['userGuild' => UserGuild, 'guildModel' => Guild]|RedirectResponse
+     */
+    private function authorizeAndGetGuild($guild)
     {
-        $user = Auth::user();
-        $userGuild = UserGuild::where('user_id', $user->id)
-            ->where('guild_id', $guild)
-            ->first();
+        $access = $this->checkGuildAccess($guild);
+        if ($access['error']) {
+            return $access['error'];
+        }
 
-        if (!$userGuild) {
+        $userGuild = $access['userGuild'];
+        
+        if (!$this->canManageGuild($userGuild->permissions)) {
             return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
         }
 
         $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
         
+        return ['userGuild' => $userGuild, 'guildModel' => $guildModel];
+    }
+
+    public function updateWelcome(Request $request, $guild)
+    {
+        $result = $this->authorizeAndGetGuild($guild);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
+
+        $guildModel = $result['guildModel'];
+        
+        // Input Validation
+        $validated = $request->validate([
+            'enabled' => 'boolean',
+            'channel_id' => 'nullable|string|max:255',
+            'message' => 'nullable|string|max:2000',
+            'use_embed' => 'boolean',
+            'embed_title' => 'nullable|string|max:256',
+            'embed_description' => 'nullable|string|max:4096',
+            'embed_color' => 'nullable|string|max:7',
+            'embed_thumbnail' => 'nullable|url|max:500',
+            'embed_image' => 'nullable|url|max:500',
+            'embed_footer' => 'boolean',
+            'use_welcome_card' => 'boolean',
+            'card_font' => 'nullable|string|max:100',
+            'card_text_color' => 'nullable|string|max:7',
+            'card_background_color' => 'nullable|string|max:7',
+            'card_overlay_opacity' => 'nullable|integer|min:0|max:100',
+            'card_background_image' => 'nullable|url|max:500',
+            'card_title' => 'nullable|string|max:256',
+            'card_avatar_position' => 'nullable|string|in:top,bottom,left,right',
+        ]);
+
         $guildModel->welcomeConfig()->updateOrCreate(
             ['guild_id' => $guildModel->id],
             [
-                'enabled' => $request->enabled ?? false,
-                'channel_id' => $request->channel_id,
-                'message' => $request->message,
-                'use_embed' => $request->use_embed ?? false,
-                'embed_title' => $request->embed_title,
-                'embed_description' => $request->embed_description,
-                'embed_color' => $request->embed_color,
-                'embed_thumbnail' => $request->embed_thumbnail,
-                'embed_image' => $request->embed_image,
-                'embed_footer' => $request->embed_footer ?? true,
-                'use_welcome_card' => $request->use_welcome_card ?? false,
-                'card_font' => $request->card_font,
-                'card_text_color' => $request->card_text_color,
-                'card_background_color' => $request->card_background_color,
-                'card_overlay_opacity' => $request->card_overlay_opacity ?? 50,
-                'card_background_image' => $request->card_background_image,
-                'card_title' => $request->card_title,
-                'card_avatar_position' => $request->card_avatar_position ?? 'top',
+                'enabled' => $validated['enabled'] ?? false,
+                'channel_id' => $validated['channel_id'] ?? null,
+                'message' => $validated['message'] ?? null,
+                'use_embed' => $validated['use_embed'] ?? false,
+                'embed_title' => $validated['embed_title'] ?? null,
+                'embed_description' => $validated['embed_description'] ?? null,
+                'embed_color' => $validated['embed_color'] ?? null,
+                'embed_thumbnail' => $validated['embed_thumbnail'] ?? null,
+                'embed_image' => $validated['embed_image'] ?? null,
+                'embed_footer' => $validated['embed_footer'] ?? true,
+                'use_welcome_card' => $validated['use_welcome_card'] ?? false,
+                'card_font' => $validated['card_font'] ?? null,
+                'card_text_color' => $validated['card_text_color'] ?? null,
+                'card_background_color' => $validated['card_background_color'] ?? null,
+                'card_overlay_opacity' => $validated['card_overlay_opacity'] ?? 50,
+                'card_background_image' => $validated['card_background_image'] ?? null,
+                'card_title' => $validated['card_title'] ?? null,
+                'card_avatar_position' => $validated['card_avatar_position'] ?? 'top',
             ]
         );
 
@@ -67,16 +109,12 @@ class GuildConfigController extends Controller
 
     public function updateGoodbye(Request $request, $guild)
     {
-        $user = Auth::user();
-        $userGuild = UserGuild::where('user_id', $user->id)
-            ->where('guild_id', $guild)
-            ->first();
-
-        if (!$userGuild) {
-            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        $result = $this->authorizeAndGetGuild($guild);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
         }
 
-        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $guildModel = $result['guildModel'];
         
         $guildModel->goodbyeConfig()->updateOrCreate(
             ['guild_id' => $guildModel->id],
@@ -107,16 +145,12 @@ class GuildConfigController extends Controller
 
     public function storeSocial(Request $request, $guild)
     {
-        $user = Auth::user();
-        $userGuild = UserGuild::where('user_id', $user->id)
-            ->where('guild_id', $guild)
-            ->first();
-
-        if (!$userGuild) {
-            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        $result = $this->authorizeAndGetGuild($guild);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
         }
 
-        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $guildModel = $result['guildModel'];
         
         $guildModel->socialNotifications()->create([
             'platform' => $request->platform,
@@ -2034,11 +2068,6 @@ class GuildConfigController extends Controller
     /**
      * Prüft ob der Benutzer die Berechtigung hat, den Server zu verwalten
      */
-    private function canManageGuild($permissions)
-    {
-        // Berechtigung: MANAGE_GUILD (0x20) oder Administrator (0x8)
-        return ($permissions & 0x20) !== 0 || ($permissions & 0x8) !== 0;
-    }
 
     /**
      * Gibt die Übersetzungen für Giveaways basierend auf der Sprache zurück
