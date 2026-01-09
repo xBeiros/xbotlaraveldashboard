@@ -78,7 +78,8 @@
   "widgets": {
     "addWidget": "Widget Ekle",
     "addFirstWidget": "İlk Widget'ı Ekle",
-    "noWidgets": "Henüz widget eklenmedi. İstatistikleri göstermek için ilk widget'ınızı ekleyin.",
+    "noWidgets": "Henüz widget eklenmedi",
+    "noWidgetsDescription": "Bu sunucu için istatistikleri göstermek üzere ilk widget'ınızı ekleyin.",
     "selectType": "Widget Türü",
     "selectTypePlaceholder": "Lütfen seçin...",
     "selectGuild": "Sunucu",

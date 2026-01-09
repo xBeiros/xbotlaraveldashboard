@@ -82,7 +82,8 @@
   "widgets": {
     "addWidget": "Add Widget",
     "addFirstWidget": "Add First Widget",
-    "noWidgets": "No widgets added yet. Add your first widget to display statistics.",
+    "noWidgets": "No widgets added yet",
+    "noWidgetsDescription": "Add your first widget to display statistics for this server.",
     "selectType": "Widget Type",
     "selectTypePlaceholder": "Please select...",
     "selectGuild": "Server",

@@ -182,7 +182,6 @@ class DashboardController extends BaseGuildController
         return Inertia::render('Dashboard', [
             'guilds' => $userGuilds,
             'botClientId' => $botClientId,
-            'widgets' => $widgets,
         ]);
     }
 
@@ -238,6 +237,23 @@ class DashboardController extends BaseGuildController
 
         // Lade Kanäle vom Discord Server
         $channels = $this->fetchGuildChannels($guild);
+
+        // Lade Widgets für diesen Server
+        $widgets = DashboardWidget::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->where('enabled', true)
+            ->orderBy('position')
+            ->get()
+            ->map(function ($widget) {
+                return [
+                    'id' => $widget->id,
+                    'type' => $widget->widget_type,
+                    'position' => $widget->position,
+                    'column' => $widget->column,
+                    'row' => $widget->row,
+                    'config' => $widget->config ?? [],
+                ];
+            });
 
         return Inertia::render('Guild/Config', [
             'guild' => [
