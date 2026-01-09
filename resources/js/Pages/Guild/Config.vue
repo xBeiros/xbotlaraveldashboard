@@ -88,6 +88,79 @@ const addWidget = async () => {
 const removeWidget = (widgetId) => {
     router.reload({ only: ['widgets'] });
 };
+
+// Drag & Drop Funktionen
+const onWidgetDragStart = (index) => {
+    draggedWidgetIndex.value = index;
+};
+
+const onWidgetDragEnd = () => {
+    draggedWidgetIndex.value = null;
+    dragOverWidgetIndex.value = null;
+};
+
+const onWidgetDragOver = (event, index) => {
+    event.preventDefault();
+    if (draggedWidgetIndex.value !== null && draggedWidgetIndex.value !== index) {
+        dragOverWidgetIndex.value = index;
+    }
+};
+
+const onWidgetDrop = async (event, dropIndex) => {
+    event.preventDefault();
+    
+    if (draggedWidgetIndex.value === null || draggedWidgetIndex.value === dropIndex) {
+        dragOverWidgetIndex.value = null;
+        return;
+    }
+    
+    const oldIndex = draggedWidgetIndex.value;
+    
+    // Erstelle eine neue Array-Kopie
+    const newArray = [...widgetsList.value];
+    
+    // Entferne das Element von der alten Position
+    const [draggedWidget] = newArray.splice(oldIndex, 1);
+    
+    // Berechne die neue Position
+    let newIndex = dropIndex;
+    if (oldIndex < dropIndex) {
+        newIndex = dropIndex - 1;
+    }
+    
+    // Füge das Element an der neuen Position ein
+    newArray.splice(newIndex, 0, draggedWidget);
+    
+    // Aktualisiere die Positionen
+    newArray.forEach((widget, index) => {
+        widget.position = index;
+    });
+    
+    // Aktualisiere das Array
+    widgetsList.value = newArray;
+    
+    // Speichere die neuen Positionen
+    try {
+        await router.post(route('dashboard.widgets.reorder'), {
+            widgets: newArray.map((widget, index) => ({
+                id: widget.id,
+                position: index,
+                column: widget.column || 1,
+                row: widget.row || 1,
+            })),
+        }, {
+            preserveState: true,
+            preserveScroll: true,
+        });
+    } catch (e) {
+        console.error('Error reordering widgets:', e);
+        // Bei Fehler: Zurück zum ursprünglichen Zustand
+        widgetsList.value = [...props.widgets];
+    }
+    
+    draggedWidgetIndex.value = null;
+    dragOverWidgetIndex.value = null;
+};
 </script>
 
 <template>
@@ -117,15 +190,28 @@ const removeWidget = (widgetId) => {
             </div>
             
             <!-- Widget Grid -->
-            <div v-if="widgets && widgets.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
-                <component
-                    v-for="widget in widgets"
+            <div v-if="widgetsList && widgetsList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+                <div
+                    v-for="(widget, index) in widgetsList"
                     :key="widget.id"
-                    :is="getWidgetComponent(widget.type)"
-                    :widget="widget"
-                    :guild-id="guild.id"
-                    @remove="removeWidget"
-                />
+                    :draggable="true"
+                    @dragstart="onWidgetDragStart(index)"
+                    @dragend="onWidgetDragEnd"
+                    @dragover="onWidgetDragOver($event, index)"
+                    @drop="onWidgetDrop($event, index)"
+                    :class="[
+                        'transition-all',
+                        draggedWidgetIndex === index ? 'opacity-50 cursor-grabbing' : 'cursor-grab',
+                        dragOverWidgetIndex === index && draggedWidgetIndex !== index ? 'scale-105 z-10' : ''
+                    ]"
+                >
+                    <component
+                        :is="getWidgetComponent(widget.type)"
+                        :widget="widget"
+                        :guild-id="guild.id"
+                        @remove="removeWidget"
+                    />
+                </div>
             </div>
             
             <div v-else class="text-center py-12 mb-8 bg-[#2f3136] rounded-lg border border-[#202225]">

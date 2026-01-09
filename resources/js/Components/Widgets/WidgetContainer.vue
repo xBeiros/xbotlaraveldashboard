@@ -2,10 +2,9 @@
     <div
         :class="[
             'widget-container bg-[#2f3136] rounded-lg p-4 border border-[#202225] transition-all',
-            isDragging ? 'opacity-50 cursor-grabbing' : 'cursor-grab hover:border-[#5865f2]'
+            isDragging ? 'opacity-50' : 'hover:border-[#5865f2]'
         ]"
         :style="{ gridColumn: `span ${widget.column || 1}`, gridRow: `span ${widget.row || 1}` }"
-        @mousedown="startDrag"
     >
         <div class="flex items-center justify-between mb-3">
             <h3 class="text-sm font-semibold text-gray-300">{{ title }}</h3>
@@ -110,7 +109,10 @@ const removeWidget = async () => {
 };
 
 const startDrag = (e) => {
-    // Drag & Drop wird später implementiert
+    // Verhindere Drag, wenn auf Buttons geklickt wird
+    if (e.target.closest('button')) {
+        return;
+    }
     isDragging.value = true;
     document.addEventListener('mouseup', () => {
         isDragging.value = false;
