@@ -1617,8 +1617,9 @@ class DashboardController extends BaseGuildController
             'widgets' => 'required|array',
             'widgets.*.id' => 'required|integer|exists:dashboard_widgets,id',
             'widgets.*.position' => 'required|integer|min:0',
-            'widgets.*.column' => 'required|integer|min:0',
-            'widgets.*.row' => 'required|integer|min:0',
+            'widgets.*.column' => 'required|integer|min:1',
+            'widgets.*.row' => 'required|integer|min:1',
+            'guild_id' => 'nullable|string',
         ]);
 
         foreach ($validated['widgets'] as $widgetData) {
@@ -1631,7 +1632,15 @@ class DashboardController extends BaseGuildController
                 ]);
         }
 
-        return response()->json(['success' => true]);
+        // Wenn eine guild_id vorhanden ist, leite zur Config-Seite weiter
+        if ($validated['guild_id'] ?? null) {
+            return redirect()->route('guild.config', ['guild' => $validated['guild_id']])
+                ->with('success', 'Widget-Reihenfolge erfolgreich aktualisiert.');
+        }
+        
+        // Sonst zurück zum Dashboard
+        return redirect()->route('dashboard')
+            ->with('success', 'Widget-Reihenfolge erfolgreich aktualisiert.');
     }
 
     /**

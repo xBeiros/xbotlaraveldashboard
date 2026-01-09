@@ -147,16 +147,22 @@ const onWidgetDrop = async (event, dropIndex) => {
     
     // Speichere die neuen Positionen
     try {
-        await router.post(route('dashboard.widgets.reorder'), {
+        router.post(route('dashboard.widgets.reorder'), {
             widgets: newArray.map((widget, index) => ({
                 id: widget.id,
                 position: index,
                 column: widget.column || 1,
                 row: widget.row || 1,
             })),
+            guild_id: props.guild.id,
         }, {
             preserveState: true,
             preserveScroll: true,
+            onError: (errors) => {
+                console.error('Error reordering widgets:', errors);
+                // Bei Fehler: Zurück zum ursprünglichen Zustand
+                widgetsList.value = [...props.widgets];
+            }
         });
     } catch (e) {
         console.error('Error reordering widgets:', e);
