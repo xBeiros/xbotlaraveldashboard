@@ -928,6 +928,52 @@ function updateTranscriptSetting() {
     });
 }
 
+const allTranscriptsSelected = computed(() => {
+    return ticketTranscriptsList.value.length > 0 && selectedTranscripts.value.length === ticketTranscriptsList.value.length;
+});
+
+function toggleSelectAll() {
+    if (allTranscriptsSelected.value) {
+        selectedTranscripts.value = [];
+    } else {
+        selectedTranscripts.value = ticketTranscriptsList.value.map(t => t.id);
+    }
+}
+
+function deleteTranscript(transcriptId) {
+    if (!confirm(t('ticketSystem.transcripts.confirmDelete'))) {
+        return;
+    }
+    
+    router.delete(route('guild.ticket.transcript.delete', { guild: guild.id, ticketId: transcriptId }), {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            selectedTranscripts.value = selectedTranscripts.value.filter(id => id !== transcriptId);
+        }
+    });
+}
+
+function deleteSelectedTranscripts() {
+    if (selectedTranscripts.value.length === 0) {
+        return;
+    }
+    
+    if (!confirm(t('ticketSystem.transcripts.confirmDeleteMultiple', { count: selectedTranscripts.value.length }))) {
+        return;
+    }
+    
+    router.post(route('guild.ticket.transcript.deleteMultiple', { guild: guild.id }), {
+        ticket_ids: selectedTranscripts.value,
+    }, {
+        preserveState: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            selectedTranscripts.value = [];
+        }
+    });
+}
+
 function saveCloseConfig() {
     const data = {
         require_confirmation: closeConfigForm.require_confirmation,
