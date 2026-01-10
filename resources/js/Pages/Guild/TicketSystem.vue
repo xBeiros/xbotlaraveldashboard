@@ -494,7 +494,7 @@
                     
                     <div class="space-y-3">
                         <div
-                            v-for="transcript in ticketTranscripts"
+                            v-for="transcript in ticketTranscriptsList"
                             :key="transcript.id"
                             :class="[
                                 'bg-[#36393f] rounded-lg p-4 border transition-colors',
@@ -535,7 +535,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div v-if="ticketTranscripts.length === 0" class="text-center py-8 text-gray-400">
+                        <div v-if="ticketTranscriptsList.length === 0" class="text-center py-8 text-gray-400">
                             <p>{{ t('ticketSystem.transcripts.noTranscripts') }}</p>
                             <p class="text-xs mt-2">{{ t('ticketSystem.transcripts.autoDelete') }}</p>
                         </div>
@@ -764,6 +764,8 @@ const resendingPost = ref(false);
 
 // Transcript Setting
 const transcriptEnabled = ref(props.ticketTranscriptEnabled ?? true);
+const selectedTranscripts = ref([]);
+const ticketTranscriptsList = computed(() => props.ticketTranscripts || []);
 
 // Ticket Close Config
 const closeConfigForm = useForm({

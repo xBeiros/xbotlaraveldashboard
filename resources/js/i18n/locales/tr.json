@@ -330,7 +330,12 @@
       "unknown": "Bilinmiyor",
       "ticketNumber": "Bilet #{id}",
       "noTranscripts": "Henüz transkript mevcut değil.",
-      "autoDelete": "Transkriptler 7 gün sonra otomatik olarak silinir."
+      "autoDelete": "Transkriptler 7 gün sonra otomatik olarak silinir.",
+      "selectAll": "Tümünü Seç",
+      "delete": "Sil",
+      "deleteSelected": "{count} seçileni sil",
+      "confirmDelete": "Bu transcript'i gerçekten silmek istiyor musunuz?",
+      "confirmDeleteMultiple": "Gerçekten {count} transcript'i silmek istiyor musunuz?"
     },
     "closeConfig": {
       "title": "Bilet Kapatma",

@@ -334,7 +334,12 @@
       "unknown": "Unknown",
       "ticketNumber": "Ticket #{id}",
       "noTranscripts": "No transcripts available yet.",
-      "autoDelete": "Transcripts are automatically deleted after 7 days."
+      "autoDelete": "Transcripts are automatically deleted after 7 days.",
+      "selectAll": "Select All",
+      "delete": "Delete",
+      "deleteSelected": "Delete {count} selected",
+      "confirmDelete": "Do you really want to delete this transcript?",
+      "confirmDeleteMultiple": "Do you really want to delete {count} transcript(s)?"
     },
     "closeConfig": {
       "title": "Ticket Closing",
