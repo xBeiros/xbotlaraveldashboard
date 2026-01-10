@@ -8,4 +8,9 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-Schedule::command('tickets:cleanup-transcripts')->daily();
+Schedule::command('tickets:cleanup-transcripts')
+    ->daily()
+    ->at('02:00')
+    ->timezone('Europe/Berlin')
+    ->withoutOverlapping()
+    ->runInBackground();

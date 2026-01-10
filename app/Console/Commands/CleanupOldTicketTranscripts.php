@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Ticket;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class CleanupOldTicketTranscripts extends Command
 {
@@ -29,6 +30,17 @@ class CleanupOldTicketTranscripts extends Command
     {
         $cutoffDate = Carbon::now()->subDays(7);
         
+        // Log für Debugging
+        \Log::info("CleanupOldTicketTranscripts: Starte Cleanup für Transcripts älter als {$cutoffDate}");
+        
+        $tickets = Ticket::where('status', 'closed')
+            ->whereNotNull('transcript')
+            ->whereNotNull('closed_at')
+            ->get();
+        
+        $countBefore = $tickets->count();
+        \Log::info("CleanupOldTicketTranscripts: Gefunden {$countBefore} Tickets mit Transcripts");
+        
         $deleted = Ticket::where('status', 'closed')
             ->whereNotNull('transcript')
             ->whereNotNull('closed_at')
@@ -36,6 +48,7 @@ class CleanupOldTicketTranscripts extends Command
             ->update(['transcript' => null]);
 
         $this->info("{$deleted} Transcripts wurden gelöscht (älter als 7 Tage).");
+        \Log::info("CleanupOldTicketTranscripts: {$deleted} Transcripts gelöscht");
         
         return Command::SUCCESS;
     }
