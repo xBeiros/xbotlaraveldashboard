@@ -620,13 +620,16 @@
                             >
                                 <option value="">{{ t('common.pleaseSelect') }}</option>
                                 <option
-                                    v-for="cat in categories"
+                                    v-for="cat in (categories || [])"
                                     :key="cat.id"
                                     :value="cat.id"
                                 >
                                     📁 {{ cat.name }}
                                 </option>
                             </select>
+                            <div v-if="!categories || categories.length === 0" class="text-xs text-yellow-400 mt-1">
+                                {{ t('ticketSystem.categories.noCategoriesAvailable') }}
+                            </div>
                             <p class="text-xs text-gray-400 mt-1">{{ t('ticketSystem.categories.discordCategoryHelp') }}</p>
                         </div>
 

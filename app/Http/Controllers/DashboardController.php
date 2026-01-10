@@ -661,7 +661,7 @@ class DashboardController extends BaseGuildController
             ],
             'guilds' => $allGuilds,
             'channels' => $channels,
-            'categories' => $categories,
+            'categories' => $categories ?? [],
             'roles' => $roles,
             'ticketCategories' => $ticketCategories->map(function ($tc) {
                 return [
