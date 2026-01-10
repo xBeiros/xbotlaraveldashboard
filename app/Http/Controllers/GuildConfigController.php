@@ -1577,6 +1577,58 @@ class GuildConfigController extends BaseGuildController
             ->header('Content-Disposition', 'inline; filename="ticket-transcript-' . $ticketId . '.html"');
     }
 
+    public function deleteTicketTranscript($guild, $ticketId)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $ticket = Ticket::where('id', $ticketId)
+            ->where('guild_id', $guildModel->id)
+            ->where('status', 'closed')
+            ->whereNotNull('transcript')
+            ->firstOrFail();
+
+        $ticket->update(['transcript' => null]);
+
+        return redirect()->route('guild.ticket-system', ['guild' => $guild])
+            ->with('success', 'Transcript erfolgreich gelöscht.');
+    }
+
+    public function deleteMultipleTicketTranscripts(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $validated = $request->validate([
+            'ticket_ids' => 'required|array',
+            'ticket_ids.*' => 'required|integer',
+        ]);
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        
+        $deleted = Ticket::where('guild_id', $guildModel->id)
+            ->where('status', 'closed')
+            ->whereNotNull('transcript')
+            ->whereIn('id', $validated['ticket_ids'])
+            ->update(['transcript' => null]);
+
+        return redirect()->route('guild.ticket-system', ['guild' => $guild])
+            ->with('success', $deleted . ' Transcript(s) erfolgreich gelöscht.');
+    }
+
     public function updateTicketTranscriptSetting(Request $request, $guild)
     {
         $user = Auth::user();

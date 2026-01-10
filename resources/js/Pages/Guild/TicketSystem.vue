@@ -449,14 +449,30 @@
                 <div class="bg-[#2f3136] rounded-lg p-6 border border-[#202225]">
                     <div class="flex items-center justify-between mb-4">
                         <h2 class="text-lg font-semibold text-white">{{ t('ticketSystem.transcripts.title') }}</h2>
-                        <div class="flex items-center gap-2">
-                            <input
-                                type="checkbox"
-                                :checked="transcriptEnabled"
-                                @change="updateTranscriptSetting"
-                                class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
-                            />
-                            <label class="text-sm text-gray-300">{{ t('ticketSystem.transcripts.enabled') }}</label>
+                        <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    :checked="transcriptEnabled"
+                                    @change="updateTranscriptSetting"
+                                    class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
+                                />
+                                <label class="text-sm text-gray-300">{{ t('ticketSystem.transcripts.enabled') }}</label>
+                            </div>
+                            <div v-if="selectedTranscripts.length > 0" class="flex items-center gap-2">
+                                <button
+                                    @click="deleteSelectedTranscripts"
+                                    class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                                >
+                                    {{ t('ticketSystem.transcripts.deleteSelected', { count: selectedTranscripts.length }) }}
+                                </button>
+                                <button
+                                    @click="selectedTranscripts = []"
+                                    class="px-4 py-2 bg-[#36393f] hover:bg-[#40444b] text-white rounded-lg transition-colors text-sm font-medium"
+                                >
+                                    {{ t('common.cancel') }}
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -464,28 +480,59 @@
                         {{ t('ticketSystem.transcripts.disabledMessage') }}
                     </div>
                     
+                    <div v-if="ticketTranscripts.length > 0" class="mb-4">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                :checked="allTranscriptsSelected"
+                                @change="toggleSelectAll"
+                                class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
+                            />
+                            <span class="text-sm text-gray-300">{{ t('ticketSystem.transcripts.selectAll') }}</span>
+                        </label>
+                    </div>
+                    
                     <div class="space-y-3">
                         <div
                             v-for="transcript in ticketTranscripts"
                             :key="transcript.id"
-                            class="bg-[#36393f] rounded-lg p-4 border border-[#202225] hover:border-[#5865f2] transition-colors"
+                            :class="[
+                                'bg-[#36393f] rounded-lg p-4 border transition-colors',
+                                selectedTranscripts.includes(transcript.id) ? 'border-[#5865f2] bg-[#5865f2]/10' : 'border-[#202225] hover:border-[#5865f2]'
+                            ]"
                         >
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <div class="text-sm font-medium text-white">
-                                        {{ t('ticketSystem.transcripts.ticketNumber', { id: transcript.id }) }} - {{ transcript.category_name }}
+                            <div class="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    :value="transcript.id"
+                                    v-model="selectedTranscripts"
+                                    class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
+                                />
+                                <div class="flex-1 flex items-center justify-between">
+                                    <div>
+                                        <div class="text-sm font-medium text-white">
+                                            {{ t('ticketSystem.transcripts.ticketNumber', { id: transcript.id }) }} - {{ transcript.category_name }}
+                                        </div>
+                                        <div class="text-xs text-gray-400 mt-1">
+                                            {{ t('ticketSystem.transcripts.closedAt') }} {{ transcript.closed_at || t('ticketSystem.transcripts.unknown') }}
+                                        </div>
                                     </div>
-                                    <div class="text-xs text-gray-400 mt-1">
-                                        {{ t('ticketSystem.transcripts.closedAt') }} {{ transcript.closed_at || t('ticketSystem.transcripts.unknown') }}
+                                    <div class="flex items-center gap-2">
+                                        <a
+                                            :href="route('guild.ticket.transcript', { guild: guild?.id, ticketId: transcript.id })"
+                                            target="_blank"
+                                            class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium"
+                                        >
+                                            {{ t('ticketSystem.transcripts.showTranscript') }}
+                                        </a>
+                                        <button
+                                            @click="deleteTranscript(transcript.id)"
+                                            class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-sm font-medium"
+                                        >
+                                            {{ t('ticketSystem.transcripts.delete') }}
+                                        </button>
                                     </div>
                                 </div>
-                                <a
-                                    :href="route('guild.ticket.transcript', { guild: guild?.id, ticketId: transcript.id })"
-                                    target="_blank"
-                                    class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg transition-colors text-sm font-medium"
-                                >
-                                    {{ t('ticketSystem.transcripts.showTranscript') }}
-                                </a>
                             </div>
                         </div>
                         <div v-if="ticketTranscripts.length === 0" class="text-center py-8 text-gray-400">

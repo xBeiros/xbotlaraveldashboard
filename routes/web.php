@@ -140,6 +140,10 @@ Route::middleware('auth')->group(function () {
         ->name('guild.ticket-categories.delete');
     Route::get('/guild/{guild}/tickets/{ticketId}/transcript', [\App\Http\Controllers\GuildConfigController::class, 'getTicketTranscript'])
         ->name('guild.ticket.transcript');
+    Route::delete('/guild/{guild}/tickets/{ticketId}/transcript', [\App\Http\Controllers\GuildConfigController::class, 'deleteTicketTranscript'])
+        ->name('guild.ticket.transcript.delete');
+    Route::post('/guild/{guild}/tickets/transcripts/delete-multiple', [\App\Http\Controllers\GuildConfigController::class, 'deleteMultipleTicketTranscripts'])
+        ->name('guild.ticket.transcript.deleteMultiple');
     Route::put('/guild/{guild}/ticket-transcript-setting', [\App\Http\Controllers\GuildConfigController::class, 'updateTicketTranscriptSetting'])
         ->name('guild.ticket-transcript-setting.update');
     Route::put('/guild/{guild}/ticket-close-config', [\App\Http\Controllers\GuildConfigController::class, 'updateTicketCloseConfig'])
