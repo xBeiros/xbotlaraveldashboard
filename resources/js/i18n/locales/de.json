@@ -310,6 +310,7 @@
       "welcomeMessagePlaceholder": "Willkommen in deinem Ticket, {user}! Bitte beschreibe dein Anliegen.\n\nEin Supporter wird sich bald bei dir melden.",
       "discordCategory": "Discord-Kategorie",
       "discordCategoryHelp": "Die Kategorie, in der Ticket-Channels erstellt werden",
+      "noCategoriesAvailable": "Keine Kategorien verfügbar. Erstelle zuerst eine Kategorie auf deinem Discord-Server.",
       "channelNameFormat": "Channel-Namen-Format",
       "channelNameFormatPlaceholder": "ticket-{user}",
       "channelNameFormatHelp": "Verfügbare Platzhalter: {user}, {date}, {id}",
