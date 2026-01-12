@@ -34,6 +34,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('guild_id')->constrained('guilds')->onDelete('cascade');
             $table->string('channel_id')->nullable();
+            $table->string('default_role_id')->nullable(); // Default-Rolle zum Entziehen aller Teamrechte
             $table->boolean('notify_join')->default(true);
             $table->boolean('notify_leave')->default(true);
             $table->boolean('notify_upgrade')->default(true);

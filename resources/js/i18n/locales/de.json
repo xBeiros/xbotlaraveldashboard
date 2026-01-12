@@ -128,13 +128,19 @@
   "teamManagement": {
     "title": "Team Verwaltung",
     "ranks": {
-      "title": "Ränge",
+      "title": "Team-Ränge",
       "addRank": "Rang hinzufügen",
       "editRank": "Rang bearbeiten",
+      "deleteRank": "Rang löschen",
       "noRanks": "Noch keine Ränge vorhanden",
       "name": "Rang-Name",
+      "namePlaceholder": "z.B. Admin, Moderator",
+      "role": "Discord-Rolle",
+      "roleHelp": "Wähle die Discord-Rolle, die für diesen Rang verwendet werden soll. Nur diese Rollen lösen Benachrichtigungen aus.",
       "memberCount": "{count} Mitglieder",
-      "confirmDelete": "Möchtest du diesen Rang wirklich löschen? Alle Mitglieder werden entfernt."
+      "confirmDelete": "Möchtest du diesen Rang wirklich löschen? Alle Mitglieder werden entfernt.",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten"
     },
     "members": {
       "title": "Team-Mitglieder",
@@ -143,11 +149,16 @@
       "member": "Mitglied",
       "rank": "Rang",
       "searchMember": "Mitglied suchen...",
-      "confirmRemove": "Möchtest du dieses Mitglied wirklich entfernen?"
+      "confirmRemove": "Möchtest du dieses Mitglied wirklich entfernen?",
+      "removeMember": "Mitglied entfernen",
+      "removeRights": "Rechte entziehen",
+      "confirmRemoveRights": "Möchtest du diesem Mitglied wirklich alle Team-Rechte entziehen? Die Default-Rolle wird zugewiesen und das Mitglied aus dem Team entfernt."
     },
     "config": {
       "title": "Konfiguration",
       "channel": "Benachrichtigungs-Kanal",
+      "defaultRole": "Default-Rolle",
+      "defaultRoleHelp": "Rolle, die zugewiesen wird, wenn einem Mitglied alle Team-Rechte entzogen werden. Alle Team-Rollen werden entfernt und diese Rolle wird hinzugefügt.",
       "notifyJoin": "Team-Beitritt benachrichtigen",
       "notifyLeave": "Team-Austritt benachrichtigen",
       "notifyUpgrade": "Rang-Aufstieg benachrichtigen",

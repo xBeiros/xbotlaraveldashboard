@@ -128,13 +128,19 @@
   "teamManagement": {
     "title": "Team Management",
     "ranks": {
-      "title": "Ranks",
+      "title": "Team Ranks",
       "addRank": "Add Rank",
       "editRank": "Edit Rank",
+      "deleteRank": "Delete Rank",
       "noRanks": "No ranks yet",
       "name": "Rank Name",
+      "namePlaceholder": "e.g. Admin, Moderator",
+      "role": "Discord Role",
+      "roleHelp": "Select the Discord role to use for this rank. Only these roles will trigger notifications.",
       "memberCount": "{count} members",
-      "confirmDelete": "Do you really want to delete this rank? All members will be removed."
+      "confirmDelete": "Do you really want to delete this rank? All members will be removed.",
+      "moveUp": "Move Up",
+      "moveDown": "Move Down"
     },
     "members": {
       "title": "Team Members",
@@ -143,11 +149,16 @@
       "member": "Member",
       "rank": "Rank",
       "searchMember": "Search member...",
-      "confirmRemove": "Do you really want to remove this member?"
+      "confirmRemove": "Do you really want to remove this member?",
+      "removeMember": "Remove Member",
+      "removeRights": "Remove Rights",
+      "confirmRemoveRights": "Do you really want to remove all team rights from this member? The default role will be assigned and the member will be removed from the team."
     },
     "config": {
       "title": "Configuration",
       "channel": "Notification Channel",
+      "defaultRole": "Default Role",
+      "defaultRoleHelp": "Role that will be assigned when all team rights are removed from a member. All team roles will be removed and this role will be added.",
       "notifyJoin": "Notify team join",
       "notifyLeave": "Notify team leave",
       "notifyUpgrade": "Notify rank upgrade",

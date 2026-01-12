@@ -1,0 +1,15 @@
+[Unit]
+Description=Laravel Scheduler
+After=network.target
+
+[Service]
+Type=simple
+User=xbot_bot
+WorkingDirectory=/home/xbot_bot/xdashboard
+ExecStart=/usr/bin/php /home/xbot_bot/xdashboard/artisan schedule:work
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+

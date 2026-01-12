@@ -124,13 +124,19 @@
   "teamManagement": {
     "title": "Takım Yönetimi",
     "ranks": {
-      "title": "Rütbeler",
+      "title": "Takım Rütbeleri",
       "addRank": "Rütbe Ekle",
       "editRank": "Rütbe Düzenle",
+      "deleteRank": "Rütbe Sil",
       "noRanks": "Henüz rütbe yok",
       "name": "Rütbe Adı",
+      "namePlaceholder": "örn. Admin, Moderator",
+      "role": "Discord Rolü",
+      "roleHelp": "Bu rütbe için kullanılacak Discord rolünü seçin. Sadece bu roller bildirimleri tetikleyecektir.",
       "memberCount": "{count} üye",
-      "confirmDelete": "Bu rütbeyi gerçekten silmek istiyor musunuz? Tüm üyeler kaldırılacak."
+      "confirmDelete": "Bu rütbeyi gerçekten silmek istiyor musunuz? Tüm üyeler kaldırılacak.",
+      "moveUp": "Yukarı Taşı",
+      "moveDown": "Aşağı Taşı"
     },
     "members": {
       "title": "Takım Üyeleri",
@@ -139,11 +145,16 @@
       "member": "Üye",
       "rank": "Rütbe",
       "searchMember": "Üye ara...",
-      "confirmRemove": "Bu üyeyi gerçekten kaldırmak istiyor musunuz?"
+      "confirmRemove": "Bu üyeyi gerçekten kaldırmak istiyor musunuz?",
+      "removeMember": "Üyeyi Kaldır",
+      "removeRights": "Hakları Kaldır",
+      "confirmRemoveRights": "Bu üyenin tüm takım haklarını gerçekten kaldırmak istiyor musunuz? Varsayılan rol atanacak ve üye takımdan kaldırılacak."
     },
     "config": {
       "title": "Yapılandırma",
       "channel": "Bildirim Kanalı",
+      "defaultRole": "Varsayılan Rol",
+      "defaultRoleHelp": "Bir üyenin tüm takım hakları kaldırıldığında atanacak rol. Tüm takım rolleri kaldırılacak ve bu rol eklenecektir.",
       "notifyJoin": "Takıma katılımı bildir",
       "notifyLeave": "Takımdan ayrılmayı bildir",
       "notifyUpgrade": "Rütbe yükseltmeyi bildir",

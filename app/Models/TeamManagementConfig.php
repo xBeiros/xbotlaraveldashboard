@@ -10,6 +10,7 @@ class TeamManagementConfig extends Model
     protected $fillable = [
         'guild_id',
         'channel_id',
+        'default_role_id',
         'notify_join',
         'notify_leave',
         'notify_upgrade',

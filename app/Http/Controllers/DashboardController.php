@@ -1551,26 +1551,33 @@ class DashboardController extends BaseGuildController
         $teamRanks = $guildModel->teamRanks()
             ->orderBy('sort_order')
             ->get()
-            ->map(function ($rank) {
+            ->map(function ($rank) use ($roles) {
+                $role = collect($roles)->firstWhere('id', $rank->role_id);
                 return [
                     'id' => $rank->id,
                     'name' => $rank->name,
+                    'role_id' => $rank->role_id,
+                    'role_name' => $role ? $role['name'] : null,
+                    'role_color' => $role ? ($role['color'] ?? 0) : 0,
                     'sort_order' => $rank->sort_order,
                     'visible' => $rank->visible,
                     'member_count' => $rank->members()->count(),
                 ];
             });
 
-        // Lade Team-Mitglieder
+        // Lade Team-Mitglieder mit Anzeigenamen
         $teamMembers = $guildModel->teamMembers()
             ->with('rank')
             ->get()
-            ->map(function ($member) {
+            ->map(function ($member) use ($members) {
+                $discordMember = collect($members)->firstWhere('id', $member->user_id);
                 return [
                     'id' => $member->id,
                     'user_id' => $member->user_id,
                     'rank_id' => $member->rank_id,
                     'rank_name' => $member->rank->name ?? null,
+                    'display_name' => $discordMember ? $discordMember['display_name'] : null,
+                    'avatar_url' => $discordMember ? $discordMember['avatar_url'] : null,
                 ];
             });
 
@@ -1578,6 +1585,7 @@ class DashboardController extends BaseGuildController
         $teamConfig = $guildModel->teamManagementConfig;
         $config = [
             'channel_id' => $teamConfig->channel_id ?? null,
+            'default_role_id' => $teamConfig->default_role_id ?? null,
             'notify_join' => $teamConfig->notify_join ?? true,
             'notify_leave' => $teamConfig->notify_leave ?? true,
             'notify_upgrade' => $teamConfig->notify_upgrade ?? true,

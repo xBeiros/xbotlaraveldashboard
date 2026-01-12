@@ -11,6 +11,7 @@ class TeamRank extends Model
     protected $fillable = [
         'guild_id',
         'name',
+        'role_id',
         'sort_order',
         'visible',
     ];
