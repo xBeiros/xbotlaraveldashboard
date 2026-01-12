@@ -25,6 +25,10 @@ use App\Models\TeamRank;
 use App\Models\TeamMember;
 use App\Models\TeamManagementConfig;
 use Illuminate\Support\Facades\Http;
+use App\Models\TeamRank;
+use App\Models\TeamMember;
+use App\Models\TeamManagementConfig;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class GuildConfigController extends BaseGuildController
@@ -2211,6 +2215,342 @@ class GuildConfigController extends BaseGuildController
 
         return redirect()->route('guild.config', ['guild' => $guild])
             ->with('success', 'Add-On erfolgreich ' . ($validated['enabled'] ? 'aktiviert' : 'deaktiviert') . '!');
+    }
+
+    /**
+     * Store Team Rank
+     */
+    public function storeTeamRank(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'role_id' => 'required|string',
+        ]);
+
+        $maxSortOrder = TeamRank::where('guild_id', $guildModel->id)->max('sort_order') ?? -1;
+
+        TeamRank::create([
+            'guild_id' => $guildModel->id,
+            'name' => $validated['name'],
+            'role_id' => $validated['role_id'],
+            'sort_order' => $maxSortOrder + 1,
+            'visible' => true,
+        ]);
+
+        return back()->with('success', 'Rang erfolgreich hinzugefügt!');
+    }
+
+    /**
+     * Update Team Rank
+     */
+    public function updateTeamRank(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $rank = TeamRank::where('guild_id', $guildModel->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'role_id' => 'required|string',
+        ]);
+
+        $rank->update([
+            'name' => $validated['name'],
+            'role_id' => $validated['role_id'],
+        ]);
+
+        return back()->with('success', 'Rang erfolgreich aktualisiert!');
+    }
+
+    /**
+     * Delete Team Rank
+     */
+    public function deleteTeamRank(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $rank = TeamRank::where('guild_id', $guildModel->id)->findOrFail($id);
+        $rank->delete();
+
+        return back()->with('success', 'Rang erfolgreich gelöscht!');
+    }
+
+    /**
+     * Toggle Team Rank Visibility
+     */
+    public function toggleTeamRankVisibility(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $rank = TeamRank::where('guild_id', $guildModel->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'visible' => 'required|boolean',
+        ]);
+
+        $rank->update(['visible' => $validated['visible']]);
+
+        return back();
+    }
+
+    /**
+     * Move Team Rank
+     */
+    public function moveTeamRank(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $rank = TeamRank::where('guild_id', $guildModel->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'direction' => 'required|in:up,down',
+        ]);
+
+        $allRanks = TeamRank::where('guild_id', $guildModel->id)
+            ->orderBy('sort_order')
+            ->get();
+
+        $currentIndex = $allRanks->search(function ($r) use ($id) {
+            return $r->id == $id;
+        });
+
+        if ($validated['direction'] === 'up' && $currentIndex > 0) {
+            $swapRank = $allRanks[$currentIndex - 1];
+            $tempOrder = $rank->sort_order;
+            $rank->update(['sort_order' => $swapRank->sort_order]);
+            $swapRank->update(['sort_order' => $tempOrder]);
+        } elseif ($validated['direction'] === 'down' && $currentIndex < $allRanks->count() - 1) {
+            $swapRank = $allRanks[$currentIndex + 1];
+            $tempOrder = $rank->sort_order;
+            $rank->update(['sort_order' => $swapRank->sort_order]);
+            $swapRank->update(['sort_order' => $tempOrder]);
+        }
+
+        return back();
+    }
+
+    /**
+     * Store Team Member
+     */
+    public function storeTeamMember(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'user_id' => 'required|string',
+            'rank_id' => 'required|exists:team_ranks,id',
+        ]);
+
+        TeamMember::updateOrCreate(
+            [
+                'guild_id' => $guildModel->id,
+                'user_id' => $validated['user_id'],
+            ],
+            [
+                'rank_id' => $validated['rank_id'],
+            ]
+        );
+
+        return back()->with('success', 'Mitglied erfolgreich hinzugefügt!');
+    }
+
+    /**
+     * Delete Team Member
+     */
+    public function deleteTeamMember(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $member = TeamMember::where('guild_id', $guildModel->id)->findOrFail($id);
+        $member->delete();
+
+        return back()->with('success', 'Mitglied erfolgreich entfernt!');
+    }
+
+    /**
+     * Update Team Management Config
+     */
+    public function updateTeamManagementConfig(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'channel_id' => 'nullable|string',
+            'default_role_id' => 'nullable|string',
+            'notify_join' => 'boolean',
+            'notify_leave' => 'boolean',
+            'notify_upgrade' => 'boolean',
+            'notify_downgrade' => 'boolean',
+        ]);
+
+        $guildModel->teamManagementConfig()->updateOrCreate(
+            ['guild_id' => $guildModel->id],
+            $validated
+        );
+
+        return back()->with('success', 'Konfiguration erfolgreich gespeichert!');
+    }
+
+    /**
+     * Remove team rights from member (assign default role)
+     */
+    public function removeTeamRights(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $member = TeamMember::where('guild_id', $guildModel->id)->findOrFail($id);
+        
+        $teamConfig = $guildModel->teamManagementConfig;
+        
+        if (!$teamConfig || !$teamConfig->default_role_id) {
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('error', 'Keine Default-Rolle konfiguriert. Bitte zuerst eine Default-Rolle in den Einstellungen festlegen.');
+        }
+
+        // Entferne alle Team-Rollen und weise Default-Rolle zu
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('error', 'Bot Token nicht konfiguriert!');
+        }
+
+        try {
+            // Hole alle Team-Ränge für diese Guild
+            $teamRanks = TeamRank::where('guild_id', $guildModel->id)
+                ->whereNotNull('role_id')
+                ->get();
+
+            $roleIdsToRemove = $teamRanks->pluck('role_id')->toArray();
+            $defaultRoleId = $teamConfig->default_role_id;
+
+            // Hole aktuelle Rollen des Mitglieds
+            $response = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->get("https://discord.com/api/v10/guilds/{$guild}/members/{$member->user_id}");
+
+            if (!$response->successful()) {
+                \Log::error('Fehler beim Abrufen der Mitglieder-Daten:', $response->json());
+                return redirect()->route('guild.team-management', ['guild' => $guild])
+                    ->with('error', 'Fehler beim Abrufen der Mitglieder-Daten.');
+            }
+
+            $memberData = $response->json();
+            $currentRoles = $memberData['roles'] ?? [];
+
+            // Entferne Team-Rollen und füge Default-Rolle hinzu
+            $newRoles = array_filter($currentRoles, function($roleId) use ($roleIdsToRemove) {
+                return !in_array($roleId, $roleIdsToRemove);
+            });
+
+            if (!in_array($defaultRoleId, $newRoles)) {
+                $newRoles[] = $defaultRoleId;
+            }
+
+            // Aktualisiere Rollen
+            $updateResponse = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->patch("https://discord.com/api/v10/guilds/{$guild}/members/{$member->user_id}", [
+                'roles' => array_values($newRoles),
+            ]);
+
+            if (!$updateResponse->successful()) {
+                \Log::error('Fehler beim Entfernen der Team-Rechte:', $updateResponse->json());
+                return redirect()->route('guild.team-management', ['guild' => $guild])
+                    ->with('error', 'Fehler beim Entfernen der Team-Rechte.');
+            }
+
+            // Entferne Mitglied aus Team-Verwaltung
+            $member->delete();
+
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('success', 'Team-Rechte erfolgreich entfernt und Default-Rolle zugewiesen.');
+        } catch (\Exception $e) {
+            \Log::error('Fehler beim Entfernen der Team-Rechte:', ['error' => $e->getMessage()]);
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('error', 'Fehler beim Entfernen der Team-Rechte: ' . $e->getMessage());
+        }
     }
 
 }
