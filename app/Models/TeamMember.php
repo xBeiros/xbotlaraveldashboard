@@ -20,6 +20,6 @@ class TeamMember extends Model
 
     public function rank(): BelongsTo
     {
-        return $this->belongsTo(TeamRank::class);
+        return $this->belongsTo(TeamRank::class, 'rank_id');
     }
 }

@@ -862,13 +862,14 @@ class DashboardController extends BaseGuildController
         $botToken = config('services.discord.bot_token');
         
         if (!$botToken) {
+            \Log::error("Bot Token nicht gefunden für Guild {$guildId}. Bitte DISCORD_BOT_TOKEN in .env setzen!");
             return [];
         }
 
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bot ' . $botToken,
-            ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}/channels");
+            ])->timeout(10)->get("https://discord.com/api/v10/guilds/{$guildId}/channels");
 
             if ($response->successful()) {
                 $channels = $response->json();
@@ -921,12 +922,33 @@ class DashboardController extends BaseGuildController
                     }
                 }
                 
+                \Log::info("Gefilterte Kanäle für Guild {$guildId}", [
+                    'count' => count($grouped),
+                    'categories' => count($categories),
+                ]);
+                
                 return $grouped;
+            } else {
+                \Log::error("Fehler beim Laden der Kanäle für Guild {$guildId}", [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                
+                // Spezifische Fehlermeldungen
+                if ($response->status() === 401) {
+                    \Log::error("UNAUTHORIZED: Bot Token ist ungültig oder abgelaufen!");
+                } elseif ($response->status() === 403) {
+                    \Log::error("FORBIDDEN: Bot hat keine Berechtigung, Kanäle abzurufen!");
+                } elseif ($response->status() === 404) {
+                    \Log::error("NOT FOUND: Guild {$guildId} nicht gefunden oder Bot ist nicht auf dem Server!");
+                }
             }
             
             return [];
         } catch (\Exception $e) {
-            \Log::warning("Failed to fetch channels for guild {$guildId}: " . $e->getMessage());
+            \Log::error("Exception beim Laden der Kanäle für Guild {$guildId}: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return [];
         }
     }
@@ -1001,22 +1023,45 @@ class DashboardController extends BaseGuildController
         $botToken = config('services.discord.bot_token');
         
         if (!$botToken) {
+            \Log::error("Bot Token nicht gefunden für Guild {$guildId}. Bitte DISCORD_BOT_TOKEN in .env setzen!");
             return [];
         }
+
+        // Prüfe ob Token gültig ist (erste 10 Zeichen)
+        $tokenPreview = substr($botToken, 0, 10) . '...';
+        \Log::info("Lade Rollen für Guild {$guildId} mit Token: {$tokenPreview}");
 
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bot ' . $botToken,
-            ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}/roles");
+            ])->timeout(10)->get("https://discord.com/api/v10/guilds/{$guildId}/roles");
 
             if ($response->successful()) {
                 $roles = $response->json();
                 
-                return collect($roles)
+                if (!is_array($roles)) {
+                    \Log::error("Ungültige Antwort beim Laden der Rollen für Guild {$guildId}", [
+                        'response' => $response->body()
+                    ]);
+                    return [];
+                }
+                
+                \Log::info("Rollen für Guild {$guildId} geladen", [
+                    'count' => count($roles),
+                    'roles_sample' => array_slice(array_map(function($r) {
+                        return ['id' => $r['id'] ?? null, 'name' => $r['name'] ?? null];
+                    }, $roles), 0, 5)
+                ]);
+                
+                $filteredRoles = collect($roles)
+                    ->filter(function ($role) use ($guildId) {
+                        // Filtere @everyone Rolle heraus (hat die ID gleich der Guild-ID)
+                        return isset($role['id']) && isset($role['name']) && (string)$role['id'] !== (string)$guildId;
+                    })
                     ->sortByDesc('position')
                     ->map(function ($role) {
                         return [
-                            'id' => $role['id'],
+                            'id' => (string) $role['id'], // Als String für konsistente Vergleiche
                             'name' => $role['name'],
                             'color' => $role['color'] ?? 0,
                             'position' => $role['position'] ?? 0,
@@ -1024,11 +1069,32 @@ class DashboardController extends BaseGuildController
                     })
                     ->values()
                     ->toArray();
+                
+                \Log::info("Gefilterte Rollen für Guild {$guildId}", ['count' => count($filteredRoles)]);
+                
+                return $filteredRoles;
+            } else {
+                \Log::error("Fehler beim Laden der Rollen für Guild {$guildId}", [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'headers' => $response->headers()
+                ]);
+                
+                // Spezifische Fehlermeldungen
+                if ($response->status() === 401) {
+                    \Log::error("UNAUTHORIZED: Bot Token ist ungültig oder abgelaufen!");
+                } elseif ($response->status() === 403) {
+                    \Log::error("FORBIDDEN: Bot hat keine Berechtigung, Rollen abzurufen!");
+                } elseif ($response->status() === 404) {
+                    \Log::error("NOT FOUND: Guild {$guildId} nicht gefunden oder Bot ist nicht auf dem Server!");
+                }
             }
             
             return [];
         } catch (\Exception $e) {
-            \Log::warning("Failed to fetch roles for guild {$guildId}: " . $e->getMessage());
+            \Log::error("Exception beim Laden der Rollen für Guild {$guildId}: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return [];
         }
     }
@@ -1110,21 +1176,29 @@ class DashboardController extends BaseGuildController
         $botToken = config('services.discord.bot_token');
         
         if (!$botToken) {
+            \Log::error("Bot Token nicht gefunden für Guild {$guildId}. Bitte DISCORD_BOT_TOKEN in .env setzen!");
             return [];
         }
 
         try {
             $response = Http::withHeaders([
                 'Authorization' => 'Bot ' . $botToken,
-            ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}/channels");
+            ])->timeout(10)->get("https://discord.com/api/v10/guilds/{$guildId}/channels");
 
             if ($response->successful()) {
                 $channels = $response->json();
                 
+                if (!is_array($channels)) {
+                    \Log::error("Ungültige Antwort beim Laden der Kategorien für Guild {$guildId}", [
+                        'response' => $response->body()
+                    ]);
+                    return [];
+                }
+                
                 // Filter nur Kategorien (type 4)
-                return collect($channels)
+                $categories = collect($channels)
                     ->filter(function ($channel) {
-                        return $channel['type'] === 4; // Category channel
+                        return isset($channel['type']) && $channel['type'] === 4; // Category channel
                     })
                     ->map(function ($category) {
                         return [
@@ -1136,11 +1210,34 @@ class DashboardController extends BaseGuildController
                     ->sortBy('position')
                     ->values()
                     ->toArray();
+                
+                \Log::info("Kategorien für Guild {$guildId} geladen", [
+                    'count' => count($categories),
+                    'categories' => array_slice($categories, 0, 5),
+                ]);
+                
+                return $categories;
+            } else {
+                \Log::error("Fehler beim Laden der Kategorien für Guild {$guildId}", [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+                
+                // Spezifische Fehlermeldungen
+                if ($response->status() === 401) {
+                    \Log::error("UNAUTHORIZED: Bot Token ist ungültig oder abgelaufen!");
+                } elseif ($response->status() === 403) {
+                    \Log::error("FORBIDDEN: Bot hat keine Berechtigung, Kanäle abzurufen!");
+                } elseif ($response->status() === 404) {
+                    \Log::error("NOT FOUND: Guild {$guildId} nicht gefunden oder Bot ist nicht auf dem Server!");
+                }
             }
             
             return [];
         } catch (\Exception $e) {
-            \Log::warning("Failed to fetch categories for guild {$guildId}: " . $e->getMessage());
+            \Log::error("Exception beim Laden der Kategorien für Guild {$guildId}: " . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
             return [];
         }
     }
@@ -1546,6 +1643,14 @@ class DashboardController extends BaseGuildController
         $channels = $this->fetchGuildChannels($guild);
         $roles = $this->fetchGuildRoles($guild);
         $members = $this->fetchGuildMembers($guild);
+        
+        \Log::info("Team Management - Geladene Daten", [
+            'guild_id' => $guild,
+            'channels_count' => count($channels),
+            'roles_count' => count($roles),
+            'members_count' => count($members),
+            'roles_sample' => array_slice($roles, 0, 3), // Erste 3 Rollen als Beispiel
+        ]);
 
         // Lade Team-Ränge
         $teamRanks = $guildModel->teamRanks()
@@ -1565,12 +1670,34 @@ class DashboardController extends BaseGuildController
                 ];
             });
 
-        // Lade Team-Mitglieder mit Anzeigenamen
+        // Lade Team-Mitglieder mit Anzeigenamen und aktuellen Rollen
+        $botToken = config('services.discord.bot_token');
         $teamMembers = $guildModel->teamMembers()
             ->with('rank')
             ->get()
-            ->map(function ($member) use ($members) {
+            ->map(function ($member) use ($members, $guild, $botToken) {
                 $discordMember = collect($members)->firstWhere('id', $member->user_id);
+                
+                // Hole aktuelle Rollen des Mitglieds von Discord
+                $currentRoles = [];
+                if ($botToken) {
+                    try {
+                        $response = Http::withHeaders([
+                            'Authorization' => 'Bot ' . $botToken,
+                        ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guild}/members/{$member->user_id}");
+                        
+                        if ($response->successful()) {
+                            $memberData = $response->json();
+                            $currentRoles = $memberData['roles'] ?? [];
+                        }
+                    } catch (\Exception $e) {
+                        \Log::warning('Fehler beim Abrufen der Rollen für Mitglied:', [
+                            'user_id' => $member->user_id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                }
+                
                 return [
                     'id' => $member->id,
                     'user_id' => $member->user_id,
@@ -1578,6 +1705,7 @@ class DashboardController extends BaseGuildController
                     'rank_name' => $member->rank->name ?? null,
                     'display_name' => $discordMember ? $discordMember['display_name'] : null,
                     'avatar_url' => $discordMember ? $discordMember['avatar_url'] : null,
+                    'current_roles' => $currentRoles,
                 ];
             });
 
@@ -1585,6 +1713,8 @@ class DashboardController extends BaseGuildController
         $teamConfig = $guildModel->teamManagementConfig;
         $config = [
             'channel_id' => $teamConfig->channel_id ?? null,
+            'team_list_channel_id' => $teamConfig->team_list_channel_id ?? null,
+            'team_list_message_id' => $teamConfig->team_list_message_id ?? null,
             'default_role_id' => $teamConfig->default_role_id ?? null,
             'notify_join' => $teamConfig->notify_join ?? true,
             'notify_leave' => $teamConfig->notify_leave ?? true,
@@ -1607,6 +1737,20 @@ class DashboardController extends BaseGuildController
             ],
         ];
 
+        // Lade Ankündigungs-Templates
+        $announcementTemplates = $guildModel->teamAnnouncementTemplates()
+            ->orderBy('name')
+            ->get()
+            ->map(function ($template) {
+                return [
+                    'id' => $template->id,
+                    'name' => $template->name,
+                    'type' => $template->type,
+                    'embed' => $template->embed,
+                    'enabled' => $template->enabled,
+                ];
+            });
+
         return Inertia::render('Guild/TeamManagement', [
             'guild' => [
                 'id' => $userGuild->guild_id,
@@ -1622,6 +1766,7 @@ class DashboardController extends BaseGuildController
             'teamMembers' => $teamMembers,
             'teamConfig' => $config,
             'addOns' => $availableAddOns,
+            'announcementTemplates' => $announcementTemplates,
         ]);
     }
 

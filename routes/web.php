@@ -66,6 +66,14 @@ Route::middleware('auth')->group(function () {
         ->name('guild.team-management.config.update');
     Route::post('/guild/{guild}/team-management/members/{id}/remove-rights', [\App\Http\Controllers\GuildConfigController::class, 'removeTeamRights'])
         ->name('guild.team-management.member.remove-rights');
+    Route::post('/guild/{guild}/team-management/members/{id}/add-role', [\App\Http\Controllers\GuildConfigController::class, 'addTeamMemberRole'])
+        ->name('guild.team-management.member.add-role');
+    Route::post('/guild/{guild}/team-management/templates', [\App\Http\Controllers\GuildConfigController::class, 'storeTeamAnnouncementTemplate'])
+        ->name('guild.team-management.template.store');
+    Route::put('/guild/{guild}/team-management/templates/{id}', [\App\Http\Controllers\GuildConfigController::class, 'updateTeamAnnouncementTemplate'])
+        ->name('guild.team-management.template.update');
+    Route::delete('/guild/{guild}/team-management/templates/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteTeamAnnouncementTemplate'])
+        ->name('guild.team-management.template.delete');
     
     // Team-Verwaltung
     Route::get('/guild/{guild}/team-management', [\App\Http\Controllers\DashboardController::class, 'teamManagement'])

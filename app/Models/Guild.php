@@ -127,4 +127,9 @@ class Guild extends Model
     {
         return $this->hasOne(TeamManagementConfig::class);
     }
+
+    public function teamAnnouncementTemplates()
+    {
+        return $this->hasMany(TeamAnnouncementTemplate::class);
+    }
 }

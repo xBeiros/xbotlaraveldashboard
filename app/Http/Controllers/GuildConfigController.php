@@ -24,10 +24,7 @@ use App\Models\AddOn;
 use App\Models\TeamRank;
 use App\Models\TeamMember;
 use App\Models\TeamManagementConfig;
-use Illuminate\Support\Facades\Http;
-use App\Models\TeamRank;
-use App\Models\TeamMember;
-use App\Models\TeamManagementConfig;
+use App\Models\TeamAnnouncementTemplate;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -2238,6 +2235,15 @@ class GuildConfigController extends BaseGuildController
             'role_id' => 'required|string',
         ]);
 
+        // Prüfe ob dieser Rang (role_id) bereits für diesen Server existiert
+        $existingRank = TeamRank::where('guild_id', $guildModel->id)
+            ->where('role_id', $validated['role_id'])
+            ->first();
+
+        if ($existingRank) {
+            return back()->with('error', 'Dieser Rang existiert bereits für diesen Server. Jede Discord-Rolle kann nur einmal als Team-Rang verwendet werden.');
+        }
+
         $maxSortOrder = TeamRank::where('guild_id', $guildModel->id)->max('sort_order') ?? -1;
 
         TeamRank::create([
@@ -2272,6 +2278,16 @@ class GuildConfigController extends BaseGuildController
             'name' => 'required|string|max:255',
             'role_id' => 'required|string',
         ]);
+
+        // Prüfe ob diese Rolle bereits von einem anderen Rang verwendet wird
+        $existingRank = TeamRank::where('guild_id', $guildModel->id)
+            ->where('role_id', $validated['role_id'])
+            ->where('id', '!=', $id) // Ignoriere den aktuellen Rang
+            ->first();
+
+        if ($existingRank) {
+            return back()->with('error', 'Diese Discord-Rolle wird bereits von einem anderen Rang verwendet. Jede Discord-Rolle kann nur einmal als Team-Rang verwendet werden.');
+        }
 
         $rank->update([
             'name' => $validated['name'],
@@ -2393,7 +2409,16 @@ class GuildConfigController extends BaseGuildController
             'rank_id' => 'required|exists:team_ranks,id',
         ]);
 
-        TeamMember::updateOrCreate(
+        // Lade den Rang, um die role_id zu bekommen
+        $rank = TeamRank::where('guild_id', $guildModel->id)
+            ->findOrFail($validated['rank_id']);
+
+        if (!$rank->role_id) {
+            return back()->with('error', 'Dieser Rang hat keine Discord-Rolle zugewiesen.');
+        }
+
+        // Speichere Mitglied in Datenbank
+        $teamMember = TeamMember::updateOrCreate(
             [
                 'guild_id' => $guildModel->id,
                 'user_id' => $validated['user_id'],
@@ -2403,7 +2428,60 @@ class GuildConfigController extends BaseGuildController
             ]
         );
 
-        return back()->with('success', 'Mitglied erfolgreich hinzugefügt!');
+        // Weise die Discord-Rolle zu
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return back()->with('error', 'Bot Token nicht konfiguriert!');
+        }
+
+        try {
+            // Hole aktuelle Rollen des Mitglieds
+            $response = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->timeout(10)->get("https://discord.com/api/v10/guilds/{$guild}/members/{$validated['user_id']}");
+
+            if (!$response->successful()) {
+                \Log::error('Fehler beim Abrufen der Mitglieder-Daten:', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
+                return back()->with('error', 'Fehler beim Abrufen der Mitglieder-Daten. Stelle sicher, dass der Benutzer auf dem Server ist.');
+            }
+
+            $memberData = $response->json();
+            $currentRoles = $memberData['roles'] ?? [];
+
+            // Füge die neue Rolle hinzu, falls noch nicht vorhanden
+            if (!in_array($rank->role_id, $currentRoles)) {
+                $currentRoles[] = $rank->role_id;
+
+                // Aktualisiere Rollen
+                $updateResponse = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                ])->timeout(10)->patch("https://discord.com/api/v10/guilds/{$guild}/members/{$validated['user_id']}", [
+                    'roles' => array_values($currentRoles),
+                ]);
+
+                if (!$updateResponse->successful()) {
+                    \Log::error('Fehler beim Zuweisen der Rolle:', [
+                        'status' => $updateResponse->status(),
+                        'body' => $updateResponse->body()
+                    ]);
+                    return back()->with('error', 'Mitglied wurde hinzugefügt, aber die Rolle konnte nicht zugewiesen werden. Bitte manuell zuweisen.');
+                }
+            }
+
+            // Aktualisiere Team-Liste
+            $this->updateTeamList($guild, $guildModel);
+
+            return back()->with('success', 'Mitglied erfolgreich hinzugefügt und Rolle zugewiesen!');
+        } catch (\Exception $e) {
+            \Log::error('Exception beim Zuweisen der Rolle:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return back()->with('error', 'Mitglied wurde hinzugefügt, aber die Rolle konnte nicht zugewiesen werden: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -2422,9 +2500,60 @@ class GuildConfigController extends BaseGuildController
 
         $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
         $member = TeamMember::where('guild_id', $guildModel->id)->findOrFail($id);
+        
+        $teamConfig = $guildModel->teamManagementConfig;
+        
+        if (!$teamConfig || !$teamConfig->default_role_id) {
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('error', 'Keine Default-Rolle konfiguriert. Bitte zuerst eine Default-Rolle in den Einstellungen festlegen.');
+        }
+
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('error', 'Bot Token nicht konfiguriert!');
+        }
+
+        try {
+            // Hole aktuelle Rollen des Mitglieds
+            $response = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->timeout(10)->get("https://discord.com/api/v10/guilds/{$guild}/members/{$member->user_id}");
+
+            if ($response->successful()) {
+                $memberData = $response->json();
+                $currentRoles = $memberData['roles'] ?? [];
+
+                // Entferne ALLE Rollen und weise nur Default-Rolle zu
+                $newRoles = [$teamConfig->default_role_id];
+
+                // Aktualisiere Rollen
+                $updateResponse = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                ])->timeout(10)->patch("https://discord.com/api/v10/guilds/{$guild}/members/{$member->user_id}", [
+                    'roles' => array_values($newRoles),
+                ]);
+
+                if (!$updateResponse->successful()) {
+                    \Log::error('Fehler beim Entfernen aller Rollen:', [
+                        'status' => $updateResponse->status(),
+                        'body' => $updateResponse->body()
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Fehler beim Entfernen der Rollen:', [
+                'error' => $e->getMessage()
+            ]);
+            // Fortfahren mit dem Löschen, auch wenn Rollen-Entfernung fehlschlägt
+        }
+        
         $member->delete();
 
-        return back()->with('success', 'Mitglied erfolgreich entfernt!');
+        // Aktualisiere Team-Liste
+        $this->updateTeamList($guild, $guildModel);
+
+        return back()->with('success', 'Mitglied erfolgreich entfernt und alle Rechte entzogen!');
     }
 
     /**
@@ -2445,6 +2574,7 @@ class GuildConfigController extends BaseGuildController
 
         $validated = $request->validate([
             'channel_id' => 'nullable|string',
+            'team_list_channel_id' => 'nullable|string',
             'default_role_id' => 'nullable|string',
             'notify_join' => 'boolean',
             'notify_leave' => 'boolean',
@@ -2456,6 +2586,11 @@ class GuildConfigController extends BaseGuildController
             ['guild_id' => $guildModel->id],
             $validated
         );
+
+        // Wenn team_list_channel_id gesetzt wurde, erstelle/aktualisiere die Team-Liste
+        if (!empty($validated['team_list_channel_id'])) {
+            $this->updateTeamList($guild, $guildModel);
+        }
 
         return back()->with('success', 'Konfiguration erfolgreich gespeichert!');
     }
@@ -2482,6 +2617,11 @@ class GuildConfigController extends BaseGuildController
         $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
         $member = TeamMember::where('guild_id', $guildModel->id)->findOrFail($id);
         
+        $validated = $request->validate([
+            'rank_ids' => 'required|array',
+            'rank_ids.*' => 'exists:team_ranks,id',
+        ]);
+
         $teamConfig = $guildModel->teamManagementConfig;
         
         if (!$teamConfig || !$teamConfig->default_role_id) {
@@ -2489,7 +2629,7 @@ class GuildConfigController extends BaseGuildController
                 ->with('error', 'Keine Default-Rolle konfiguriert. Bitte zuerst eine Default-Rolle in den Einstellungen festlegen.');
         }
 
-        // Entferne alle Team-Rollen und weise Default-Rolle zu
+        // Entferne ausgewählte Team-Rollen und weise Default-Rolle zu
         $botToken = config('services.discord.bot_token');
         if (!$botToken) {
             return redirect()->route('guild.team-management', ['guild' => $guild])
@@ -2497,12 +2637,13 @@ class GuildConfigController extends BaseGuildController
         }
 
         try {
-            // Hole alle Team-Ränge für diese Guild
-            $teamRanks = TeamRank::where('guild_id', $guildModel->id)
+            // Hole die ausgewählten Team-Ränge
+            $selectedRanks = TeamRank::where('guild_id', $guildModel->id)
+                ->whereIn('id', $validated['rank_ids'])
                 ->whereNotNull('role_id')
                 ->get();
 
-            $roleIdsToRemove = $teamRanks->pluck('role_id')->toArray();
+            $roleIdsToRemove = $selectedRanks->pluck('role_id')->toArray();
             $defaultRoleId = $teamConfig->default_role_id;
 
             // Hole aktuelle Rollen des Mitglieds
@@ -2519,7 +2660,7 @@ class GuildConfigController extends BaseGuildController
             $memberData = $response->json();
             $currentRoles = $memberData['roles'] ?? [];
 
-            // Entferne Team-Rollen und füge Default-Rolle hinzu
+            // Entferne ausgewählte Team-Rollen und füge Default-Rolle hinzu
             $newRoles = array_filter($currentRoles, function($roleId) use ($roleIdsToRemove) {
                 return !in_array($roleId, $roleIdsToRemove);
             });
@@ -2541,8 +2682,8 @@ class GuildConfigController extends BaseGuildController
                     ->with('error', 'Fehler beim Entfernen der Team-Rechte.');
             }
 
-            // Entferne Mitglied aus Team-Verwaltung
-            $member->delete();
+            // Aktualisiere Team-Liste
+            $this->updateTeamList($guild, $guildModel);
 
             return redirect()->route('guild.team-management', ['guild' => $guild])
                 ->with('success', 'Team-Rechte erfolgreich entfernt und Default-Rolle zugewiesen.');
@@ -2550,6 +2691,482 @@ class GuildConfigController extends BaseGuildController
             \Log::error('Fehler beim Entfernen der Team-Rechte:', ['error' => $e->getMessage()]);
             return redirect()->route('guild.team-management', ['guild' => $guild])
                 ->with('error', 'Fehler beim Entfernen der Team-Rechte: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Add additional role to team member
+     */
+    public function addTeamMemberRole(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $member = TeamMember::where('guild_id', $guildModel->id)->findOrFail($id);
+        
+        $validated = $request->validate([
+            'role_id' => 'required|string',
+            'send_announcement' => 'boolean',
+            'template_id' => 'nullable|exists:team_announcement_templates,id',
+        ]);
+
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('error', 'Bot Token nicht konfiguriert!');
+        }
+
+        try {
+            // Hole aktuelle Rollen des Mitglieds
+            $response = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->timeout(10)->get("https://discord.com/api/v10/guilds/{$guild}/members/{$member->user_id}");
+
+            if (!$response->successful()) {
+                return redirect()->route('guild.team-management', ['guild' => $guild])
+                    ->with('error', 'Fehler beim Abrufen der Mitglieder-Daten.');
+            }
+
+            $memberData = $response->json();
+            $currentRoles = $memberData['roles'] ?? [];
+
+            // Füge die neue Rolle hinzu, falls noch nicht vorhanden
+            if (!in_array($validated['role_id'], $currentRoles)) {
+                $currentRoles[] = $validated['role_id'];
+
+                // Aktualisiere Rollen
+                $updateResponse = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                ])->timeout(10)->patch("https://discord.com/api/v10/guilds/{$guild}/members/{$member->user_id}", [
+                    'roles' => array_values($currentRoles),
+                ]);
+
+                if (!$updateResponse->successful()) {
+                    return redirect()->route('guild.team-management', ['guild' => $guild])
+                        ->with('error', 'Rolle konnte nicht zugewiesen werden.');
+                }
+            }
+
+            // Sende Ankündigung, falls gewünscht
+            if (($validated['send_announcement'] ?? false) && !empty($validated['template_id'])) {
+                $template = TeamAnnouncementTemplate::where('guild_id', $guildModel->id)
+                    ->findOrFail($validated['template_id']);
+
+                $teamConfig = $guildModel->teamManagementConfig;
+                if ($teamConfig && $teamConfig->channel_id) {
+                    \Log::info('Sende Team-Ankündigung:', [
+                        'guild' => $guild,
+                        'channel_id' => $teamConfig->channel_id,
+                        'template_id' => $template->id,
+                        'user_id' => $member->user_id,
+                        'role_id' => $validated['role_id']
+                    ]);
+                    $this->sendTeamAnnouncement($guild, $teamConfig->channel_id, $template, $member->user_id, $validated['role_id']);
+                } else {
+                    \Log::warning('Ankündigung nicht gesendet: Kein Channel konfiguriert', [
+                        'guild' => $guild,
+                        'has_config' => $teamConfig ? true : false,
+                        'channel_id' => $teamConfig->channel_id ?? null
+                    ]);
+                }
+            } else {
+                \Log::info('Ankündigung nicht gesendet:', [
+                    'send_announcement' => $validated['send_announcement'] ?? false,
+                    'template_id' => $validated['template_id'] ?? null
+                ]);
+            }
+
+            // Aktualisiere Team-Liste
+            $this->updateTeamList($guild, $guildModel);
+
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('success', 'Rolle erfolgreich hinzugefügt!');
+        } catch (\Exception $e) {
+            \Log::error('Fehler beim Hinzufügen der Rolle:', ['error' => $e->getMessage()]);
+            return redirect()->route('guild.team-management', ['guild' => $guild])
+                ->with('error', 'Fehler beim Hinzufügen der Rolle: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Store Team Announcement Template
+     */
+    public function storeTeamAnnouncementTemplate(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:join,leave,upgrade,downgrade,custom',
+            'embed' => 'nullable|array',
+            'enabled' => 'boolean',
+        ]);
+
+        TeamAnnouncementTemplate::create([
+            'guild_id' => $guildModel->id,
+            'name' => $validated['name'],
+            'type' => $validated['type'],
+            'embed' => $validated['embed'] ?? null,
+            'enabled' => $validated['enabled'] ?? true,
+        ]);
+
+        return back()->with('success', 'Template erfolgreich erstellt!');
+    }
+
+    /**
+     * Update Team Announcement Template
+     */
+    public function updateTeamAnnouncementTemplate(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $template = TeamAnnouncementTemplate::where('guild_id', $guildModel->id)->findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|in:join,leave,upgrade,downgrade,custom',
+            'embed' => 'nullable|array',
+            'enabled' => 'boolean',
+        ]);
+
+        $template->update($validated);
+
+        return back()->with('success', 'Template erfolgreich aktualisiert!');
+    }
+
+    /**
+     * Delete Team Announcement Template
+     */
+    public function deleteTeamAnnouncementTemplate(Request $request, $guild, $id)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+        $template = TeamAnnouncementTemplate::where('guild_id', $guildModel->id)->findOrFail($id);
+        $template->delete();
+
+        return back()->with('success', 'Template erfolgreich gelöscht!');
+    }
+
+    /**
+     * Send team announcement
+     */
+    private function sendTeamAnnouncement($guildId, $channelId, $template, $userId, $roleId = null)
+    {
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            \Log::error('Bot Token fehlt beim Senden der Ankündigung');
+            return;
+        }
+
+        if (!$template->embed || empty($template->embed)) {
+            \Log::warning('Template hat kein Embed:', ['template_id' => $template->id]);
+            return;
+        }
+
+        try {
+            // Ersetze Platzhalter im Embed
+            $embed = $template->embed;
+            
+            // Hole Benutzer-Daten
+            $userResponse = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->timeout(5)->get("https://discord.com/api/v10/users/{$userId}");
+
+            $userData = $userResponse->successful() ? $userResponse->json() : null;
+            $userMention = $userData ? "<@{$userId}>" : "User {$userId}";
+            $userName = $userData ? ($userData['username'] ?? 'Unknown') : 'Unknown';
+
+            // Hole Rollen-Daten, falls vorhanden
+            $roleName = null;
+            if ($roleId) {
+                $rolesResponse = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}/roles");
+                
+                if ($rolesResponse->successful()) {
+                    $roles = $rolesResponse->json();
+                    $role = collect($roles)->firstWhere('id', $roleId);
+                    $roleName = $role ? $role['name'] : null;
+                }
+            }
+
+            // Ersetze Platzhalter
+            $replacements = [
+                '{user}' => $userMention,
+                '{username}' => $userName,
+                '{role}' => $roleName ? "<@&{$roleId}>" : '',
+                '{rolename}' => $roleName ?? '',
+            ];
+
+            if (isset($embed['title'])) {
+                $embed['title'] = str_replace(array_keys($replacements), array_values($replacements), $embed['title']);
+            }
+            if (isset($embed['description'])) {
+                $embed['description'] = str_replace(array_keys($replacements), array_values($replacements), $embed['description']);
+            }
+
+            // Stelle sicher, dass die Embed-Farbe korrekt formatiert ist
+            if (isset($embed['color']) && is_string($embed['color']) && strpos($embed['color'], '#') === 0) {
+                $embed['color'] = hexdec(substr($embed['color'], 1));
+            }
+
+            // Sende Embed
+            $response = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+                'Content-Type' => 'application/json',
+            ])->timeout(10)->post(
+                "https://discord.com/api/v10/channels/{$channelId}/messages",
+                ['embeds' => [$embed]]
+            );
+
+            if (!$response->successful()) {
+                \Log::error('Fehler beim Senden der Ankündigung an Discord:', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                    'channel_id' => $channelId,
+                    'guild_id' => $guildId
+                ]);
+            } else {
+                \Log::info('Ankündigung erfolgreich gesendet:', [
+                    'channel_id' => $channelId,
+                    'template_id' => $template->id
+                ]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Exception beim Senden der Ankündigung:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
+    /**
+     * Update team list in Discord channel
+     */
+    private function updateTeamList($guildId, $guildModel)
+    {
+        $teamConfig = $guildModel->teamManagementConfig;
+        
+        if (!$teamConfig || !$teamConfig->team_list_channel_id) {
+            return;
+        }
+
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return;
+        }
+
+        try {
+            // Hole Discord-Rollen für Namen
+            $rolesResponse = Http::withHeaders([
+                'Authorization' => 'Bot ' . $botToken,
+            ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}/roles");
+            
+            $discordRoles = [];
+            if ($rolesResponse->successful()) {
+                $discordRoles = $rolesResponse->json();
+            }
+
+            // Lade alle Team-Ränge
+            $teamRanks = TeamRank::where('guild_id', $guildModel->id)
+                ->where('visible', true)
+                ->orderBy('sort_order')
+                ->get();
+
+            // Hole alle Team-Mitglieder aus der Datenbank
+            $allTeamMembers = TeamMember::where('guild_id', $guildModel->id)
+                ->get();
+
+            // Cache für Mitglieder-Rollen (um API-Calls zu reduzieren)
+            $memberRolesCache = [];
+
+            // Hole Rollen für alle Team-Mitglieder (mit Rate-Limit-Schutz)
+            foreach ($allTeamMembers as $member) {
+                try {
+                    // Kleine Verzögerung, um Rate Limits zu vermeiden
+                    usleep(100000); // 0.1 Sekunde
+                    
+                    $memberResponse = Http::withHeaders([
+                        'Authorization' => 'Bot ' . $botToken,
+                    ])->timeout(5)->get("https://discord.com/api/v10/guilds/{$guildId}/members/{$member->user_id}");
+                    
+                    if ($memberResponse->successful()) {
+                        $memberData = $memberResponse->json();
+                        $memberRolesCache[$member->user_id] = $memberData['roles'] ?? [];
+                    }
+                } catch (\Exception $e) {
+                    \Log::warning('Fehler beim Abrufen der Rollen für Mitglied in Team-Liste:', [
+                        'user_id' => $member->user_id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            // Baue Embed mit Team-Liste
+            $fields = [];
+            foreach ($teamRanks as $rank) {
+                if (!$rank->role_id) {
+                    continue; // Überspringe Ränge ohne Discord-Rolle
+                }
+
+                // Hole Rollenname von Discord
+                $roleName = $rank->name;
+                $discordRole = collect($discordRoles)->firstWhere('id', $rank->role_id);
+                if ($discordRole) {
+                    $roleName = $discordRole['name'];
+                }
+
+                // Finde alle Mitglieder, die diese Rolle haben
+                $membersWithRole = $allTeamMembers->filter(function($member) use ($rank, $memberRolesCache) {
+                    $userRoles = $memberRolesCache[$member->user_id] ?? [];
+                    return in_array($rank->role_id, $userRoles);
+                })->unique('user_id');
+
+                if ($membersWithRole->isEmpty()) {
+                    // Zeige Rang auch ohne Mitglieder an
+                    $fields[] = [
+                        'name' => $roleName,
+                        'value' => '*Hier sind keine Teammitglieder vorhanden.*',
+                        'inline' => false,
+                    ];
+                } else {
+                    $memberList = $membersWithRole->map(function($member) {
+                        return "<@{$member->user_id}>";
+                    })->join(', ');
+
+                    // Teile lange Listen auf (Discord Embed Field Limit: 1024 Zeichen)
+                    if (strlen($memberList) > 1024) {
+                        $chunks = str_split($memberList, 1000);
+                        foreach ($chunks as $index => $chunk) {
+                            $fieldName = $index === 0 ? $roleName : '...';
+                            $fields[] = [
+                                'name' => $fieldName,
+                                'value' => $chunk,
+                                'inline' => false,
+                            ];
+                        }
+                    } else {
+                        $fields[] = [
+                            'name' => $roleName,
+                            'value' => $memberList,
+                            'inline' => false,
+                        ];
+                    }
+                }
+            }
+
+            if (empty($fields)) {
+                $fields[] = [
+                    'name' => 'Keine Ränge',
+                    'value' => '*Es sind noch keine Team-Ränge vorhanden.*',
+                    'inline' => false,
+                ];
+            }
+
+            $embed = [
+                'title' => 'Team-Liste',
+                'description' => 'Aktuelle Übersicht aller Team-Mitglieder',
+                'color' => hexdec('5865f2'),
+                'fields' => $fields,
+                'timestamp' => date('c'),
+            ];
+
+            // Wenn bereits eine Nachricht existiert, aktualisiere sie
+            if ($teamConfig->team_list_message_id) {
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bot ' . $botToken,
+                    'Content-Type' => 'application/json',
+                ])->timeout(10)->patch(
+                    "https://discord.com/api/v10/channels/{$teamConfig->team_list_channel_id}/messages/{$teamConfig->team_list_message_id}",
+                    ['embeds' => [$embed]]
+                );
+
+                if (!$response->successful()) {
+                    // Wenn Update fehlschlägt (z.B. Nachricht gelöscht), sende neue
+                    if ($response->status() === 404) {
+                        $this->sendNewTeamList($botToken, $teamConfig->team_list_channel_id, $embed, $guildModel);
+                    } else {
+                        \Log::error('Fehler beim Aktualisieren der Team-Liste:', [
+                            'status' => $response->status(),
+                            'body' => $response->body()
+                        ]);
+                    }
+                }
+            } else {
+                // Sende neue Nachricht
+                $this->sendNewTeamList($botToken, $teamConfig->team_list_channel_id, $embed, $guildModel);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Exception beim Aktualisieren der Team-Liste:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+
+    /**
+     * Send new team list message
+     */
+    private function sendNewTeamList($botToken, $channelId, $embed, $guildModel)
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bot ' . $botToken,
+            'Content-Type' => 'application/json',
+        ])->timeout(10)->post(
+            "https://discord.com/api/v10/channels/{$channelId}/messages",
+            ['embeds' => [$embed]]
+        );
+
+        if ($response->successful()) {
+            $messageData = $response->json();
+            $messageId = $messageData['id'] ?? null;
+            
+            if ($messageId) {
+                $teamConfig = $guildModel->teamManagementConfig;
+                $teamConfig->update(['team_list_message_id' => $messageId]);
+            }
+        } else {
+            \Log::error('Fehler beim Senden der Team-Liste:', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
         }
     }
 
