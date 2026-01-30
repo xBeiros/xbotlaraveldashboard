@@ -1067,6 +1067,69 @@ class GuildConfigController extends BaseGuildController
         return back()->with('success', 'Server-Einstellungen erfolgreich gespeichert!');
     }
 
+    public function updateStatisticsChannel(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'statistics_enabled' => 'nullable|boolean',
+            'statistics_channel_name' => 'nullable|string|max:100',
+            'statistics_category_id' => 'nullable|string|max:32',
+            'statistics_channel_name_members' => 'nullable|string|max:100',
+            'statistics_channel_name_joins' => 'nullable|string|max:100',
+            'statistics_channel_name_leaves' => 'nullable|string|max:100',
+            'statistics_channel_name_vc' => 'nullable|string|max:100',
+            'statistics_channel_name_boosts' => 'nullable|string|max:100',
+            'statistics_stat_members' => 'nullable|boolean',
+            'statistics_stat_joins' => 'nullable|boolean',
+            'statistics_stat_leaves' => 'nullable|boolean',
+            'statistics_stat_vc' => 'nullable|boolean',
+            'statistics_stat_boosts' => 'nullable|boolean',
+            'statistics_update_interval_minutes' => 'nullable|integer|min:5|max:60',
+        ]);
+
+        $statsConfig = \App\Models\GuildStatisticsConfig::firstOrCreate(
+            ['guild_id' => $guildModel->id],
+            [
+                'enabled' => false,
+                'channel_name' => '📊 statistics',
+                'update_interval_minutes' => 10,
+                'stat_members' => true,
+                'stat_joins' => true,
+                'stat_leaves' => true,
+                'stat_vc' => true,
+                'stat_boosts' => true,
+            ]
+        );
+        $statsConfig->update([
+            'enabled' => $validated['statistics_enabled'] ?? false,
+            'channel_name' => $validated['statistics_channel_name'] ?? '📊 statistics',
+            'category_id' => !empty($validated['statistics_category_id']) ? $validated['statistics_category_id'] : null,
+            'channel_name_members' => $validated['statistics_channel_name_members'] ?? null,
+            'channel_name_joins' => $validated['statistics_channel_name_joins'] ?? null,
+            'channel_name_leaves' => $validated['statistics_channel_name_leaves'] ?? null,
+            'channel_name_vc' => $validated['statistics_channel_name_vc'] ?? null,
+            'channel_name_boosts' => $validated['statistics_channel_name_boosts'] ?? null,
+            'stat_members' => $validated['statistics_stat_members'] ?? true,
+            'stat_joins' => $validated['statistics_stat_joins'] ?? true,
+            'stat_leaves' => $validated['statistics_stat_leaves'] ?? true,
+            'stat_vc' => $validated['statistics_stat_vc'] ?? true,
+            'stat_boosts' => $validated['statistics_stat_boosts'] ?? true,
+            'update_interval_minutes' => (int) ($validated['statistics_update_interval_minutes'] ?? 10),
+        ]);
+
+        return back()->with('success', 'Statistik-Channel Einstellungen gespeichert!');
+    }
+
     public function deleteMessages(Request $request, $guild)
     {
         // Diese Methode wird für POST-Requests verwendet
@@ -2039,12 +2102,41 @@ class GuildConfigController extends BaseGuildController
         $validated = $request->validate([
             'user_id' => 'required|string',
             'birthday' => 'required|date',
+            // Geburtstags-Konfiguration (optional, wird mitgespeichert)
+            'enabled' => 'nullable|boolean',
+            'channel_id' => 'nullable|string',
+            'birthday_role_id' => 'nullable|string',
+            'role_id' => 'nullable|string',
+            'embed_title' => 'nullable|string|max:256',
+            'embed_description' => 'nullable|string|max:2000',
+            'embed_color' => 'nullable|string|max:7',
+            'embed_thumbnail' => 'nullable|string|max:500',
+            'embed_image' => 'nullable|string|max:500',
         ]);
 
         $guildModel->birthdays()->updateOrCreate(
             ['user_id' => $validated['user_id']],
             ['birthday' => $validated['birthday']]
         );
+
+        // Geburtstags-Konfiguration speichern (Rolle, Channel, Enabled, Embed)
+        $configData = array_filter([
+            'enabled' => $request->boolean('enabled'),
+            'channel_id' => $validated['channel_id'] ?? null,
+            'role_id' => $validated['birthday_role_id'] ?? $validated['role_id'] ?? null,
+            'embed_title' => $validated['embed_title'] ?? null,
+            'embed_description' => $validated['embed_description'] ?? null,
+            'embed_color' => $validated['embed_color'] ?? null,
+            'embed_thumbnail' => $validated['embed_thumbnail'] ?? null,
+            'embed_image' => $validated['embed_image'] ?? null,
+        ], fn ($v) => $v !== null && $v !== '');
+
+        if (!empty($configData)) {
+            $guildModel->birthdayConfig()->updateOrCreate(
+                ['guild_id' => $guildModel->id],
+                $configData
+            );
+        }
 
         return back()->with('success', 'Geburtstag erfolgreich hinzugefügt!');
     }

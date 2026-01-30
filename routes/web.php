@@ -128,7 +128,11 @@ Route::middleware('auth')->group(function () {
         ->name('guild.server-management');
     Route::put('/guild/{guild}/server-management', [\App\Http\Controllers\GuildConfigController::class, 'updateServerManagement'])
         ->name('guild.server-management.update');
-    
+    Route::get('/guild/{guild}/statistics-channel', [\App\Http\Controllers\DashboardController::class, 'statisticsChannel'])
+        ->name('guild.statistics-channel');
+    Route::put('/guild/{guild}/statistics-channel', [\App\Http\Controllers\GuildConfigController::class, 'updateStatisticsChannel'])
+        ->name('guild.statistics-channel.update');
+
     // Nachrichten Löschen
     Route::get('/guild/{guild}/delete-messages', [\App\Http\Controllers\DashboardController::class, 'deleteMessages'])
         ->name('guild.delete-messages');

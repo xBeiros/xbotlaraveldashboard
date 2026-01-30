@@ -561,6 +561,74 @@ class DashboardController extends BaseGuildController
         ]);
     }
 
+    public function statisticsChannel($guild)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck;
+        }
+
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
+
+        $statisticsConfig = $guildModel->statisticsConfig ? [
+            'enabled' => $guildModel->statisticsConfig->enabled,
+            'channel_name' => $guildModel->statisticsConfig->channel_name ?? '📊 statistics',
+            'category_id' => $guildModel->statisticsConfig->category_id,
+            'channel_name_members' => $guildModel->statisticsConfig->channel_name_members,
+            'channel_name_joins' => $guildModel->statisticsConfig->channel_name_joins,
+            'channel_name_leaves' => $guildModel->statisticsConfig->channel_name_leaves,
+            'channel_name_vc' => $guildModel->statisticsConfig->channel_name_vc,
+            'channel_name_boosts' => $guildModel->statisticsConfig->channel_name_boosts,
+            'stat_members' => $guildModel->statisticsConfig->stat_members,
+            'stat_joins' => $guildModel->statisticsConfig->stat_joins,
+            'stat_leaves' => $guildModel->statisticsConfig->stat_leaves,
+            'stat_vc' => $guildModel->statisticsConfig->stat_vc,
+            'stat_boosts' => $guildModel->statisticsConfig->stat_boosts,
+            'update_interval_minutes' => (int) ($guildModel->statisticsConfig->update_interval_minutes ?? 10),
+        ] : [
+            'enabled' => false,
+            'channel_name' => '📊 statistics',
+            'category_id' => null,
+            'channel_name_members' => null,
+            'channel_name_joins' => null,
+            'channel_name_leaves' => null,
+            'channel_name_vc' => null,
+            'channel_name_boosts' => null,
+            'stat_members' => true,
+            'stat_joins' => true,
+            'stat_leaves' => true,
+            'stat_vc' => true,
+            'stat_boosts' => true,
+            'update_interval_minutes' => 10,
+        ];
+
+        return Inertia::render('Guild/StatisticsChannel', [
+            'guild' => [
+                'id' => $userGuild->guild_id,
+                'name' => $userGuild->name,
+                'icon_url' => $userGuild->icon ? "https://cdn.discordapp.com/icons/{$userGuild->guild_id}/{$userGuild->icon}.png" : null,
+                'bot_joined' => true,
+            ],
+            'guilds' => $allGuilds,
+            'categories' => $this->fetchGuildCategories($guild),
+            'statisticsConfig' => $statisticsConfig,
+        ]);
+    }
+
     public function deleteMessages($guild)
     {
         $user = Auth::user();
