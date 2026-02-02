@@ -37,6 +37,58 @@
     "activate": "Aktivieren",
     "deactivate": "Deaktivieren"
   },
+  "colorPicker": {
+    "hue": "Farbton",
+    "hexPlaceholder": "Hex z. B. 5865F2",
+    "apply": "Übernehmen"
+  },
+  "embedSender": {
+    "title": "Embed Sender",
+    "description": "Erstelle Embeds wie mit Discohook: links einstellen, rechts Vorschau. Max. 5 Embeds pro Server speicherbar.",
+    "content": "Nachricht (über dem Embed)",
+    "contentPlaceholder": "Optionale Nachricht über dem Embed...",
+    "embedBody": "Embed",
+    "titleDescriptionFields": "Titel, Beschreibung & Felder",
+    "colorImagesFooter": "Farbe, Bilder & Footer",
+    "authorName": "Autor Name",
+    "authorIconUrl": "Autor Icon URL",
+    "authorUrl": "Autor URL",
+    "embedTitle": "Titel",
+    "embedDescription": "Beschreibung",
+    "color": "Farbe",
+    "imageUrl": "Bild-URL",
+    "thumbnailUrl": "Thumbnail-URL",
+    "footerSection": "Footer",
+    "footerText": "Footer-Text",
+    "footerTextPlaceholder": "Text unterhalb des Embeds",
+    "footerIconUrl": "Footer-Icon URL",
+    "showTimestamp": "Zeitstempel anzeigen",
+    "timestampNow": "Aktuelle Zeit beim Senden",
+    "timestampFixed": "Fester Zeitpunkt",
+    "fields": "Felder",
+    "addField": "Feld hinzufügen",
+    "fieldName": "Name",
+    "fieldValue": "Wert",
+    "saveAsName": "Name zum Speichern",
+    "slot": "Slot",
+    "save": "Speichern",
+    "update": "Aktualisieren",
+    "clear": "Leeren",
+    "preview": "Vorschau",
+    "savedSlots": "Gespeicherte Embeds",
+    "noSaved": "Noch keine Embeds gespeichert.",
+    "load": "Laden",
+    "sendToChannel": "In Kanal senden",
+    "selectChannel": "Kanal wählen...",
+    "send": "Senden",
+    "sending": "Wird gesendet...",
+    "confirmDelete": "Dieses gespeicherte Embed wirklich löschen?",
+    "embedN": "Embed {n}",
+    "embedUntitled": "Ohne Titel",
+    "addEmbed": "Embed hinzufügen",
+    "duplicateEmbed": "Embed duplizieren",
+    "removeEmbed": "Embed entfernen"
+  },
   "languages": {
     "german": "Deutsch",
     "english": "English",
@@ -55,6 +107,7 @@
     "autoModeration": "Auto-Moderation",
     "leveling": "Aufleveln",
     "socialNotifications": "Social Media Benachrichtigungen",
+    "embedSender": "Embed Sender",
     "notifications": "Benachrichtigungen",
     "serverManagement": "Server-Verwaltung",
     "statisticsChannel": "Statistik-Channel",
@@ -64,7 +117,8 @@
     "giveaway": "Gewinnspiel",
     "birthdays": "Geburtstage",
     "addOns": "Add-Ons",
-    "teamManagement": "Team Verwaltung"
+    "teamManagement": "Team Verwaltung",
+    "factionManagement": "Fraktion Verwaltung"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -124,7 +178,10 @@
   },
   "addOns": {
     "title": "Add-Ons",
-    "description": "Erweitere deinen Bot mit zusätzlichen Funktionen. Aktiviere oder deaktiviere Add-Ons nach Bedarf."
+    "description": "Erweitere deinen Bot mit zusätzlichen Funktionen. Aktiviere oder deaktiviere Add-Ons nach Bedarf.",
+    "active": "Aktiv",
+    "activate": "Aktivieren",
+    "new": "Neu!"
   },
   "teamManagement": {
     "title": "Team Verwaltung",
@@ -199,6 +256,47 @@
       "notifyLeave": "Team-Austritt benachrichtigen",
       "notifyUpgrade": "Rang-Aufstieg benachrichtigen",
       "notifyDowngrade": "Rang-Abstieg benachrichtigen"
+    }
+  },
+  "factionManagement": {
+    "title": "Fraktion Verwaltung",
+    "description": "Konfiguriere Kanäle und Embed-Texte für Fraktion Gründung/Aufnahme, Abmahnung, Auflösung und Übersicht. Nach jedem Befehl wird die Fraktionen-Liste automatisch aktualisiert.",
+    "channels": {
+      "title": "Kanäle",
+      "hint": "Wähle den Channel, in dem die Embeds gepostet werden. Es werden nur Text- und Ankündigungskanäle angezeigt (keine Kategorien).",
+      "none": "— Kein Channel —",
+      "create": "Fraktion Gründung / Aufnahme",
+      "warn": "Fraktion Abmahnung",
+      "dissolve": "Fraktion Auflösung",
+      "overview": "Fraktion Übersicht (Liste)"
+    },
+    "warnDuration": {
+      "label": "Warn-Dauer (Tage)",
+      "placeholder": "z.B. 30",
+      "hint": "Nach dieser Anzahl Tage wird eine Warn automatisch entfernt (2→1, 1→0)."
+    },
+    "warns": {
+      "active": "aktive Warn(s)",
+      "expires": "läuft ab"
+    },
+    "embeds": {
+      "title": "Embed-Texte",
+      "placeholders": "Platzhalter werden beim Senden durch echte Werte ersetzt.",
+      "placeholdersCreateWarnDissolve": "Verfügbar: {faction_name} = Name der Fraktion, {announcement_text} = Ankündigungstext aus dem Modal",
+      "placeholdersOverview": "Verfügbar: {faction_list} = formatierte Liste aller Fraktionen (z. B. „• Fraktion A\\n• Fraktion B“)",
+      "create": "Gründung / Aufnahme",
+      "warn": "Abmahnung",
+      "dissolve": "Auflösung",
+      "overview": "Übersicht",
+      "titlePlaceholder": "z. B. Neue Fraktion",
+      "descriptionPlaceholder": "z. B. {faction_name} und {announcement_text}",
+      "overviewDescriptionPlaceholder": "z. B. {faction_list} oder eigener Text mit {faction_list}",
+      "colorPlaceholder": "Hex ohne #, z. B. 5865F2"
+    },
+    "factionsList": {
+      "title": "Aktuelle Fraktionen",
+      "hint": "Fraktionen werden per Discord-Befehle (/faction add, /faction remove) verwaltet. Die Liste wird nach jedem Befehl aktualisiert.",
+      "empty": "Noch keine Fraktionen."
     }
   },
   "serverManagement": {
@@ -300,6 +398,9 @@
     "deleteMode": "Lösch-Modus",
     "modeCount": "Nach Anzahl",
     "modeTime": "Nach Zeitraum",
+    "modeAll": "Alle Nachrichten im Channel",
+    "modeAllHint": "Löscht alle Nachrichten im Channel einmalig (performant per Bulk-Delete). Nachrichten älter als 14 Tage werden einzeln gelöscht.",
+    "confirmDeleteAll": "Möchtest du wirklich ALLE Nachrichten in diesem Channel löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
     "countLabel": "Anzahl der Nachrichten",
     "countPlaceholder": "z.B. 20",
     "countHelp": "Die letzten X Nachrichten werden gelöscht",
@@ -478,6 +579,23 @@
       "fileTooLarge": "Die Datei ist zu groß. Bitte wähle ein Bild unter 5MB.",
       "pleaseSelectImage": "Bitte wähle eine Bilddatei.",
       "errorLoadingFile": "Fehler beim Laden der Datei."
+    },
+    "embedEditor": {
+      "titleLabel": "Titel",
+      "clickToConfigure": "Klicken zum Konfigurieren",
+      "addNewField": "Neues Feld hinzufügen",
+      "addImage": "Bild hinzufügen",
+      "footer": "Fußzeile",
+      "timestamp": "Zeitstempel",
+      "hideOrVisibility": "Autor ausblenden",
+      "showAuthor": "Autor anzeigen",
+      "authorHidden": "Autor ausgeblendet – klicke auf das Auge zum Anzeigen",
+      "author": "Autor",
+      "authorInfo": "Der Autor wird in Discord als der eintretende Benutzer angezeigt. Platzhalter: {user.name}",
+      "thumbnailUrl": "Thumbnail-URL",
+      "imageUrl": "Bild-URL",
+      "footerHint": "Footer zeigt Server-Icon, Name und Zeitstempel an.",
+      "clickToChangeColor": "Klicken zum Ändern der Embed-Farbe"
     },
     "goodbyeSection": {
       "title": "Verabschiedungsgrüße",

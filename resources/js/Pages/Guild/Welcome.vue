@@ -1,14 +1,44 @@
 <script setup>
 import GuildLayout from '@/Layouts/GuildLayout.vue';
+import EmbedEditor from '@/Components/EmbedEditor.vue';
+import Modal from '@/Components/Modal.vue';
+import PaletteColorPicker from '@/Components/PaletteColorPicker.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
 
+// Embed-Editor: welche Zone wird konfiguriert + Kontext (Welcome / Goodbye)
+const embedEditSection = ref(null);
+const embedContext = ref('welcome'); // 'welcome' | 'goodbye'
+const showEmbedConfigModal = computed(() => !!embedEditSection.value);
+const currentEmbedForm = computed(() => embedContext.value === 'welcome' ? welcomeForm : goodbyeForm);
+
+function openEmbedSection(section, context = 'welcome') {
+    embedContext.value = context;
+    embedEditSection.value = section;
+    // Nur ein Bild: Thumbnail nicht anzeigen/verwenden
+    if (section === 'image') {
+        const form = context === 'welcome' ? welcomeForm : goodbyeForm;
+        form.embed_thumbnail = '';
+    }
+}
+function closeEmbedConfigModal() {
+    embedEditSection.value = null;
+}
+function onEmbedClickHide(context = 'welcome') {
+    const form = context === 'welcome' ? welcomeForm : goodbyeForm;
+    form.embed_author = !form.embed_author;
+}
+function onEmbedClickAddField() {
+    closeEmbedConfigModal();
+}
+
 const props = defineProps({
     guild: Object,
     guilds: Array,
+    addOns: { type: Object, default: () => ({}) },
     channels: Array,
     welcomeConfig: Object,
     goodbyeConfig: Object,
@@ -57,6 +87,7 @@ const welcomeForm = useForm({
     channel_id: props.welcomeConfig?.channel_id ?? '',
     message: props.welcomeConfig?.message ?? 'Willkommen {user} auf {server}! 🎉',
     use_embed: props.welcomeConfig?.use_embed ?? false,
+    embed_author: props.welcomeConfig?.embed_author ?? true,
     embed_title: props.welcomeConfig?.embed_title ?? '{user} ist dem Server beigetreten',
     embed_description: props.welcomeConfig?.embed_description ?? 'Willkommen auf {server}! Du bist Mitglied #{memberCount}',
     embed_color: props.welcomeConfig?.embed_color ?? '#5865f2',
@@ -78,6 +109,7 @@ const goodbyeForm = useForm({
     channel_id: props.goodbyeConfig?.channel_id ?? '',
     message: props.goodbyeConfig?.message ?? '{user} hat den Server verlassen. 👋',
     use_embed: props.goodbyeConfig?.use_embed ?? false,
+    embed_author: props.goodbyeConfig?.embed_author ?? true,
     embed_title: props.goodbyeConfig?.embed_title ?? '{user} hat den Server verlassen',
     embed_description: props.goodbyeConfig?.embed_description ?? 'Wir werden dich vermissen!',
     embed_color: props.goodbyeConfig?.embed_color ?? '#ef4444',
@@ -198,7 +230,7 @@ function saveGoodbyeConfig() {
 <template>
     <Head :title="`${guild.name} - ${t('welcome.title')}`" />
 
-    <GuildLayout :guild="guild" :guilds="guilds">
+    <GuildLayout :guild="guild" :guilds="guilds" :add-ons="addOns ?? {}">
         <div class="p-8">
             <h1 class="text-2xl font-bold mb-6 text-white">{{ t('welcome.basicInfo') }}</h1>
 
@@ -341,98 +373,102 @@ function saveGoodbyeConfig() {
                                     ></textarea>
                                     <div class="flex justify-between items-center mt-1">
                                         <p class="text-xs text-gray-400">
-                                            {{ t('welcome.welcomeSection.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded">{{ t('welcome.welcomeSection.placeholderUser') }}</code>, <code class="bg-[#202225] px-1 rounded">{{ t('welcome.welcomeSection.placeholderServer') }}</code>, <code class="bg-[#202225] px-1 rounded">{{ t('welcome.welcomeSection.placeholderMemberCount') }}</code>
+                                            {{ t('welcome.welcomeSection.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded text-gray-400">{user}</code>, <code class="bg-[#202225] px-1 rounded text-gray-400">{server}</code>, <code class="bg-[#202225] px-1 rounded text-gray-400">{memberCount}</code>
                                         </p>
                                         <span class="text-xs text-gray-400">{{ messageLength }} / 2000</span>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Embed -->
+                            <!-- Embed: klickbare Vorschau + Modal pro Zone -->
                             <div v-if="welcomeMessageType === 'embed'" class="space-y-4">
-                                <!-- Embed Vorschau -->
-                                <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
-                                    <div class="bg-[#2f3136] rounded-lg p-4 max-w-md">
-                                        <!-- Discord-ähnliche Embed-Vorschau -->
-                                        <div 
-                                            class="rounded border-l-4 p-3"
-                                            :style="{ borderLeftColor: welcomeForm.embed_color || '#5865f2' }"
-                                        >
-                                            <div class="space-y-2">
-                                                <h5 
-                                                    v-if="welcomeForm.embed_title"
-                                                    class="text-base font-semibold text-white"
-                                                >
-                                                    {{ welcomeForm.embed_title.replace('{user}', 'ibeiros#0').replace('{server}', guild.name).replace('{memberCount}', '21') }}
-                                                </h5>
-                                                <p 
-                                                    v-if="welcomeForm.embed_description"
-                                                    class="text-sm text-gray-300 whitespace-pre-wrap"
-                                                >
-                                                    {{ welcomeForm.embed_description.replace('{user}', 'ibeiros#0').replace('{server}', guild.name).replace('{memberCount}', '21') }}
-                                                </p>
-                                                <div 
-                                                    v-if="welcomeForm.embed_footer"
-                                                    class="flex items-center gap-2 pt-2 border-t border-[#202225]"
-                                                >
-                                                    <img 
-                                                        v-if="guild.icon_url"
-                                                        :src="guild.icon_url" 
-                                                        :alt="guild.name"
-                                                        class="w-4 h-4 rounded-full"
-                                                    />
-                                                    <span class="text-xs text-gray-400">{{ guild.name }}</span>
-                                                    <span class="text-xs text-gray-500">•</span>
-                                                    <span class="text-xs text-gray-400">{{ new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225] flex flex-col min-h-[420px]">
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4 flex-shrink-0">{{ t('welcome.welcomeSection.preview') }}</h4>
+                                    <div class="flex-1 min-h-[280px] flex flex-col">
+                                        <EmbedEditor
+                                        :model="{
+                                            embed_author: welcomeForm.embed_author,
+                                            embed_title: welcomeForm.embed_title,
+                                            embed_description: welcomeForm.embed_description,
+                                            embed_color: welcomeForm.embed_color,
+                                            embed_thumbnail: welcomeForm.embed_thumbnail,
+                                            embed_image: welcomeForm.embed_image,
+                                            embed_footer: welcomeForm.embed_footer,
+                                        }"
+                                        :placeholder-replacements="{ user: 'ibeiros#0', server: guild?.name || 'Server', memberCount: '21' }"
+                                        :accent-color="welcomeForm.embed_color || '#5865f2'"
+                                        :footer-icon-url="guild?.icon_url"
+                                        @click-author="openEmbedSection('author', 'welcome')"
+                                        @click-hide="onEmbedClickHide('welcome')"
+                                        @click-add-field="onEmbedClickAddField"
+                                        @click-image="openEmbedSection('image', 'welcome')"
+                                        @click-footer="openEmbedSection('footer', 'welcome')"
+                                        @click-timestamp="openEmbedSection('footer', 'welcome')"
+                                        @update:color="welcomeForm.embed_color = $event"
+                                        @update:embed_title="welcomeForm.embed_title = $event"
+                                        @update:embed_description="welcomeForm.embed_description = $event"
+                                        />
                                     </div>
+                                    <p class="text-xs text-gray-500 mt-3 flex-shrink-0">
+                                        {{ t('welcome.welcomeSection.availablePlaceholders') }}
+                                        <code class="bg-[#202225] px-1 rounded text-gray-400">{user}</code>,
+                                        <code class="bg-[#202225] px-1 rounded text-gray-400">{server}</code>,
+                                        <code class="bg-[#202225] px-1 rounded text-gray-400">{memberCount}</code>
+                                    </p>
                                 </div>
 
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.titleLabel') }}</label>
-                                    <input
-                                        type="text"
-                                        v-model="welcomeForm.embed_title"
-                                        :placeholder="t('welcome.welcomeSection.embedTitlePlaceholder')"
-                                        class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                    />
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.descriptionLabel') }}</label>
-                                    <textarea
-                                        v-model="welcomeForm.embed_description"
-                                        rows="3"
-                                        :placeholder="t('welcome.welcomeSection.embedDescriptionPlaceholder')"
-                                        class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                    ></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.welcomeSection.colorLabel') }}</label>
-                                    <div class="flex gap-2">
-                                        <input
-                                            type="color"
-                                            v-model="welcomeForm.embed_color"
-                                            class="w-16 h-10 rounded border border-[#202225] cursor-pointer"
-                                        />
-                                        <input
-                                            type="text"
-                                            v-model="welcomeForm.embed_color"
-                                            placeholder="#5865f2"
-                                            class="flex-1 rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                        />
+                                <!-- Modal: Konfiguration je nach angeklickter Zone -->
+                                <Modal :show="showEmbedConfigModal" @close="closeEmbedConfigModal" max-width="md">
+                                    <div class="p-6 bg-[#2f3136] rounded-lg">
+                                        <h3 class="text-lg font-semibold text-white mb-4">
+                                            <template v-if="embedEditSection === 'author'">{{ t('welcome.embedEditor.author') }}</template>
+                                            <template v-else-if="embedEditSection === 'image'">{{ t('welcome.embedEditor.addImage') }}</template>
+                                            <template v-else-if="embedEditSection === 'footer'">{{ t('welcome.embedEditor.footer') }}</template>
+                                            <template v-else>{{ t('welcome.welcomeSection.preview') }}</template>
+                                        </h3>
+
+                                        <!-- Author (Info) -->
+                                        <div v-if="embedEditSection === 'author'" class="text-sm text-gray-400">
+                                            <p>{{ t('welcome.embedEditor.authorInfo') }}</p>
+                                        </div>
+
+                                        <!-- Bild (nur ein Bild-URL) -->
+                                        <div v-else-if="embedEditSection === 'image'" class="space-y-4">
+                                            <div>
+                                                <label class="block text-sm font-medium text-gray-300 mb-1">{{ t('welcome.embedEditor.imageUrl') }}</label>
+                                                <input
+                                                    type="url"
+                                                    v-model="currentEmbedForm.embed_image"
+                                                    placeholder="https://..."
+                                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2] text-sm"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <!-- Footer -->
+                                        <div v-else-if="embedEditSection === 'footer'" class="space-y-3">
+                                            <label class="flex items-center gap-2 cursor-pointer">
+                                                <input
+                                                    type="checkbox"
+                                                    v-model="currentEmbedForm.embed_footer"
+                                                    class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
+                                                />
+                                                <span class="text-sm text-gray-300">{{ t('welcome.welcomeSection.showFooter') }}</span>
+                                            </label>
+                                            <p class="text-xs text-gray-500">{{ t('welcome.embedEditor.footerHint') }}</p>
+                                        </div>
+
+                                        <div class="mt-6 flex justify-end">
+                                            <button
+                                                type="button"
+                                                @click="closeEmbedConfigModal"
+                                                class="px-4 py-2 bg-[#5865f2] hover:bg-[#4752c4] text-white rounded-lg text-sm font-medium transition-colors"
+                                            >
+                                                {{ t('common.close') }}
+                                            </button>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        v-model="welcomeForm.embed_footer"
-                                        class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
-                                    />
-                                    <label class="text-sm text-gray-300">{{ t('welcome.welcomeSection.showFooter') }}</label>
-                                </div>
+                                </Modal>
                             </div>
 
                             <!-- Willkommenskarte -->
@@ -780,7 +816,7 @@ function saveGoodbyeConfig() {
                                     ></textarea>
                                     <div class="flex justify-between items-center mt-1">
                                         <p class="text-xs text-gray-400">
-                                            {{ t('welcome.goodbyeSection.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded">{user}</code>, <code class="bg-[#202225] px-1 rounded">{server}</code>
+                                            {{ t('welcome.goodbyeSection.availablePlaceholders') }} <code class="bg-[#202225] px-1 rounded text-gray-400">{user}</code>, <code class="bg-[#202225] px-1 rounded text-gray-400">{server}</code>
                                         </p>
                                         <span class="text-xs text-gray-400">{{ goodbyeMessageLength }} / 2000</span>
                                     </div>
@@ -789,88 +825,38 @@ function saveGoodbyeConfig() {
 
                             <!-- Embed -->
                             <div v-if="goodbyeMessageType === 'embed'" class="space-y-4">
-                                <!-- Embed Vorschau -->
-                                <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225]">
-                                    <h4 class="text-sm font-medium text-gray-300 mb-4">{{ t('welcome.welcomeSection.preview') }}</h4>
-                                    <div class="bg-[#2f3136] rounded-lg p-4 max-w-md">
-                                        <!-- Discord-ähnliche Embed-Vorschau -->
-                                        <div 
-                                            class="rounded border-l-4 p-3"
-                                            :style="{ borderLeftColor: goodbyeForm.embed_color || '#ef4444' }"
-                                        >
-                                            <div class="space-y-2">
-                                                <h5 
-                                                    v-if="goodbyeForm.embed_title"
-                                                    class="text-base font-semibold text-white"
-                                                >
-                                                    {{ goodbyeForm.embed_title.replace('{user}', 'ibeiros#0').replace('{server}', guild.name) }}
-                                                </h5>
-                                                <p 
-                                                    v-if="goodbyeForm.embed_description"
-                                                    class="text-sm text-gray-300 whitespace-pre-wrap"
-                                                >
-                                                    {{ goodbyeForm.embed_description.replace('{user}', 'ibeiros#0').replace('{server}', guild.name) }}
-                                                </p>
-                                                <div 
-                                                    v-if="goodbyeForm.embed_footer"
-                                                    class="flex items-center gap-2 pt-2 border-t border-[#202225]"
-                                                >
-                                                    <img 
-                                                        v-if="guild.icon_url"
-                                                        :src="guild.icon_url" 
-                                                        :alt="guild.name"
-                                                        class="w-4 h-4 rounded-full"
-                                                    />
-                                                    <span class="text-xs text-gray-400">{{ guild.name }}</span>
-                                                    <span class="text-xs text-gray-500">•</span>
-                                                    <span class="text-xs text-gray-400">{{ new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) }}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.goodbyeSection.titleLabel') }}</label>
-                                    <input
-                                        type="text"
-                                        v-model="goodbyeForm.embed_title"
-                                        :placeholder="t('welcome.goodbyeSection.embedTitlePlaceholder')"
-                                        class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                    />
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.goodbyeSection.descriptionLabel') }}</label>
-                                    <textarea
-                                        v-model="goodbyeForm.embed_description"
-                                        rows="3"
-                                        :placeholder="t('welcome.goodbyeSection.embedDescriptionPlaceholder')"
-                                        class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                    ></textarea>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-300 mb-2">{{ t('welcome.goodbyeSection.colorLabel') }}</label>
-                                    <div class="flex gap-2">
-                                        <input
-                                            type="color"
-                                            v-model="goodbyeForm.embed_color"
-                                            class="w-16 h-10 rounded border border-[#202225] cursor-pointer"
-                                        />
-                                        <input
-                                            type="text"
-                                            v-model="goodbyeForm.embed_color"
-                                            placeholder="#ef4444"
-                                            class="flex-1 rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
+                                <div class="bg-[#1a1b1e] rounded-lg p-6 border border-[#202225] flex flex-col min-h-[420px]">
+                                    <h4 class="text-sm font-medium text-gray-300 mb-4 flex-shrink-0">{{ t('welcome.welcomeSection.preview') }}</h4>
+                                    <div class="flex-1 min-h-[280px] flex flex-col">
+                                        <EmbedEditor
+                                        :model="{
+                                            embed_author: goodbyeForm.embed_author,
+                                            embed_title: goodbyeForm.embed_title,
+                                            embed_description: goodbyeForm.embed_description,
+                                            embed_color: goodbyeForm.embed_color,
+                                            embed_thumbnail: goodbyeForm.embed_thumbnail,
+                                            embed_image: goodbyeForm.embed_image,
+                                            embed_footer: goodbyeForm.embed_footer,
+                                        }"
+                                        :placeholder-replacements="{ user: 'ibeiros#0', server: guild?.name || 'Server' }"
+                                        :accent-color="goodbyeForm.embed_color || '#ef4444'"
+                                        :footer-icon-url="guild?.icon_url"
+                                        @click-author="openEmbedSection('author', 'goodbye')"
+                                        @click-hide="onEmbedClickHide('goodbye')"
+                                        @click-add-field="onEmbedClickAddField"
+                                        @click-image="openEmbedSection('image', 'goodbye')"
+                                        @click-footer="openEmbedSection('footer', 'goodbye')"
+                                        @click-timestamp="openEmbedSection('footer', 'goodbye')"
+                                        @update:color="goodbyeForm.embed_color = $event"
+                                        @update:embed_title="goodbyeForm.embed_title = $event"
+                                        @update:embed_description="goodbyeForm.embed_description = $event"
                                         />
                                     </div>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        v-model="goodbyeForm.embed_footer"
-                                        class="rounded border-gray-500 bg-[#36393f] text-[#5865f2] focus:ring-[#5865f2]"
-                                    />
-                                    <label class="text-sm text-gray-300">{{ t('welcome.welcomeSection.showFooter') }}</label>
+                                    <p class="text-xs text-gray-500 mt-3 flex-shrink-0">
+                                        {{ t('welcome.goodbyeSection.availablePlaceholders') }}
+                                        <code class="bg-[#202225] px-1 rounded text-gray-400">{user}</code>,
+                                        <code class="bg-[#202225] px-1 rounded text-gray-400">{server}</code>
+                                    </p>
                                 </div>
                             </div>
 

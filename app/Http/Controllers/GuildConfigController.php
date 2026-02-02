@@ -25,6 +25,8 @@ use App\Models\TeamRank;
 use App\Models\TeamMember;
 use App\Models\TeamManagementConfig;
 use App\Models\TeamAnnouncementTemplate;
+use App\Models\FactionManagementConfig;
+use App\Models\SavedEmbed;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -69,6 +71,7 @@ class GuildConfigController extends BaseGuildController
             'channel_id' => 'nullable|string|max:255',
             'message' => 'nullable|string|max:2000',
             'use_embed' => 'boolean',
+            'embed_author' => 'boolean',
             'embed_title' => 'nullable|string|max:256',
             'embed_description' => 'nullable|string|max:4096',
             'embed_color' => 'nullable|string|max:7',
@@ -92,6 +95,7 @@ class GuildConfigController extends BaseGuildController
                 'channel_id' => $validated['channel_id'] ?? null,
                 'message' => $validated['message'] ?? null,
                 'use_embed' => $validated['use_embed'] ?? false,
+                'embed_author' => $validated['embed_author'] ?? true,
                 'embed_title' => $validated['embed_title'] ?? null,
                 'embed_description' => $validated['embed_description'] ?? null,
                 'embed_color' => $validated['embed_color'] ?? null,
@@ -128,6 +132,7 @@ class GuildConfigController extends BaseGuildController
                 'channel_id' => $request->channel_id,
                 'message' => $request->message,
                 'use_embed' => $request->use_embed ?? false,
+                'embed_author' => $request->embed_author ?? true,
                 'embed_title' => $request->embed_title,
                 'embed_description' => $request->embed_description,
                 'embed_color' => $request->embed_color,
@@ -1145,7 +1150,7 @@ class GuildConfigController extends BaseGuildController
 
         $validated = $request->validate([
             'channel_id' => 'required|string',
-            'mode' => 'required|in:count,time',
+            'mode' => 'required|in:count,time,all',
             'count' => 'required_if:mode,count|integer|min:1|max:100',
             'timeHours' => 'required_if:mode,time|integer|min:0',
             'timeMinutes' => 'required_if:mode,time|integer|min:0|max:59',
@@ -1162,128 +1167,16 @@ class GuildConfigController extends BaseGuildController
         }
 
         try {
-            // Bereite Daten für Bot vor
-            $deleteData = [
-                'guild_id' => $guild,
-                'channel_id' => $validated['channel_id'],
-                'mode' => $validated['mode'],
-                'count' => $validated['count'] ?? null,
-                'time_hours' => $validated['timeHours'] ?? 0,
-                'time_minutes' => $validated['timeMinutes'] ?? 0,
-                'send_notification' => $validated['sendNotification'] ?? false,
-                'notification_title' => $validated['notificationTitle'] ?? null,
-                'notification_description' => $validated['notificationDescription'] ?? null,
-                'notification_color' => $validated['notificationColor'] ?? '#5865f2',
-                'show_footer' => $validated['showFooter'] ?? true,
-                'user_id' => $user->discord_id,
-            ];
-
-            // Sende Request an Bot (über HTTP oder Queue)
-            // Hier verwenden wir einen HTTP-Request an den Bot
-            // Der Bot muss einen Endpoint haben, der diese Anfrage verarbeitet
-            // Alternativ: Verwende Discord API direkt (aber das ist komplizierter wegen Rate Limits)
-            
-            // Für jetzt: Sende direkt über Discord API
-            // Hole alle Nachrichten und lösche sie
             $channelId = $validated['channel_id'];
-            $deletedCount = 0;
-            
-            if ($validated['mode'] === 'count') {
-                // Lösche die letzten X Nachrichten
-                $limit = min($validated['count'], 100); // Discord limit: max 100 pro Request
-                
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bot ' . $botToken,
-                ])->timeout(10)->get("https://discord.com/api/v10/channels/{$channelId}/messages?limit={$limit}");
-                
-                if ($response->successful()) {
-                    $messages = $response->json();
-                    
-                    // Lösche Nachrichten in Batches (max 100 pro Request)
-                    $messageIds = array_column($messages, 'id');
-                    
-                    if (!empty($messageIds)) {
-                        // Discord Bulk Delete API (max 100 Nachrichten, min 2, max 14 Tage alt)
-                        // Für einzelne Nachrichten verwenden wir DELETE /channels/{channel.id}/messages/{message.id}
-                        foreach ($messageIds as $messageId) {
-                            try {
-                                $deleteResponse = Http::withHeaders([
-                                    'Authorization' => 'Bot ' . $botToken,
-                                ])->timeout(5)->delete("https://discord.com/api/v10/channels/{$channelId}/messages/{$messageId}");
-                                
-                                if ($deleteResponse->successful()) {
-                                    $deletedCount++;
-                                }
-                                
-                                // Rate limit: 5 requests per second
-                                usleep(200000); // 0.2 seconds delay
-                            } catch (\Exception $e) {
-                                \Log::warning("Fehler beim Löschen der Nachricht {$messageId}: " . $e->getMessage());
-                            }
-                        }
-                    }
-                }
-            } else {
-                // Lösche Nachrichten nach Zeitraum
-                $cutoffTime = now()->subHours($validated['timeHours'] ?? 0)->subMinutes($validated['timeMinutes'] ?? 0);
-                $cutoffTimestamp = $cutoffTime->timestamp * 1000; // Discord verwendet Millisekunden
-                
-                $lastId = null;
-                $allMessages = [];
-                
-                // Hole alle Nachrichten (bis zu 1000)
-                while (count($allMessages) < 1000) {
-                    $url = "https://discord.com/api/v10/channels/{$channelId}/messages?limit=100";
-                    if ($lastId) {
-                        $url .= "&before={$lastId}";
-                    }
-                    
-                    $response = Http::withHeaders([
-                        'Authorization' => 'Bot ' . $botToken,
-                    ])->timeout(10)->get($url);
-                    
-                    if (!$response->successful() || empty($response->json())) {
-                        break;
-                    }
-                    
-                    $messages = $response->json();
-                    $filteredMessages = array_filter($messages, function($msg) use ($cutoffTimestamp) {
-                        return (int)$msg['timestamp'] >= $cutoffTimestamp;
-                    });
-                    
-                    if (empty($filteredMessages)) {
-                        break; // Keine Nachrichten mehr im Zeitraum
-                    }
-                    
-                    $allMessages = array_merge($allMessages, array_values($filteredMessages));
-                    $lastId = end($messages)['id'];
-                    
-                    // Wenn die letzte Nachricht älter ist als der Cutoff, stoppe
-                    if ((int)end($messages)['timestamp'] < $cutoffTimestamp) {
-                        break;
-                    }
-                    
-                    usleep(200000); // Rate limit
-                }
-                
-                // Lösche alle gefundenen Nachrichten
-                foreach ($allMessages as $message) {
-                    try {
-                        $deleteResponse = Http::withHeaders([
-                            'Authorization' => 'Bot ' . $botToken,
-                        ])->timeout(5)->delete("https://discord.com/api/v10/channels/{$channelId}/messages/{$message['id']}");
-                        
-                        if ($deleteResponse->successful()) {
-                            $deletedCount++;
-                        }
-                        
-                        usleep(200000); // Rate limit
-                    } catch (\Exception $e) {
-                        \Log::warning("Fehler beim Löschen der Nachricht {$message['id']}: " . $e->getMessage());
-                    }
-                }
-            }
-            
+            $deletedCount = $this->performChannelMessageDeletion(
+                $channelId,
+                $botToken,
+                $validated['mode'],
+                $validated['count'] ?? null,
+                $validated['timeHours'] ?? 0,
+                $validated['timeMinutes'] ?? 0
+            );
+
             // Sende Benachrichtigung falls aktiviert
             if ($validated['sendNotification'] ?? false && $deletedCount > 0) {
                 $this->sendDeleteNotification($channelId, $deletedCount, $validated, $user);
@@ -1296,6 +1189,121 @@ class GuildConfigController extends BaseGuildController
             \Log::error('Fehler beim Löschen der Nachrichten: ' . $e->getMessage());
             return back()->with('error', 'Fehler beim Löschen der Nachrichten: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Löscht Nachrichten im Channel performant: Bulk-Delete (bis 100 pro Request) für
+     * Nachrichten < 14 Tage, einzeln für ältere. Discord: Bulk-Delete max 100, nur < 14 Tage.
+     */
+    private function performChannelMessageDeletion(string $channelId, string $botToken, string $mode, ?int $count, int $timeHours, int $timeMinutes): int
+    {
+        $fourteenDaysAgoMs = (now()->timestamp - (14 * 24 * 60 * 60)) * 1000;
+        $cutoffTime = $mode === 'time' ? now()->subHours($timeHours)->subMinutes($timeMinutes) : null;
+        $cutoffTimestampMs = $cutoffTime ? $cutoffTime->timestamp * 1000 : null;
+        $headers = ['Authorization' => 'Bot ' . $botToken];
+        $deletedTotal = 0;
+        $lastId = null;
+
+        do {
+            $limit = $mode === 'count' && $count !== null ? min($count - $deletedTotal, 100) : 100;
+            if ($mode === 'count' && $limit <= 0) {
+                break;
+            }
+            $url = "https://discord.com/api/v10/channels/{$channelId}/messages?limit={$limit}";
+            if ($lastId) {
+                $url .= "&before={$lastId}";
+            }
+            $response = Http::withHeaders($headers)->timeout(15)->get($url);
+            if (!$response->successful() || !is_array($response->json())) {
+                break;
+            }
+            $messages = $response->json();
+            if (empty($messages)) {
+                break;
+            }
+
+            // Discord liefert timestamp als ISO-8601-String; in Millisekunden für Vergleich
+            $msgTimestampMs = function ($m) {
+                $ts = $m['timestamp'] ?? null;
+                if ($ts === null) {
+                    return 0;
+                }
+                if (is_numeric($ts)) {
+                    return (int) $ts;
+                }
+                $unix = strtotime($ts);
+                return $unix ? $unix * 1000 : 0;
+            };
+
+            if ($mode === 'time' && $cutoffTimestampMs !== null) {
+                $messages = array_values(array_filter($messages, fn ($m) => $msgTimestampMs($m) >= $cutoffTimestampMs));
+                if (empty($messages)) {
+                    break;
+                }
+            }
+
+            $recentIds = [];
+            $oldIds = [];
+            foreach ($messages as $msg) {
+                $tsMs = $msgTimestampMs($msg);
+                $id = $msg['id'] ?? null;
+                if (!$id) {
+                    continue;
+                }
+                if ($tsMs > $fourteenDaysAgoMs) {
+                    $recentIds[] = (string) $id;
+                } else {
+                    $oldIds[] = (string) $id;
+                }
+            }
+
+            foreach (array_chunk($recentIds, 100) as $chunk) {
+                if (count($chunk) >= 2) {
+                    $bulk = Http::withHeaders($headers)->timeout(10)
+                        ->asJson()
+                        ->post("https://discord.com/api/v10/channels/{$channelId}/messages/bulk-delete", ['messages' => $chunk]);
+                    if ($bulk->successful() || $bulk->status() === 204) {
+                        $deletedTotal += count($chunk);
+                    } else {
+                        foreach ($chunk as $mid) {
+                            $del = Http::withHeaders($headers)->timeout(5)->delete("https://discord.com/api/v10/channels/{$channelId}/messages/{$mid}");
+                            if ($del->successful() || $del->status() === 204) {
+                                $deletedTotal++;
+                            }
+                            usleep(250000);
+                        }
+                    }
+                    usleep(1100000);
+                } elseif (count($chunk) === 1) {
+                    $del = Http::withHeaders($headers)->timeout(5)->delete("https://discord.com/api/v10/channels/{$channelId}/messages/{$chunk[0]}");
+                    if ($del->successful() || $del->status() === 204) {
+                        $deletedTotal++;
+                    }
+                    usleep(250000);
+                }
+            }
+
+            foreach ($oldIds as $mid) {
+                $del = Http::withHeaders($headers)->timeout(5)->delete("https://discord.com/api/v10/channels/{$channelId}/messages/{$mid}");
+                if ($del->successful() || $del->status() === 204) {
+                    $deletedTotal++;
+                }
+                usleep(250000);
+            }
+
+            $lastId = end($messages)['id'] ?? null;
+            if ($mode === 'count' && $count !== null && $deletedTotal >= $count) {
+                break;
+            }
+            if ($mode === 'time' && $cutoffTimestampMs !== null && !empty($messages) && $msgTimestampMs(end($messages)) < $cutoffTimestampMs) {
+                break;
+            }
+            if (count($messages) < 100) {
+                break;
+            }
+        } while (true);
+
+        return $deletedTotal;
     }
 
     private function sendDeleteNotification($channelId, $count, $config, $user)
@@ -2286,7 +2294,7 @@ class GuildConfigController extends BaseGuildController
         ]);
 
         // Validiere Add-On-Typ
-        $allowedTypes = ['team_management'];
+        $allowedTypes = ['team_management', 'faction_management', 'embed_sender'];
         if (!in_array($validated['addon_type'], $allowedTypes)) {
             return redirect()->route('guild.config', ['guild' => $guild])
                 ->with('error', 'Ungültiger Add-On-Typ.');
@@ -2685,6 +2693,66 @@ class GuildConfigController extends BaseGuildController
         }
 
         return back()->with('success', 'Konfiguration erfolgreich gespeichert!');
+    }
+
+    /**
+     * Update Faction Management Config
+     */
+    public function updateFactionManagementConfig(Request $request, $guild)
+    {
+        $user = Auth::user();
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $guildModel = Guild::where('discord_id', $guild)->firstOrFail();
+
+        $validated = $request->validate([
+            'channel_id_create' => 'nullable|string|max:32',
+            'channel_id_warn' => 'nullable|string|max:32',
+            'channel_id_dissolve' => 'nullable|string|max:32',
+            'channel_id_overview' => 'nullable|string|max:32',
+            'embed_create' => 'nullable|array',
+            'embed_warn' => 'nullable|array',
+            'embed_dissolve' => 'nullable|array',
+            'embed_overview' => 'nullable|array',
+        ]);
+
+        $data = [
+            'channel_id_create' => $validated['channel_id_create'] ?? null,
+            'channel_id_warn' => $validated['channel_id_warn'] ?? null,
+            'channel_id_dissolve' => $validated['channel_id_dissolve'] ?? null,
+            'channel_id_overview' => $validated['channel_id_overview'] ?? null,
+        ];
+        $normalizeFactionEmbedDescription = function (array $embed) {
+            if (isset($embed['description']) && is_string($embed['description'])) {
+                $embed['description'] = str_replace(["\n\n", '\\n\\n', '\n\n'], ' ', $embed['description']);
+            }
+            return $embed;
+        };
+        if (isset($validated['embed_create'])) {
+            $data['embed_create'] = $normalizeFactionEmbedDescription($validated['embed_create']);
+        }
+        if (isset($validated['embed_warn'])) {
+            $data['embed_warn'] = $normalizeFactionEmbedDescription($validated['embed_warn']);
+        }
+        if (isset($validated['embed_dissolve'])) {
+            $data['embed_dissolve'] = $normalizeFactionEmbedDescription($validated['embed_dissolve']);
+        }
+        if (isset($validated['embed_overview'])) {
+            $data['embed_overview'] = $validated['embed_overview'];
+        }
+
+        $guildModel->factionManagementConfig()->updateOrCreate(
+            ['guild_id' => $guildModel->id],
+            $data
+        );
+
+        return back()->with('success', 'Fraktion-Konfiguration gespeichert!');
     }
 
     /**
@@ -3260,6 +3328,198 @@ class GuildConfigController extends BaseGuildController
                 'body' => $response->body()
             ]);
         }
+    }
+
+    /** Embed Sender: Speichern (max 5 pro Guild) */
+    public function storeSavedEmbed(Request $request, $guild)
+    {
+        $result = $this->authorizeAndGetGuild($guild);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
+        $guildModel = $result['guildModel'];
+        $count = $guildModel->savedEmbeds()->count();
+        if ($count >= 5) {
+            return back()->with('error', 'Maximal 5 Embeds pro Server speicherbar.');
+        }
+        $validated = $request->validate(array_merge([
+            'name' => 'required|string|max:100',
+            'content' => 'nullable|string|max:2000',
+        ], $this->savedEmbedValidationRules()));
+        $embeds = array_map(fn ($e) => $this->normalizeSavedEmbedPayload($e), $validated['embed']['embeds']);
+        $guildModel->savedEmbeds()->create([
+            'name' => $validated['name'],
+            'content' => $validated['content'] ?? null,
+            'embed' => ['embeds' => $embeds],
+        ]);
+        return back()->with('success', 'Embed gespeichert.');
+    }
+
+    /** Embed Sender: Aktualisieren */
+    public function updateSavedEmbed(Request $request, $guild, $id)
+    {
+        $result = $this->authorizeAndGetGuild($guild);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
+        $guildModel = $result['guildModel'];
+        $saved = $guildModel->savedEmbeds()->findOrFail($id);
+        $validated = $request->validate(array_merge([
+            'name' => 'required|string|max:100',
+            'content' => 'nullable|string|max:2000',
+        ], $this->savedEmbedValidationRules()));
+        $embeds = array_map(fn ($e) => $this->normalizeSavedEmbedPayload($e), $validated['embed']['embeds']);
+        $saved->update([
+            'name' => $validated['name'],
+            'content' => $validated['content'] ?? null,
+            'embed' => ['embeds' => $embeds],
+        ]);
+        return back()->with('success', 'Embed aktualisiert.');
+    }
+
+    /** Embed Sender: Löschen */
+    public function deleteSavedEmbed(Request $request, $guild, $id)
+    {
+        $result = $this->authorizeAndGetGuild($guild);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
+        $guildModel = $result['guildModel'];
+        $saved = $guildModel->savedEmbeds()->findOrFail($id);
+        $saved->delete();
+        return back()->with('success', 'Embed gelöscht.');
+    }
+
+    /** Embed Sender: In Channel senden */
+    public function sendSavedEmbed(Request $request, $guild)
+    {
+        $result = $this->authorizeAndGetGuild($guild);
+        if ($result instanceof \Illuminate\Http\RedirectResponse) {
+            return $result;
+        }
+        $validated = $request->validate(array_merge([
+            'channel_id' => 'required|string',
+            'content' => 'nullable|string|max:2000',
+        ], $this->savedEmbedValidationRules()));
+        $discordEmbeds = array_filter(array_map(
+            fn ($e) => $this->buildDiscordEmbedFromSaved($e),
+            $validated['embed']['embeds']
+        ));
+        $payload = [];
+        if (!empty(trim($validated['content'] ?? ''))) {
+            $payload['content'] = $validated['content'];
+        }
+        if (!empty($discordEmbeds)) {
+            $payload['embeds'] = array_values($discordEmbeds);
+        }
+        if (empty($payload)) {
+            return back()->with('error', 'Nachricht oder mindestens ein Embed erforderlich.');
+        }
+        $botToken = config('services.discord.bot_token');
+        if (!$botToken) {
+            return back()->with('error', 'Bot Token nicht konfiguriert.');
+        }
+        $response = Http::withHeaders([
+            'Authorization' => 'Bot ' . $botToken,
+            'Content-Type' => 'application/json',
+        ])->timeout(10)->post(
+            'https://discord.com/api/v10/channels/' . $validated['channel_id'] . '/messages',
+            $payload
+        );
+        if (!$response->successful()) {
+            $err = $response->json();
+            $msg = $err['message'] ?? 'Unbekannter Fehler';
+            return back()->with('error', 'Fehler beim Senden: ' . $msg);
+        }
+        return back()->with('success', 'Nachricht gesendet!');
+    }
+
+    /** Validierungs-Regeln für Embed-Sender (embeds-Array). */
+    private function savedEmbedValidationRules(): array
+    {
+        return [
+            'embed' => 'required|array',
+            'embed.embeds' => 'required|array|max:10',
+            'embed.embeds.*.title' => 'nullable|string|max:256',
+            'embed.embeds.*.description' => 'nullable|string|max:4096',
+            'embed.embeds.*.color' => 'nullable|string|max:20',
+            'embed.embeds.*.image_url' => 'nullable|url|max:500',
+            'embed.embeds.*.thumbnail_url' => 'nullable|url|max:500',
+            'embed.embeds.*.footer_text' => 'nullable|string|max:2048',
+            'embed.embeds.*.footer_icon_url' => 'nullable|url|max:500',
+            'embed.embeds.*.footer_timestamp' => 'nullable|boolean',
+            'embed.embeds.*.timestamp_value' => 'nullable|string|max:50',
+            'embed.embeds.*.fields' => 'nullable|array',
+            'embed.embeds.*.fields.*.name' => 'required_with:embed.embeds.*.fields|string|max:256',
+            'embed.embeds.*.fields.*.value' => 'required_with:embed.embeds.*.fields|string|max:1024',
+            'embed.embeds.*.fields.*.inline' => 'nullable|boolean',
+        ];
+    }
+
+    private function normalizeSavedEmbedPayload(array $embed): array
+    {
+        $out = [
+            'title' => $embed['title'] ?? null,
+            'description' => $embed['description'] ?? null,
+            'color' => $embed['color'] ?? null,
+            'image_url' => $embed['image_url'] ?? null,
+            'thumbnail_url' => $embed['thumbnail_url'] ?? null,
+            'footer_text' => $embed['footer_text'] ?? null,
+            'footer_icon_url' => $embed['footer_icon_url'] ?? null,
+            'footer_timestamp' => $embed['footer_timestamp'] ?? null,
+            'timestamp_value' => $embed['timestamp_value'] ?? null,
+            'fields' => $embed['fields'] ?? [],
+        ];
+        return array_filter($out, fn ($v) => $v !== null && $v !== '');
+    }
+
+    private function buildDiscordEmbedFromSaved(array $e): array
+    {
+        $embed = [];
+        if (!empty($e['title'])) {
+            $embed['title'] = $e['title'];
+        }
+        if (!empty($e['description'])) {
+            $embed['description'] = $e['description'];
+        }
+        if (!empty($e['color'])) {
+            $hex = preg_replace('/^#/', '', $e['color']);
+            $embed['color'] = strlen($hex) === 6 ? hexdec($hex) : 0;
+        }
+        if (!empty($e['image_url'])) {
+            $embed['image'] = ['url' => $e['image_url']];
+        }
+        if (!empty($e['thumbnail_url'])) {
+            $embed['thumbnail'] = ['url' => $e['thumbnail_url']];
+        }
+        if (!empty($e['footer_text'])) {
+            $embed['footer'] = ['text' => $e['footer_text']];
+            if (!empty($e['footer_icon_url'])) {
+                $embed['footer']['icon_url'] = $e['footer_icon_url'];
+            }
+        }
+        if (!empty($e['footer_timestamp'])) {
+            $ts = !empty($e['timestamp_value']) ? $e['timestamp_value'] : null;
+            if ($ts) {
+                try {
+                    $embed['timestamp'] = (new \DateTime($ts))->format('c');
+                } catch (\Exception $ex) {
+                    $embed['timestamp'] = now()->toIso8601String();
+                }
+            } else {
+                $embed['timestamp'] = now()->toIso8601String();
+            }
+        }
+        if (!empty($e['fields']) && is_array($e['fields'])) {
+            $embed['fields'] = array_map(function ($f) {
+                return [
+                    'name' => $f['name'] ?? '',
+                    'value' => $f['value'] ?? '',
+                    'inline' => (bool) ($f['inline'] ?? false),
+                ];
+            }, $e['fields']);
+        }
+        return $embed;
     }
 
 }

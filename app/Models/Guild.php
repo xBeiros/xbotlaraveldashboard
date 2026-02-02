@@ -137,4 +137,24 @@ class Guild extends Model
     {
         return $this->hasOne(GuildStatisticsConfig::class);
     }
+
+    public function factions()
+    {
+        return $this->hasMany(Faction::class);
+    }
+
+    public function factionManagementConfig()
+    {
+        return $this->hasOne(FactionManagementConfig::class);
+    }
+
+    public function factionWarns()
+    {
+        return $this->hasMany(FactionWarn::class);
+    }
+
+    public function savedEmbeds()
+    {
+        return $this->hasMany(SavedEmbed::class);
+    }
 }

@@ -237,7 +237,7 @@ const onWidgetDragLeave = (event, index) => {
             </div>
             
             <!-- Widget Grid -->
-            <div v-if="widgetsList && widgetsList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+            <div v-if="widgetsList && widgetsList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-0 mb-8">
                 <div
                     v-for="(widget, index) in widgetsList"
                     :key="`widget-${widget.id}-${widget.position}`"
@@ -277,31 +277,57 @@ const onWidgetDragLeave = (event, index) => {
                 </button>
             </div>
             
-            <!-- Add-Ons Section -->
+            <!-- Add-Ons Section – Karten wie im Bild -->
             <div class="mt-8">
-                <h2 class="text-xl font-bold mb-4 text-white">{{ t('addOns.title') }}</h2>
-                <div class="bg-[#2f3136] rounded-lg border border-[#202225] p-6">
-                    <p class="text-gray-400 mb-4 text-sm">{{ t('addOns.description') }}</p>
-                    
-                    <div class="space-y-4">
-                        <div
-                            v-for="(addOn, type) in addOns"
-                            :key="type"
-                            class="flex items-center justify-between p-4 bg-[#36393f] rounded-lg border border-[#202225]"
-                        >
-                            <div class="flex-1">
-                                <h3 class="text-lg font-semibold text-white mb-1">{{ addOn.name }}</h3>
-                                <p class="text-sm text-gray-400">{{ addOn.description }}</p>
+                <h2 class="text-lg font-bold mb-3 text-white">{{ t('addOns.title') }}</h2>
+                <p class="text-gray-400 mb-4 text-xs">{{ t('addOns.description') }}</p>
+                <div class="grid gap-12 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-4 justify-items-start">
+                    <div
+                        v-for="(addOn, type) in addOns"
+                        :key="type"
+                        class="group cursor-pointer w-[345px] h-[260px] p-6 rounded-lg bg-dark-800 hover:bg-dark-900 grid grid-cols-1 gap-4 transition-all duration-200 hover:shadow-lg flex flex-col"
+                        @click="toggleAddOn(type, addOn.enabled)"
+                    >
+                        <div class="flex items-start justify-between">
+                            <!-- Icon-Box (wie Referenz: brand-dark, hover brand-hover) -->
+                            <div class="transition-all duration-200 w-[60px] h-[56px] min-w-[60px] rounded-lg flex items-center justify-center bg-brand-dark group-hover:bg-brand-hover group-hover:bg-opacity-60 text-[#b3eeff]">
+                                <svg v-if="type === 'team_management'" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                <svg v-else-if="type === 'faction_management'" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                                <svg v-else class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                             </div>
-                            <label class="relative inline-flex items-center cursor-pointer ml-4">
-                                <input
-                                    type="checkbox"
-                                    :checked="addOn.enabled"
-                                    @change="toggleAddOn(type, addOn.enabled)"
-                                    class="sr-only peer"
-                                />
-                                <div class="w-11 h-6 bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#5865f2]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#5865f2]"></div>
-                            </label>
+                            <!-- Badge "Neu!" wenn aktiv (wie Referenz: success-default) -->
+                            <span
+                                v-if="addOn.isNew"
+                                class="inline-flex items-center justify-center rounded-full bg-success-default/20 text-success-default text-xs px-2 py-0.5 font-medium whitespace-nowrap"
+                            >
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" clip-rule="evenodd" d="M6.938 2.798c-.17-1.066-1.705-1.066-1.876 0A2.727 2.727 0 012.8 5.062c-1.066.17-1.066 1.705 0 1.875A2.727 2.727 0 015.062 9.2c.17 1.067 1.706 1.067 1.876 0A2.727 2.727 0 019.2 6.937c1.066-.17 1.066-1.705 0-1.875a2.727 2.727 0 01-2.263-2.264z"/></svg>
+                                {{ t('addOns.new') }}
+                            </span>
+                            <span v-else class="w-0 h-0 overflow-hidden" aria-hidden="true">.</span>
+                        </div>
+                        <div>
+                            <p class="text-white font-semibold text-sm">{{ addOn.name }}</p>
+                            <p class="text-xs text-dark-300 mt-1.5 line-clamp-2">{{ addOn.description }}</p>
+                        </div>
+                        <!-- Button: inaktiv = bg-white/10, aktiv = brand mit Check -->
+                        <div class="mt-auto">
+                            <button
+                                type="button"
+                                class="relative flex shrink-0 rounded-lg transition-all duration-200 items-center justify-center gap-2 w-full text-base px-4 py-2"
+                                :class="addOn.enabled
+                                    ? 'bg-brand-default/10 text-brand-default hover:bg-brand-default/20'
+                                    : 'bg-white/10 text-white hover:bg-white/20'"
+                                @click.stop="toggleAddOn(type, addOn.enabled)"
+                            >
+                                <template v-if="addOn.enabled">
+                                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    <span>{{ t('addOns.active') }}</span>
+                                </template>
+                                <template v-else>
+                                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>
+                                    <span>{{ t('addOns.activate') }}</span>
+                                </template>
+                            </button>
                         </div>
                     </div>
                 </div>

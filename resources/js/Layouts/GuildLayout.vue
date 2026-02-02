@@ -26,9 +26,9 @@ const serverManagementOpen = ref(true);
 const gamesAndFunOpen = ref(true);
 const addOnsOpen = ref(true);
 
-// Prüfe ob Add-Ons aktiviert sind
-const hasActiveAddOns = computed(() => {
-    return Object.values(props.addOns || {}).some(addOn => addOn.enabled);
+// Add-Ons-Bereich anzeigen, wenn überhaupt Add-Ons vorhanden sind (aktiv oder nicht)
+const hasAddOns = computed(() => {
+    return Object.keys(props.addOns || {}).length > 0;
 });
 
 function switchGuild(guildId) {
@@ -347,8 +347,8 @@ function switchGuild(guildId) {
                         </div>
                     </div>
                     
-                    <!-- Add-Ons Kategorie (nur wenn Add-Ons aktiviert sind) -->
-                    <div v-if="hasActiveAddOns">
+                    <!-- Add-Ons Kategorie (alle verfügbaren Add-Ons anzeigen) -->
+                    <div v-if="hasAddOns">
                         <button
                             @click="addOnsOpen = !addOnsOpen"
                             class="w-full flex items-center justify-between px-3 py-2 rounded mb-1 transition-colors text-gray-300 hover:text-white"
@@ -367,7 +367,7 @@ function switchGuild(guildId) {
                         
                         <div v-show="addOnsOpen" class="ml-4 space-y-1 mt-1">
                             <Link
-                                v-if="addOns?.team_management?.enabled"
+                                v-if="addOns?.team_management"
                                 :href="route('guild.team-management', { guild: guild?.id })"
                                 :class="[
                                     'flex items-center gap-3 px-3 py-2 rounded transition-colors',
@@ -378,6 +378,32 @@ function switchGuild(guildId) {
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                 </svg>
                                 <span class="text-sm">{{ t('navigation.teamManagement') }}</span>
+                            </Link>
+                            <Link
+                                v-if="addOns?.faction_management"
+                                :href="route('guild.faction-management', { guild: guild?.id })"
+                                :class="[
+                                    'flex items-center gap-3 px-3 py-2 rounded transition-colors',
+                                    route().current('guild.faction-management') ? 'bg-[#36393f] text-white' : 'text-gray-400 hover:bg-[#36393f] hover:text-white'
+                                ]"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                <span class="text-sm">{{ t('navigation.factionManagement') }}</span>
+                            </Link>
+                            <Link
+                                v-if="addOns?.embed_sender?.enabled"
+                                :href="route('guild.embed-sender', { guild: guild?.id })"
+                                :class="[
+                                    'flex items-center gap-3 px-3 py-2 rounded transition-colors',
+                                    route().current('guild.embed-sender') ? 'bg-[#36393f] text-white' : 'text-gray-400 hover:bg-[#36393f] hover:text-white'
+                                ]"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-sm">{{ t('navigation.embedSender') }}</span>
                             </Link>
                         </div>
                     </div>

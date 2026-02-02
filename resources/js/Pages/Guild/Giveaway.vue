@@ -1,7 +1,7 @@
 <template>
     <Head :title="`${guild.name} - ${t('giveaway.title')}`" />
 
-    <GuildLayout :guild="guild" :guilds="guilds">
+    <GuildLayout :guild="guild" :guilds="guilds" :add-ons="addOns ?? {}">
         <div class="p-8">
             <div class="flex items-center justify-between mb-6">
                 <h1 class="text-2xl font-bold text-white">{{ t('giveaway.title') }}</h1>
@@ -338,6 +338,7 @@ const { t } = useI18n();
 const props = defineProps({
     guild: Object,
     guilds: Array,
+    addOns: { type: Object, default: () => ({}) },
     channels: Array,
     roles: Array,
     giveaways: Array,

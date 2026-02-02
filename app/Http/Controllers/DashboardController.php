@@ -26,6 +26,9 @@ use App\Models\AddOn;
 use App\Models\TeamRank;
 use App\Models\TeamMember;
 use App\Models\TeamManagementConfig;
+use App\Models\Faction;
+use App\Models\FactionManagementConfig;
+use App\Models\SavedEmbed;
 
 class DashboardController extends BaseGuildController
 {
@@ -259,18 +262,7 @@ class DashboardController extends BaseGuildController
                 ];
             });
 
-        // Lade Add-Ons für diesen Server
-        $addOns = AddOn::where('guild_id', $guildModel->id)->get()->keyBy('addon_type');
-        
-        // Verfügbare Add-Ons definieren
-        $availableAddOns = [
-            'team_management' => [
-                'type' => 'team_management',
-                'name' => 'Team Verwaltung',
-                'description' => 'Verwalte dein Team mit Rängen, Mitgliedern und Benachrichtigungen',
-                'enabled' => $addOns->has('team_management') ? $addOns['team_management']->enabled : false,
-            ],
-        ];
+        $availableAddOns = $this->getAvailableAddOns($guildModel);
 
         return Inertia::render('Guild/Config', [
             'guild' => [
@@ -288,6 +280,7 @@ class DashboardController extends BaseGuildController
                 'channel_id' => $welcomeConfig->channel_id,
                 'message' => $welcomeConfig->message,
                 'use_embed' => $welcomeConfig->use_embed ?? false,
+                'embed_author' => $welcomeConfig->embed_author ?? true,
                 'embed_title' => $welcomeConfig->embed_title,
                 'embed_description' => $welcomeConfig->embed_description,
                 'embed_color' => $welcomeConfig->embed_color,
@@ -308,6 +301,7 @@ class DashboardController extends BaseGuildController
                 'channel_id' => $goodbyeConfig->channel_id,
                 'message' => $goodbyeConfig->message,
                 'use_embed' => $goodbyeConfig->use_embed ?? false,
+                'embed_author' => $goodbyeConfig->embed_author ?? true,
                 'embed_title' => $goodbyeConfig->embed_title,
                 'embed_description' => $goodbyeConfig->embed_description,
                 'embed_color' => $goodbyeConfig->embed_color,
@@ -381,6 +375,7 @@ class DashboardController extends BaseGuildController
                 'channel_id' => $welcomeConfig->channel_id,
                 'message' => $welcomeConfig->message,
                 'use_embed' => $welcomeConfig->use_embed ?? false,
+                'embed_author' => $welcomeConfig->embed_author ?? true,
                 'embed_title' => $welcomeConfig->embed_title,
                 'embed_description' => $welcomeConfig->embed_description,
                 'embed_color' => $welcomeConfig->embed_color,
@@ -401,6 +396,7 @@ class DashboardController extends BaseGuildController
                 'channel_id' => $goodbyeConfig->channel_id,
                 'message' => $goodbyeConfig->message,
                 'use_embed' => $goodbyeConfig->use_embed ?? false,
+                'embed_author' => $goodbyeConfig->embed_author ?? true,
                 'embed_title' => $goodbyeConfig->embed_title,
                 'embed_description' => $goodbyeConfig->embed_description,
                 'embed_color' => $goodbyeConfig->embed_color,
@@ -416,6 +412,53 @@ class DashboardController extends BaseGuildController
                 'card_title' => $goodbyeConfig->card_title ?? '{user.idname} left the server',
                 'card_avatar_position' => $goodbyeConfig->card_avatar_position ?? 'top',
             ] : null,
+            'addOns' => $this->getAvailableAddOns($guildModel),
+        ]);
+    }
+
+    public function embedSender($guild)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck;
+        }
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
+        $embedSenderAddon = AddOn::where('guild_id', $guildModel->id)->where('addon_type', 'embed_sender')->first();
+        if (!$embedSenderAddon || !$embedSenderAddon->enabled) {
+            return redirect()->route('guild.config', ['guild' => $guild])
+                ->with('error', 'Embed Sender muss unter Add-Ons aktiviert werden.');
+        }
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
+        $channels = $this->fetchGuildChannels($guild);
+        $savedEmbeds = $guildModel->savedEmbeds()->orderBy('updated_at', 'desc')->get()->map(function ($e) {
+            return [
+                'id' => $e->id,
+                'name' => $e->name,
+                'content' => $e->content,
+                'embed' => $e->embed ?? [],
+            ];
+        });
+        return Inertia::render('Guild/EmbedSender', [
+            'guild' => [
+                'id' => $userGuild->guild_id,
+                'name' => $userGuild->name,
+                'icon_url' => $userGuild->icon ? "https://cdn.discordapp.com/icons/{$userGuild->guild_id}/{$userGuild->icon}.png" : null,
+                'bot_joined' => true,
+            ],
+            'guilds' => $allGuilds,
+            'channels' => $channels,
+            'savedEmbeds' => $savedEmbeds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
         ]);
     }
 
@@ -463,6 +506,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'channels' => $channels,
             'roles' => $roles,
             'reactionRoles' => $reactionRoles->map(function ($rr) {
@@ -523,6 +567,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'guildModel' => [
                 'prefix' => $guildModel->prefix,
                 'bot_active' => $guildModel->bot_active ?? true,
@@ -624,6 +669,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'categories' => $this->fetchGuildCategories($guild),
             'statisticsConfig' => $statisticsConfig,
         ]);
@@ -667,6 +713,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'channels' => $this->fetchGuildChannels($guild),
             'autoDeletes' => $guildModel->autoDeleteMessages()->get()->map(function ($ad) {
                 return [
@@ -728,6 +775,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'channels' => $channels,
             'categories' => $categories ?? [],
             'roles' => $roles,
@@ -839,6 +887,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'channels' => $channels,
             'socialNotifications' => $socialNotifications,
         ]);
@@ -1060,6 +1109,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'channels' => $channels,
             'roles' => $roles,
             'autoModConfig' => [
@@ -1471,6 +1521,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'channels' => $channels,
             'roles' => $roles,
             'levelingConfig' => [
@@ -1572,6 +1623,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'channels' => $this->fetchGuildChannels($guild),
             'roles' => $this->fetchGuildRoles($guild),
             'giveaways' => $giveaways,
@@ -1661,6 +1713,7 @@ class DashboardController extends BaseGuildController
                 'bot_joined' => true,
             ],
             'guilds' => $allGuilds,
+            'addOns' => $this->getAvailableAddOns($guildModel),
             'channels' => $channels,
             'roles' => $roles,
             'members' => $members,
@@ -1794,16 +1847,8 @@ class DashboardController extends BaseGuildController
             'downgrade_embed' => $teamConfig->downgrade_embed ?? null,
         ];
 
-        // Lade Add-Ons für Sidebar
-        $addOns = AddOn::where('guild_id', $guildModel->id)->get()->keyBy('addon_type');
-        $availableAddOns = [
-            'team_management' => [
-                'type' => 'team_management',
-                'name' => 'Team Verwaltung',
-                'description' => 'Verwalte dein Team mit Rängen, Mitgliedern und Benachrichtigungen',
-                'enabled' => $addOns->has('team_management') ? $addOns['team_management']->enabled : false,
-            ],
-        ];
+        // Lade Add-Ons für Sidebar (alle Add-Ons, damit Navbar alle Einträge zeigt)
+        $availableAddOns = $this->getAvailableAddOns($guildModel);
 
         // Lade Ankündigungs-Templates
         $announcementTemplates = $guildModel->teamAnnouncementTemplates()
@@ -1835,6 +1880,115 @@ class DashboardController extends BaseGuildController
             'teamConfig' => $config,
             'addOns' => $availableAddOns,
             'announcementTemplates' => $announcementTemplates,
+        ]);
+    }
+
+    /**
+     * Fraktion Verwaltung (Add-On)
+     */
+    public function factionManagement(Request $request, $guild)
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return redirect()->route('discord.login');
+        }
+
+        $userGuild = UserGuild::where('user_id', $user->id)
+            ->where('guild_id', $guild)
+            ->first();
+
+        if (!$userGuild || !$this->canManageGuild($userGuild->permissions)) {
+            return redirect()->route('dashboard')->with('error', 'Kein Zugriff auf diesen Server.');
+        }
+
+        $botCheck = $this->verifyAndUpdateBotStatus($guild, $userGuild);
+        if ($botCheck !== true) {
+            return $botCheck;
+        }
+
+        $guildModel = $this->getOrCreateGuildModel($guild, $userGuild, $user);
+        $addOn = AddOn::where('guild_id', $guildModel->id)
+            ->where('addon_type', 'faction_management')
+            ->where('enabled', true)
+            ->first();
+
+        if (!$addOn) {
+            return redirect()->route('guild.config', ['guild' => $guild])
+                ->with('error', 'Fraktion-Verwaltung Add-On ist nicht aktiviert.');
+        }
+
+        $allGuilds = $this->getAllGuildsForSidebar($user->id);
+        // Nur Text- und Ankündigungskanäle (keine Kategorien/Voice) – dort können Embeds gepostet werden
+        $allChannels = $this->fetchGuildChannels($guild);
+        $channels = collect($allChannels)->filter(fn ($ch) => in_array($ch['type'] ?? null, [0, 5]))->values()->all();
+
+        $factions = $guildModel->factions()->orderBy('name')->get()->map(function ($f) {
+            $activeWarns = $f->activeWarns()->orderBy('expires_at')->get();
+            return [
+                'id' => $f->id,
+                'name' => $f->name,
+                'warn_count' => $activeWarns->count(),
+                'warns' => $activeWarns->map(fn ($w) => [
+                    'id' => $w->id,
+                    'reason' => $w->reason,
+                    'expires_at' => $w->expires_at->toIso8601String(),
+                ])->values()->all(),
+            ];
+        });
+
+        $factionConfig = $guildModel->factionManagementConfig;
+        $defaultEmbeds = [
+            'embed_create' => ['title' => 'Neue Fraktion', 'description' => '{faction_name} {announcement_text}', 'color' => '5865F2'],
+            'embed_warn' => ['title' => 'Fraktion Abmahnung', 'description' => '{faction_name} {announcement_text}', 'color' => 'FEE75C'],
+            'embed_dissolve' => ['title' => 'Fraktion aufgelöst', 'description' => '{faction_name} {announcement_text}', 'color' => 'ED4245'],
+            'embed_overview' => ['title' => 'Aktuelle Fraktionen', 'description' => '{faction_list}', 'color' => '57F287'],
+        ];
+        $normalizeDescription = function ($embed) {
+            if (!is_array($embed) || !isset($embed['description'])) {
+                return $embed;
+            }
+            $embed['description'] = str_replace(["\n\n", '\\n\\n', '\n\n'], ' ', $embed['description']);
+            return $embed;
+        };
+        $config = [
+            'channel_id_create' => $factionConfig?->channel_id_create ?? null,
+            'channel_id_warn' => $factionConfig?->channel_id_warn ?? null,
+            'channel_id_dissolve' => $factionConfig?->channel_id_dissolve ?? null,
+            'channel_id_overview' => $factionConfig?->channel_id_overview ?? null,
+            'embed_create' => $normalizeDescription($factionConfig?->embed_create ?? $defaultEmbeds['embed_create']),
+            'embed_warn' => $normalizeDescription($factionConfig?->embed_warn ?? $defaultEmbeds['embed_warn']),
+            'embed_dissolve' => $normalizeDescription($factionConfig?->embed_dissolve ?? $defaultEmbeds['embed_dissolve']),
+            'embed_overview' => $factionConfig?->embed_overview ?? $defaultEmbeds['embed_overview'],
+        ];
+
+        $addOns = AddOn::where('guild_id', $guildModel->id)->get()->keyBy('addon_type');
+        $availableAddOns = [
+            'team_management' => [
+                'type' => 'team_management',
+                'name' => 'Team Verwaltung',
+                'description' => 'Verwalte dein Team mit Rängen, Mitgliedern und Benachrichtigungen',
+                'enabled' => $addOns->has('team_management') ? $addOns['team_management']->enabled : false,
+            ],
+            'faction_management' => [
+                'type' => 'faction_management',
+                'name' => 'Fraktion Verwaltung',
+                'description' => 'Fraktionen gründen, Abmahnungen, Auflösungen und Übersicht – Embed-Texte und Kanäle anpassbar',
+                'enabled' => $addOns->has('faction_management') ? $addOns['faction_management']->enabled : false,
+            ],
+        ];
+
+        return Inertia::render('Guild/FactionManagement', [
+            'guild' => [
+                'id' => $userGuild->guild_id,
+                'name' => $userGuild->name,
+                'icon_url' => $userGuild->icon ? "https://cdn.discordapp.com/icons/{$userGuild->guild_id}/{$userGuild->icon}.png" : null,
+                'bot_joined' => true,
+            ],
+            'guilds' => $allGuilds,
+            'channels' => $channels,
+            'factions' => $factions,
+            'factionConfig' => $config,
+            'addOns' => $availableAddOns,
         ]);
     }
 
@@ -2064,5 +2218,33 @@ class DashboardController extends BaseGuildController
             default:
                 return response()->json(['error' => 'Invalid widget type'], 400);
         }
+    }
+
+    /**
+     * Verfügbare Add-Ons für die Sidebar (auf allen Guild-Seiten).
+     */
+    private function getAvailableAddOns($guildModel)
+    {
+        $addOns = AddOn::where('guild_id', $guildModel->id)->get()->keyBy('addon_type');
+        return [
+            'team_management' => [
+                'type' => 'team_management',
+                'name' => 'Team Verwaltung',
+                'description' => 'Verwalte dein Team mit Rängen, Mitgliedern und Benachrichtigungen',
+                'enabled' => $addOns->has('team_management') ? $addOns['team_management']->enabled : false,
+            ],
+            'faction_management' => [
+                'type' => 'faction_management',
+                'name' => 'Fraktion Verwaltung',
+                'description' => 'Fraktionen gründen, Abmahnungen, Auflösungen und Übersicht – Embed-Texte und Kanäle anpassbar',
+                'enabled' => $addOns->has('faction_management') ? $addOns['faction_management']->enabled : false,
+            ],
+            'embed_sender' => [
+                'type' => 'embed_sender',
+                'name' => 'Embed Sender',
+                'description' => 'Embeds erstellen wie mit Discohook: links einstellen, rechts Vorschau. Max. 5 pro Server speicherbar.',
+                'enabled' => $addOns->has('embed_sender') ? $addOns['embed_sender']->enabled : false,
+            ],
+        ];
     }
 }

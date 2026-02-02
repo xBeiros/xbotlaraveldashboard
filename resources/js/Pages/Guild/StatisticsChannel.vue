@@ -1,7 +1,7 @@
 <template>
     <Head :title="`${guild.name} - Statistik-Channel`" />
 
-    <GuildLayout :guild="guild" :guilds="guilds">
+    <GuildLayout :guild="guild" :guilds="guilds" :add-ons="addOns ?? {}">
         <div class="p-8">
             <h1 class="text-2xl font-bold mb-6 text-white">{{ $t('serverManagement.statistics.title') }}</h1>
 
@@ -82,6 +82,7 @@ import { Head, useForm } from '@inertiajs/vue3';
 const props = defineProps({
     guild: Object,
     guilds: Array,
+    addOns: { type: Object, default: () => ({}) },
     categories: Array,
     statisticsConfig: Object,
 });

@@ -1,7 +1,7 @@
 <template>
     <Head :title="`${guild.name} - Einstellungen`" />
 
-    <GuildLayout :guild="guild" :guilds="guilds">
+    <GuildLayout :guild="guild" :guilds="guilds" :add-ons="addOns ?? {}">
         <div class="p-8">
             <h1 class="text-2xl font-bold mb-6 text-white">{{ $t('serverManagement.title') }}</h1>
 
@@ -98,6 +98,7 @@ const { t } = useI18n();
 const props = defineProps({
     guild: Object,
     guilds: Array,
+    addOns: { type: Object, default: () => ({}) },
     guildModel: Object,
 });
 

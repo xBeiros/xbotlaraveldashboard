@@ -37,6 +37,58 @@
     "activate": "Activate",
     "deactivate": "Deactivate"
   },
+  "colorPicker": {
+    "hue": "Hue",
+    "hexPlaceholder": "Hex e.g. 5865F2",
+    "apply": "Apply"
+  },
+  "embedSender": {
+    "title": "Embed Sender",
+    "description": "Create embeds like Discohook: configure on the left, preview on the right. Save up to 5 embeds per server.",
+    "content": "Message (above embed)",
+    "contentPlaceholder": "Optional message above the embed...",
+    "embedBody": "Embed",
+    "titleDescriptionFields": "Title, Description & Fields",
+    "colorImagesFooter": "Color, Images & Footer",
+    "authorName": "Author Name",
+    "authorIconUrl": "Author Icon URL",
+    "authorUrl": "Author URL",
+    "embedTitle": "Title",
+    "embedDescription": "Description",
+    "color": "Color",
+    "imageUrl": "Image URL",
+    "thumbnailUrl": "Thumbnail URL",
+    "footerSection": "Footer",
+    "footerText": "Footer Text",
+    "footerTextPlaceholder": "Text below the embed",
+    "footerIconUrl": "Footer Icon URL",
+    "showTimestamp": "Show timestamp",
+    "timestampNow": "Current time when sending",
+    "timestampFixed": "Fixed date & time",
+    "fields": "Fields",
+    "addField": "Add Field",
+    "fieldName": "Name",
+    "fieldValue": "Value",
+    "saveAsName": "Save as name",
+    "slot": "Slot",
+    "save": "Save",
+    "update": "Update",
+    "clear": "Clear",
+    "preview": "Preview",
+    "savedSlots": "Saved Embeds",
+    "noSaved": "No saved embeds yet.",
+    "load": "Load",
+    "sendToChannel": "Send to channel",
+    "selectChannel": "Select channel...",
+    "send": "Send",
+    "sending": "Sending...",
+    "confirmDelete": "Really delete this saved embed?",
+    "embedN": "Embed {n}",
+    "embedUntitled": "Untitled",
+    "addEmbed": "Add Embed",
+    "duplicateEmbed": "Duplicate embed",
+    "removeEmbed": "Remove embed"
+  },
   "languages": {
     "german": "German",
     "english": "English",
@@ -55,6 +107,7 @@
     "autoModeration": "Auto Moderation",
     "leveling": "Leveling",
     "socialNotifications": "Social Media Notifications",
+    "embedSender": "Embed Sender",
     "notifications": "Notifications",
     "serverManagement": "Server Management",
     "statisticsChannel": "Statistics Channel",
@@ -64,7 +117,8 @@
     "giveaway": "Giveaway",
     "birthdays": "Birthdays",
     "addOns": "Add-Ons",
-    "teamManagement": "Team Management"
+    "teamManagement": "Team Management",
+    "factionManagement": "Faction Management"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -124,7 +178,10 @@
   },
   "addOns": {
     "title": "Add-Ons",
-    "description": "Extend your bot with additional features. Enable or disable add-ons as needed."
+    "description": "Extend your bot with additional features. Enable or disable add-ons as needed.",
+    "active": "Active",
+    "activate": "Activate",
+    "new": "New!"
   },
   "teamManagement": {
     "title": "Team Management",
@@ -199,6 +256,47 @@
       "notifyLeave": "Notify team leave",
       "notifyUpgrade": "Notify rank upgrade",
       "notifyDowngrade": "Notify rank downgrade"
+    }
+  },
+  "factionManagement": {
+    "title": "Faction Management",
+    "description": "Configure channels and embed texts for faction creation/join, warning, dissolution, and overview. The faction list is refreshed automatically after each command.",
+    "channels": {
+      "title": "Channels",
+      "hint": "Select the channel where embeds are posted. Only text and announcement channels are shown (no categories).",
+      "none": "— No channel —",
+      "create": "Faction creation / Join",
+      "warn": "Faction warning",
+      "dissolve": "Faction dissolution",
+      "overview": "Faction overview (list)"
+    },
+    "warnDuration": {
+      "label": "Warn duration (days)",
+      "placeholder": "e.g. 30",
+      "hint": "After this many days a warn is automatically removed (2→1, 1→0)."
+    },
+    "warns": {
+      "active": "active warn(s)",
+      "expires": "expires"
+    },
+    "embeds": {
+      "title": "Embed texts",
+      "placeholders": "Placeholders are replaced with actual values when the embed is sent.",
+      "placeholdersCreateWarnDissolve": "Available: {faction_name} = faction name, {announcement_text} = announcement text from the modal",
+      "placeholdersOverview": "Available: {faction_list} = formatted list of all factions (e.g. \"• Faction A\" + newline + \"• Faction B\")",
+      "create": "Creation / Join",
+      "warn": "Warning",
+      "dissolve": "Dissolution",
+      "overview": "Overview",
+      "titlePlaceholder": "e.g. New Faction",
+      "descriptionPlaceholder": "e.g. {faction_name} and {announcement_text}",
+      "overviewDescriptionPlaceholder": "e.g. {faction_list} or your own text with {faction_list}",
+      "colorPlaceholder": "Hex without #, e.g. 5865F2"
+    },
+    "factionsList": {
+      "title": "Current factions",
+      "hint": "Factions are managed via Discord commands (/faction add, /faction remove). The list updates after each command.",
+      "empty": "No factions yet."
     }
   },
   "serverManagement": {
@@ -300,6 +398,9 @@
     "deleteMode": "Delete Mode",
     "modeCount": "By Count",
     "modeTime": "By Time Period",
+    "modeAll": "All messages in channel",
+    "modeAllHint": "Deletes all messages in the channel once (performant via bulk delete). Messages older than 14 days are deleted individually.",
+    "confirmDeleteAll": "Do you really want to delete ALL messages in this channel? This action cannot be undone.",
     "countLabel": "Number of Messages",
     "countPlaceholder": "e.g. 20",
     "countHelp": "The last X messages will be deleted",
@@ -481,6 +582,23 @@
       "fileTooLarge": "The file is too large. Please choose an image under 5MB.",
       "pleaseSelectImage": "Please select an image file.",
       "errorLoadingFile": "Error loading file."
+    },
+    "embedEditor": {
+      "titleLabel": "Title",
+      "clickToConfigure": "Click to configure",
+      "addNewField": "Add new field",
+      "addImage": "Add image",
+      "footer": "Footer",
+      "timestamp": "Timestamp",
+      "hideOrVisibility": "Hide author",
+      "showAuthor": "Show author",
+      "authorHidden": "Author hidden – click the eye to show",
+      "author": "Author",
+      "authorInfo": "The author is displayed as the joining user in Discord. Placeholder: {user.name}",
+      "thumbnailUrl": "Thumbnail URL",
+      "imageUrl": "Image URL",
+      "footerHint": "Footer shows server icon, name and timestamp.",
+      "clickToChangeColor": "Click to change embed color"
     },
     "goodbyeSection": {
       "title": "Goodbye",

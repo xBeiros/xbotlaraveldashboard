@@ -33,6 +33,58 @@
     "optional": "isteğe bağlı",
     "enable": "Etkinleştir"
   },
+  "colorPicker": {
+    "hue": "Renk tonu",
+    "hexPlaceholder": "Hex örn. 5865F2",
+    "apply": "Uygula"
+  },
+  "embedSender": {
+    "title": "Embed Gönderici",
+    "description": "Discohook gibi embed oluştur: solda ayarla, sağda önizle. Sunucu başına en fazla 5 embed kaydedilebilir.",
+    "content": "Mesaj (embed üstü)",
+    "contentPlaceholder": "Embed üstünde isteğe bağlı mesaj...",
+    "embedBody": "Embed",
+    "titleDescriptionFields": "Başlık, Açıklama ve Alanlar",
+    "colorImagesFooter": "Renk, Görseller ve Footer",
+    "authorName": "Yazar Adı",
+    "authorIconUrl": "Yazar İkon URL",
+    "authorUrl": "Yazar URL",
+    "embedTitle": "Başlık",
+    "embedDescription": "Açıklama",
+    "color": "Renk",
+    "imageUrl": "Görsel URL",
+    "thumbnailUrl": "Küçük Resim URL",
+    "footerSection": "Footer",
+    "footerText": "Footer Metni",
+    "footerTextPlaceholder": "Embed altında metin",
+    "footerIconUrl": "Footer İkon URL",
+    "showTimestamp": "Zaman damgası göster",
+    "timestampNow": "Gönderirken güncel zaman",
+    "timestampFixed": "Sabit tarih ve saat",
+    "fields": "Alanlar",
+    "addField": "Alan Ekle",
+    "fieldName": "Ad",
+    "fieldValue": "Değer",
+    "saveAsName": "Kaydetme adı",
+    "slot": "Yuva",
+    "save": "Kaydet",
+    "update": "Güncelle",
+    "clear": "Temizle",
+    "preview": "Önizleme",
+    "savedSlots": "Kayıtlı Embeds",
+    "noSaved": "Henüz kayıtlı embed yok.",
+    "load": "Yükle",
+    "sendToChannel": "Kanala gönder",
+    "selectChannel": "Kanal seç...",
+    "send": "Gönder",
+    "sending": "Gönderiliyor...",
+    "confirmDelete": "Bu kayıtlı embed silinsin mi?",
+    "embedN": "Embed {n}",
+    "embedUntitled": "Başlıksız",
+    "addEmbed": "Embed Ekle",
+    "duplicateEmbed": "Embed'i kopyala",
+    "removeEmbed": "Embed'i kaldır"
+  },
   "languages": {
     "german": "Almanca",
     "english": "İngilizce",
@@ -51,6 +103,7 @@
     "autoModeration": "Otomatik Moderasyon",
     "leveling": "Seviye Atlama",
     "socialNotifications": "Sosyal Medya Bildirimleri",
+    "embedSender": "Embed Gönderici",
     "notifications": "Bildirimler",
     "serverManagement": "Sunucu Yönetimi",
     "statisticsChannel": "İstatistik Kanalı",
@@ -60,7 +113,8 @@
     "giveaway": "Çekiliş",
     "birthdays": "Doğum Günleri",
     "addOns": "Eklentiler",
-    "teamManagement": "Takım Yönetimi"
+    "teamManagement": "Takım Yönetimi",
+    "factionManagement": "Faksiyon Yönetimi"
   },
   "dashboard": {
     "title": "Kontrol Paneli",
@@ -120,7 +174,10 @@
   },
   "addOns": {
     "title": "Eklentiler",
-    "description": "Botunuza ek özellikler ekleyin. İhtiyacınıza göre eklentileri etkinleştirin veya devre dışı bırakın."
+    "description": "Botunuza ek özellikler ekleyin. İhtiyacınıza göre eklentileri etkinleştirin veya devre dışı bırakın.",
+    "active": "Aktif",
+    "activate": "Etkinleştir",
+    "new": "Yeni!"
   },
   "teamManagement": {
     "title": "Takım Yönetimi",
@@ -195,6 +252,47 @@
       "notifyLeave": "Takımdan ayrılmayı bildir",
       "notifyUpgrade": "Rütbe yükseltmeyi bildir",
       "notifyDowngrade": "Rütbe düşürmeyi bildir"
+    }
+  },
+  "factionManagement": {
+    "title": "Faksiyon Yönetimi",
+    "description": "Faksiyon kurulumu/katılım, uyarı, fesih ve genel bakış için kanalları ve embed metinlerini yapılandırın. Her komuttan sonra liste otomatik güncellenir.",
+    "channels": {
+      "title": "Kanallar",
+      "hint": "Embed'lerin gönderileceği kanalı seçin. Yalnızca metin ve duyuru kanalları gösterilir (kategoriler dahil değil).",
+      "none": "— Kanal yok —",
+      "create": "Faksiyon Kurulumu / Katılım",
+      "warn": "Faksiyon Uyarısı",
+      "dissolve": "Faksiyon Feshi",
+      "overview": "Faksiyon Listesi"
+    },
+    "warnDuration": {
+      "label": "Uyarı süresi (gün)",
+      "placeholder": "örn. 30",
+      "hint": "Bu süre sonunda uyarı otomatik kaldırılır (2→1, 1→0)."
+    },
+    "warns": {
+      "active": "aktif uyarı",
+      "expires": "sona erer"
+    },
+    "embeds": {
+      "title": "Embed Metinleri",
+      "placeholders": "Yer tutucular embed gönderildiğinde gerçek değerlerle değiştirilir.",
+      "placeholdersCreateWarnDissolve": "Kullanılabilir: {faction_name} = faksiyon adı, {announcement_text} = modaldan duyuru metni",
+      "placeholdersOverview": "Kullanılabilir: {faction_list} = tüm faksiyonların biçimlendirilmiş listesi",
+      "create": "Kurulum / Katılım",
+      "warn": "Uyarı",
+      "dissolve": "Fesih",
+      "overview": "Genel Bakış",
+      "titlePlaceholder": "örn. Yeni Faksiyon",
+      "descriptionPlaceholder": "örn. {faction_name} ve {announcement_text}",
+      "overviewDescriptionPlaceholder": "örn. {faction_list} veya {faction_list} içeren kendi metniniz",
+      "colorPlaceholder": "# olmadan hex, örn. 5865F2"
+    },
+    "factionsList": {
+      "title": "Mevcut Faksiyonlar",
+      "hint": "Faksiyonlar Discord komutlarıyla (/faction add, /faction remove) yönetilir. Liste her komuttan sonra güncellenir.",
+      "empty": "Henüz faksiyon yok."
     }
   },
   "serverManagement": {
@@ -296,6 +394,9 @@
     "deleteMode": "Silme Modu",
     "modeCount": "Sayıya Göre",
     "modeTime": "Zaman Dilimine Göre",
+    "modeAll": "Kanaldaki tüm mesajlar",
+    "modeAllHint": "Kanaldaki tüm mesajları bir kez siler (toplu silme ile performanslı). 14 günden eski mesajlar tek tek silinir.",
+    "confirmDeleteAll": "Bu kanaldaki TÜM mesajları gerçekten silmek istiyor musunuz? Bu işlem geri alınamaz.",
     "countLabel": "Mesaj Sayısı",
     "countPlaceholder": "örn. 20",
     "countHelp": "Son X mesaj silinecek",
@@ -477,6 +578,23 @@
       "fileTooLarge": "Dosya çok büyük. Lütfen 5MB altında bir resim seçin.",
       "pleaseSelectImage": "Lütfen bir resim dosyası seçin.",
       "errorLoadingFile": "Dosya yüklenirken hata oluştu."
+    },
+    "embedEditor": {
+      "titleLabel": "Başlık",
+      "clickToConfigure": "Yapılandırmak için tıklayın",
+      "addNewField": "Yeni alan ekle",
+      "addImage": "Görsel ekle",
+      "footer": "Alt bilgi",
+      "timestamp": "Zaman damgası",
+      "hideOrVisibility": "Yazarı gizle",
+      "showAuthor": "Yazarı göster",
+      "authorHidden": "Yazar gizli – göstermek için göze tıklayın",
+      "author": "Yazar",
+      "authorInfo": "Discord'da yazar, sunucuya katılan kullanıcı olarak gösterilir. Yer tutucu: {user.name}",
+      "thumbnailUrl": "Küçük resim URL",
+      "imageUrl": "Görsel URL",
+      "footerHint": "Alt bilgi sunucu simgesi, adı ve zaman damgasını gösterir.",
+      "clickToChangeColor": "Embed rengini değiştirmek için tıklayın"
     },
     "goodbyeSection": {
       "title": "Hoşça Kal",

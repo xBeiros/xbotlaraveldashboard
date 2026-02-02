@@ -13,6 +13,7 @@ class GoodbyeConfig extends Model
         'message',
         'enabled',
         'use_embed',
+        'embed_author',
         'embed_title',
         'embed_description',
         'embed_color',
@@ -32,6 +33,7 @@ class GoodbyeConfig extends Model
     protected $casts = [
         'enabled' => 'boolean',
         'use_embed' => 'boolean',
+        'embed_author' => 'boolean',
         'embed_footer' => 'boolean',
         'use_goodbye_card' => 'boolean',
         'card_overlay_opacity' => 'integer',

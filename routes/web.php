@@ -78,8 +78,22 @@ Route::middleware('auth')->group(function () {
     // Team-Verwaltung
     Route::get('/guild/{guild}/team-management', [\App\Http\Controllers\DashboardController::class, 'teamManagement'])
         ->name('guild.team-management');
+    Route::get('/guild/{guild}/faction-management', [\App\Http\Controllers\DashboardController::class, 'factionManagement'])
+        ->name('guild.faction-management');
+    Route::put('/guild/{guild}/faction-management/config', [\App\Http\Controllers\GuildConfigController::class, 'updateFactionManagementConfig'])
+        ->name('guild.faction-management.config.update');
     Route::get('/guild/{guild}/welcome', [\App\Http\Controllers\DashboardController::class, 'welcome'])
         ->name('guild.welcome');
+    Route::get('/guild/{guild}/embed-sender', [\App\Http\Controllers\DashboardController::class, 'embedSender'])
+        ->name('guild.embed-sender');
+    Route::post('/guild/{guild}/saved-embeds', [\App\Http\Controllers\GuildConfigController::class, 'storeSavedEmbed'])
+        ->name('guild.saved-embeds.store');
+    Route::put('/guild/{guild}/saved-embeds/{id}', [\App\Http\Controllers\GuildConfigController::class, 'updateSavedEmbed'])
+        ->name('guild.saved-embeds.update');
+    Route::delete('/guild/{guild}/saved-embeds/{id}', [\App\Http\Controllers\GuildConfigController::class, 'deleteSavedEmbed'])
+        ->name('guild.saved-embeds.delete');
+    Route::post('/guild/{guild}/embed-sender/send', [\App\Http\Controllers\GuildConfigController::class, 'sendSavedEmbed'])
+        ->name('guild.embed-sender.send');
     Route::get('/guild/{guild}/reaction-roles', [\App\Http\Controllers\DashboardController::class, 'reactionRoles'])
         ->name('guild.reaction-roles');
     Route::put('/guild/{guild}/welcome', [\App\Http\Controllers\GuildConfigController::class, 'updateWelcome'])

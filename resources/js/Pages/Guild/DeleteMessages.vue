@@ -1,7 +1,7 @@
 <template>
     <Head :title="`${guild.name} - ${$t('deleteMessages.title')}`" />
 
-    <GuildLayout :guild="guild" :guilds="guilds">
+    <GuildLayout :guild="guild" :guilds="guilds" :add-ons="addOns ?? {}">
         <div class="p-8">
             <h1 class="text-2xl font-bold mb-6 text-white">{{ $t('deleteMessages.title') }}</h1>
 
@@ -38,7 +38,7 @@
                         <label class="block text-sm font-medium text-gray-300 mb-2">
                             {{ $t('deleteMessages.deleteMode') }}
                         </label>
-                        <div class="flex gap-4">
+                        <div class="flex flex-wrap gap-4">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input
                                     type="radio"
@@ -57,7 +57,17 @@
                                 />
                                 <span class="text-gray-300">{{ $t('deleteMessages.modeTime') }}</span>
                             </label>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input
+                                    type="radio"
+                                    v-model="deleteForm.mode"
+                                    value="all"
+                                    class="w-4 h-4 text-[#5865f2] bg-[#36393f] border-[#202225] focus:ring-[#5865f2]"
+                                />
+                                <span class="text-gray-300">{{ $t('deleteMessages.modeAll') }}</span>
+                            </label>
                         </div>
+                        <p v-if="deleteForm.mode === 'all'" class="text-xs text-amber-400 mt-2">{{ $t('deleteMessages.modeAllHint') }}</p>
                     </div>
 
                     <!-- Nach Anzahl -->
@@ -392,6 +402,7 @@ const { t } = useI18n();
 const props = defineProps({
     guild: Object,
     guilds: Array,
+    addOns: { type: Object, default: () => ({}) },
     channels: Array,
     autoDeletes: {
         type: Array,
@@ -423,6 +434,8 @@ const canDelete = computed(() => {
         return deleteForm.count > 0 && deleteForm.count <= 100;
     } else if (deleteForm.mode === 'time') {
         return (deleteForm.timeHours > 0 || deleteForm.timeMinutes > 0);
+    } else if (deleteForm.mode === 'all') {
+        return true;
     }
     return false;
 });
@@ -433,7 +446,7 @@ function deleteMessages() {
     let confirmMessage = '';
     if (deleteForm.mode === 'count') {
         confirmMessage = t('deleteMessages.confirmDelete', { count: deleteForm.count });
-    } else {
+    } else if (deleteForm.mode === 'time') {
         const timeStr = [];
         if (deleteForm.timeHours > 0) {
             timeStr.push(`${deleteForm.timeHours} ${t('deleteMessages.timeHours')}`);
@@ -442,6 +455,8 @@ function deleteMessages() {
             timeStr.push(`${deleteForm.timeMinutes} ${t('deleteMessages.timeMinutes')}`);
         }
         confirmMessage = t('deleteMessages.confirmDeleteTime', { time: timeStr.join(' ') });
+    } else if (deleteForm.mode === 'all') {
+        confirmMessage = t('deleteMessages.confirmDeleteAll');
     }
 
     if (!confirm(confirmMessage)) return;

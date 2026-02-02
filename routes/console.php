@@ -14,3 +14,10 @@ Schedule::command('tickets:cleanup-transcripts')
     ->timezone('Europe/Berlin')
     ->withoutOverlapping()
     ->runInBackground();
+
+Schedule::command('faction-warns:cleanup')
+    ->daily()
+    ->at('03:00')
+    ->timezone('Europe/Berlin')
+    ->withoutOverlapping()
+    ->runInBackground();

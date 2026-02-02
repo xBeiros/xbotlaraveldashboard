@@ -13,6 +13,7 @@ class WelcomeConfig extends Model
         'message',
         'enabled',
         'use_embed',
+        'embed_author',
         'embed_title',
         'embed_description',
         'embed_color',
@@ -32,6 +33,7 @@ class WelcomeConfig extends Model
     protected $casts = [
         'enabled' => 'boolean',
         'use_embed' => 'boolean',
+        'embed_author' => 'boolean',
         'embed_footer' => 'boolean',
         'use_welcome_card' => 'boolean',
         'card_overlay_opacity' => 'integer',
