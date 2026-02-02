@@ -367,7 +367,7 @@ function switchGuild(guildId) {
                         
                         <div v-show="addOnsOpen" class="ml-4 space-y-1 mt-1">
                             <Link
-                                v-if="addOns?.team_management"
+                                v-if="addOns?.team_management?.enabled"
                                 :href="route('guild.team-management', { guild: guild?.id })"
                                 :class="[
                                     'flex items-center gap-3 px-3 py-2 rounded transition-colors',
@@ -380,7 +380,7 @@ function switchGuild(guildId) {
                                 <span class="text-sm">{{ t('navigation.teamManagement') }}</span>
                             </Link>
                             <Link
-                                v-if="addOns?.faction_management"
+                                v-if="addOns?.faction_management?.enabled"
                                 :href="route('guild.faction-management', { guild: guild?.id })"
                                 :class="[
                                     'flex items-center gap-3 px-3 py-2 rounded transition-colors',
