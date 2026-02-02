@@ -129,59 +129,25 @@
                         </label>
                         <p class="text-xs text-gray-400">{{ $t('deleteMessages.sendNotificationHelp') }}</p>
 
-                        <div v-if="deleteForm.sendNotification" class="space-y-4 pl-6 border-l-2 border-[#202225]">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    {{ $t('deleteMessages.notificationTitle') }}
-                                </label>
-                                <input
-                                    type="text"
-                                    v-model="deleteForm.notificationTitle"
-                                    :placeholder="$t('deleteMessages.notificationTitlePlaceholder')"
-                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    {{ $t('deleteMessages.notificationDescription') }}
-                                </label>
-                                <textarea
-                                    v-model="deleteForm.notificationDescription"
-                                    :placeholder="$t('deleteMessages.notificationDescriptionPlaceholder')"
-                                    rows="3"
-                                    class="w-full rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2] resize-none"
-                                ></textarea>
-                                <p class="text-xs text-gray-400 mt-2">
-                                    {{ $t('deleteMessages.availablePlaceholders') }}
-                                    <span class="text-[#5865f2]">{{ $t('deleteMessages.placeholderCount') }}, {{ $t('deleteMessages.placeholderChannel') }}, {{ $t('deleteMessages.placeholderUser') }}</span>
-                                </p>
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-300 mb-2">
-                                    {{ $t('deleteMessages.notificationColor') }}
-                                </label>
-                                <div class="flex gap-2">
-                                    <input
-                                        type="color"
-                                        v-model="deleteForm.notificationColor"
-                                        class="w-16 h-10 rounded border border-[#202225] cursor-pointer"
-                                    />
-                                    <input
-                                        type="text"
-                                        v-model="deleteForm.notificationColor"
-                                        placeholder="#5865f2"
-                                        class="flex-1 rounded bg-[#36393f] border border-[#202225] text-white px-3 py-2 focus:outline-none focus:border-[#5865f2]"
-                                    />
-                                </div>
-                            </div>
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    v-model="deleteForm.showFooter"
-                                    class="w-4 h-4 text-[#5865f2] bg-[#36393f] border-[#202225] rounded focus:ring-[#5865f2]"
-                                />
-                                <span class="text-gray-300">{{ $t('deleteMessages.showFooter') }}</span>
-                            </label>
+                        <div v-if="deleteForm.sendNotification" class="pl-6 border-l-2 border-[#202225]">
+                            <p class="text-xs text-gray-400 mb-2">
+                                {{ $t('deleteMessages.availablePlaceholders') }}
+                            </p>
+                            <p class="text-xs text-[#b9bbbe] mb-3">
+                                <code class="px-1.5 py-0.5 rounded bg-[#36393f] text-[#5865f2] font-mono">{user}</code> {{ $t('deleteMessages.placeholderUserDesc') }},
+                                <code class="px-1.5 py-0.5 rounded bg-[#36393f] text-[#5865f2] font-mono">{channel}</code> {{ $t('deleteMessages.placeholderChannelDesc') }},
+                                <code class="px-1.5 py-0.5 rounded bg-[#36393f] text-[#5865f2] font-mono">{count}</code> {{ $t('deleteMessages.placeholderCountDesc') }}
+                            </p>
+                            <EmbedEditor
+                                :model="notificationEmbedModel"
+                                :placeholder-replacements="notificationPlaceholders"
+                                :accent-color="deleteForm.notificationColor"
+                                :show-add-field="false"
+                                :minimal="true"
+                                @update:embed_title="deleteForm.notificationTitle = $event"
+                                @update:embed_description="deleteForm.notificationDescription = $event"
+                                @update:color="deleteForm.notificationColor = $event"
+                            />
                         </div>
                     </div>
                 </div>
@@ -393,6 +359,7 @@
 
 <script setup>
 import GuildLayout from '@/Layouts/GuildLayout.vue';
+import EmbedEditor from '@/Components/EmbedEditor.vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
 import { useI18n } from 'vue-i18n';
 import { computed, ref } from 'vue';
@@ -427,6 +394,24 @@ const deleteForm = useForm({
 const textChannels = computed(() => {
     return props.channels?.filter(channel => !channel.is_category && channel.type === 0) || [];
 });
+
+// Embed-Model für Benachrichtigung (an EmbedEditor)
+const notificationEmbedModel = computed(() => ({
+    embed_title: deleteForm.notificationTitle,
+    embed_description: deleteForm.notificationDescription,
+    embed_color: deleteForm.notificationColor,
+    embed_author: false,
+    embed_footer: deleteForm.showFooter,
+}));
+
+// Platzhalter für Vorschau: {count}, {channel}, {user}
+const notificationPlaceholders = computed(() => ({
+    user: 'User#0',
+    server: props.guild?.name ?? '#channel',
+    memberCount: '12',
+    count: '12',
+    channel: '#channel',
+}));
 
 const canDelete = computed(() => {
     if (!deleteForm.channel_id) return false;

@@ -422,6 +422,9 @@
     "placeholderCount": "{count} - Silinen mesaj sayısı",
     "placeholderChannel": "{channel} - Kanal adı",
     "placeholderUser": "{user} - Silen kullanıcı",
+    "placeholderUserDesc": "(Silen kullanıcı)",
+    "placeholderChannelDesc": "(Kanal adı)",
+    "placeholderCountDesc": "(Silinen mesaj sayısı)",
     "autoDelete": {
       "title": "Otomatik Silmeler",
       "description": "Düzenli aralıklarla otomatik olarak mesajları sil",

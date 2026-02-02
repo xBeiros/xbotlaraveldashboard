@@ -426,6 +426,9 @@
     "placeholderCount": "{count} - Number of deleted messages",
     "placeholderChannel": "{channel} - Channel name",
     "placeholderUser": "{user} - User who deleted",
+    "placeholderUserDesc": "(User who deleted)",
+    "placeholderChannelDesc": "(Channel name)",
+    "placeholderCountDesc": "(Number of deleted messages)",
     "autoDelete": {
       "title": "Automatic Deletions",
       "description": "Automatically delete messages at regular intervals",

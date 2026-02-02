@@ -42,6 +42,11 @@ const props = defineProps({
         type: Boolean,
         default: false,
     },
+    /** Nur Farbe, Titel und Beschreibung anzeigen (z. B. für Nachrichten-Löschen-Benachrichtigung); blendet Bild- und Footer-Bereich sowie Autor-Toggle aus */
+    minimal: {
+        type: Boolean,
+        default: false,
+    },
 });
 
 const emit = defineEmits([
@@ -101,8 +106,11 @@ const showTimestampInPreview = computed(() => props.descriptionAutoExpand && pro
 
 <template>
     <div
-        class="embed-editor rounded-lg bg-[#2f3136] border border-[#202225] max-w-md min-h-[280px] flex flex-col relative"
-        :class="descriptionAutoExpand ? 'self-start' : 'h-full flex-1'"
+        class="embed-editor rounded-lg bg-[#2f3136] border border-[#202225] max-w-md flex flex-col relative"
+        :class="[
+            descriptionAutoExpand ? 'self-start' : 'h-full flex-1',
+            minimal ? 'min-h-[180px]' : 'min-h-[280px]'
+        ]"
     >
         <!-- Embed: linke Farbfläche (klickbar → ColorPicker absolut) + Inhalt -->
         <div class="flex rounded-r-lg min-h-0 flex-1">
@@ -131,7 +139,7 @@ const showTimestampInPreview = computed(() => props.descriptionAutoExpand && pro
                 class="flex-1 p-4 flex flex-col gap-3 min-w-0 min-h-0"
                 :class="descriptionAutoExpand ? 'overflow-visible' : 'overflow-auto'"
             >
-                <!-- Zeile 1: Titel direkt bearbeitbar + Auge für Profilbild (rechts) -->
+                <!-- Zeile 1: Titel direkt bearbeitbar + optional Auge für Profilbild (rechts) -->
                 <div class="flex items-start justify-between gap-2">
                     <input
                         type="text"
@@ -141,6 +149,7 @@ const showTimestampInPreview = computed(() => props.descriptionAutoExpand && pro
                         class="embed-zone flex-1 min-w-0 rounded-lg border-2 border-dashed border-gray-500 hover:border-[#5865f2] focus:border-[#5865f2] focus:outline-none px-3 py-2 text-sm font-semibold text-white bg-transparent placeholder-gray-500 transition-colors"
                     />
                     <button
+                        v-if="!minimal"
                         type="button"
                         class="embed-zone flex-shrink-0 w-9 h-9 rounded-lg border-2 border-dashed border-gray-500 hover:border-[#5865f2] flex items-center justify-center text-gray-400 hover:text-white transition-colors"
                         @click="emit('click-hide')"
@@ -172,7 +181,7 @@ const showTimestampInPreview = computed(() => props.descriptionAutoExpand && pro
 
                 <!-- Neues Feld hinzufügen (optional) -->
                 <button
-                    v-if="showAddField"
+                    v-if="showAddField && !minimal"
                     type="button"
                     class="embed-zone flex items-center gap-2 text-[#5865f2] hover:text-[#7983f5] text-sm font-medium py-1 -mx-1 rounded transition-colors"
                     @click="emit('click-add-field')"
@@ -183,8 +192,8 @@ const showTimestampInPreview = computed(() => props.descriptionAutoExpand && pro
                     {{ t('welcome.embedEditor.addNewField') }}
                 </button>
 
-                <!-- Unten: Bild hinzufügbar (klickbar) -->
-                <div class="space-y-1">
+                <!-- Unten: Bild hinzufügbar (klickbar) – bei minimal ausgeblendet -->
+                <div v-if="!minimal" class="space-y-1">
                     <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">{{ t('welcome.embedEditor.addImage') }}</span>
                     <button
                         type="button"
@@ -207,8 +216,8 @@ const showTimestampInPreview = computed(() => props.descriptionAutoExpand && pro
                 </button>
                 </div>
 
-                <!-- Fußzeile (klickbar) -->
-                <div class="flex items-center justify-between gap-2 pt-1 border-t border-[#202225]">
+                <!-- Fußzeile (klickbar) – bei minimal ausgeblendet -->
+                <div v-if="!minimal" class="flex items-center justify-between gap-2 pt-1 border-t border-[#202225]">
                     <button
                         type="button"
                         class="embed-zone flex items-center gap-2 rounded-lg border-2 border-dashed border-gray-500 hover:border-[#5865f2] px-2 py-1.5 text-left transition-colors min-w-0 flex-1"

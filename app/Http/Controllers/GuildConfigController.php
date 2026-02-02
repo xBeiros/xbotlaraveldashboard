@@ -1313,22 +1313,27 @@ class GuildConfigController extends BaseGuildController
             return;
         }
 
+        // Discord-User-Mention: <@SNOWFLAKE_ID> – nur so wird der User als Mention angezeigt, nicht als rohe ID
+        $discordId = $user->discord_id ? trim((string) $user->discord_id) : null;
+        $userMention = $discordId !== null && $discordId !== '' ? '<@' . $discordId . '>' : ($user->name ?? 'Unbekannt');
+        $channelMention = '<#' . $channelId . '>';
+
         $embed = [];
         
         if (!empty($config['notificationTitle'])) {
-            $embed['title'] = str_replace(['{count}', '{channel}', '{user}'], [
-                $count,
-                '<#' . $channelId . '>',
-                '<@' . $user->discord_id . '>'
-            ], $config['notificationTitle']);
+            $embed['title'] = str_replace(
+                ['{count}', '{channel}', '{user}'],
+                [(string) $count, $channelMention, $userMention],
+                $config['notificationTitle']
+            );
         }
         
         if (!empty($config['notificationDescription'])) {
-            $embed['description'] = str_replace(['{count}', '{channel}', '{user}'], [
-                $count,
-                '<#' . $channelId . '>',
-                '<@' . $user->discord_id . '>'
-            ], $config['notificationDescription']);
+            $embed['description'] = str_replace(
+                ['{count}', '{channel}', '{user}'],
+                [(string) $count, $channelMention, $userMention],
+                $config['notificationDescription']
+            );
         }
         
         if (!empty($config['notificationColor'])) {

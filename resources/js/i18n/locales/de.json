@@ -426,6 +426,9 @@
     "placeholderCount": "{count} - Anzahl der gelöschten Nachrichten",
     "placeholderChannel": "{channel} - Channel-Name",
     "placeholderUser": "{user} - Benutzer, der gelöscht hat",
+    "placeholderUserDesc": "(Benutzer, der gelöscht hat)",
+    "placeholderChannelDesc": "(Channel-Name)",
+    "placeholderCountDesc": "(Anzahl der gelöschten Nachrichten)",
     "autoDelete": {
       "title": "Automatische Löschungen",
       "description": "Lösche automatisch Nachrichten in regelmäßigen Abständen",
