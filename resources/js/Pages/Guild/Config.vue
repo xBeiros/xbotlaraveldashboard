@@ -237,7 +237,7 @@ const onWidgetDragLeave = (event, index) => {
             </div>
             
             <!-- Widget Grid -->
-            <div v-if="widgetsList && widgetsList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-0 mb-8">
+            <div v-if="widgetsList && widgetsList.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mb-8">
                 <div
                     v-for="(widget, index) in widgetsList"
                     :key="`widget-${widget.id}-${widget.position}`"
