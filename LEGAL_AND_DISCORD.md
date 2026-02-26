@@ -2,10 +2,10 @@
 
 ## Erledigt im Projekt
 
-- **Datenschutzerklärung** (Privacy Policy): `/datenschutz` – DSGVO-konform, erfasst OAuth-Daten, Session, Cookies, Dashboard- und Bot-Daten.
-- **Impressum**: `/impressum` – Platzhalter **müssen Sie durch Ihre Angaben ersetzen** (Name, Anschrift, Kontakt, Verantwortlich für Inhalte).
+- **Datenschutzerklärung** (Privacy Policy): `/privacy` – DSGVO-konform, erfasst OAuth-Daten, Session, Cookies, Dashboard- und Bot-Daten.
+- **Impressum**: `/imprint` – Platzhalter **müssen Sie durch Ihre Angaben ersetzen** (Name, Anschrift, Kontakt, Verantwortlich für Inhalte).
 - **Cookie-Hinweis**: `/cookies` – beschreibt die technisch notwendigen Cookies (Session, XSRF).
-- **Nutzungsbedingungen** (Terms of Service): `/nutzungsbedingungen` – Nutzung von Bot und Dashboard, Haftung, Discord ToS.
+- **Nutzungsbedingungen** (Terms of Service): `/terms` – Nutzung von Bot und Dashboard, Haftung, Discord ToS.
 - **Footer** mit Links zu allen vier Seiten ist auf der Startseite, im Dashboard und auf den rechtlichen Seiten eingebunden.
 
 ## Was Sie tun müssen
@@ -22,8 +22,8 @@ Im [Discord Developer Portal](https://discord.com/developers/applications) unter
 
 | Feld | URL (ersetzen Sie `IHRE-DOMAIN` durch Ihre echte Domain) |
 |------|--------------------------------------------------------|
-| **Privacy Policy URL** | `https://IHRE-DOMAIN/datenschutz` |
-| **Terms of Service URL** | `https://IHRE-DOMAIN/nutzungsbedingungen` |
+| **Privacy Policy URL** | `https://IHRE-DOMAIN/privacy` |
+| **Terms of Service URL** | `https://IHRE-DOMAIN/terms` |
 | **Linked Roles Verification URL** | `https://IHRE-DOMAIN/auth/discord/verify` |
 
 - **Privacy Policy URL** und **Terms of Service URL** sind für viele Discord-Features (z. B. Bot-Einladung, OAuth) vorgeschrieben.
@@ -31,6 +31,6 @@ Im [Discord Developer Portal](https://discord.com/developers/applications) unter
 
 Beispiel bei Domain `https://bot.example.com`:
 
-- Privacy Policy URL: `https://bot.example.com/datenschutz`
-- Terms of Service URL: `https://bot.example.com/nutzungsbedingungen`
+- Privacy Policy URL: `https://bot.example.com/privacy`
+- Terms of Service URL: `https://bot.example.com/terms`
 - Linked Roles Verification URL: `https://bot.example.com/auth/discord/verify`
