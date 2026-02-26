@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import LanguageSelector from '@/Components/LanguageSelector.vue';
+import AppFooter from '@/Components/AppFooter.vue';
 
 const { t } = useI18n();
 
@@ -456,6 +457,7 @@ function switchGuild(guildId) {
             <main class="flex-1 bg-[#36393f] overflow-y-auto">
                 <slot />
             </main>
+            <AppFooter />
         </div>
     </div>
 </template>

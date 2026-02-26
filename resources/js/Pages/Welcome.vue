@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
 import LanguageSelector from '@/Components/LanguageSelector.vue';
+import AppFooter from '@/Components/AppFooter.vue';
 
 const { t } = useI18n();
 
@@ -231,6 +232,9 @@ function inviteBot() {
                 </div>
             </div>
         </section>
+
+        <!-- Footer: Datenschutz, Impressum, Cookies, Nutzungsbedingungen -->
+        <AppFooter />
     </div>
 </template>
 

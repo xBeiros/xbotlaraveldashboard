@@ -14,6 +14,15 @@ Route::get('/', function () {
     ]);
 });
 
+// Rechtliche Seiten (DSGVO, Impressum, Cookies, ToS) – öffentlich
+Route::get('/datenschutz', fn () => Inertia::render('Legal/Datenschutz'))->name('legal.privacy');
+Route::get('/impressum', fn () => Inertia::render('Legal/Impressum'))->name('legal.imprint');
+Route::get('/cookies', fn () => Inertia::render('Legal/Cookies'))->name('legal.cookies');
+Route::get('/nutzungsbedingungen', fn () => Inertia::render('Legal/Nutzungsbedingungen'))->name('legal.terms');
+
+// Discord Linked Roles Verification – Redirect zur Anmeldung (für Discord Developer Portal URL)
+Route::get('/auth/discord/verify', fn () => redirect()->route('discord.login'))->name('discord.linked-roles-verify');
+
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])
         ->middleware(['auth'])
         ->name('dashboard');
